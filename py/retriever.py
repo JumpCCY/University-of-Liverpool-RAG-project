@@ -1,6 +1,6 @@
 import json
 
-DATA_DIR = "../json"
+DATA_DIR = "json/"
 QUALIFICATION_MAP = {
     "University of Liverpool":  "liverpool_qualifications.json",
     "University of York":       "york_qualifications.json",
