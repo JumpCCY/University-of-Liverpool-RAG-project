@@ -1,0 +1,572 @@
+[
+  {
+    "code": "COMP101",
+    "title": "Introduction To Programming",
+    "year": 1,
+    "core": true,
+    "credits": 15,
+    "semester": "Semester 1",
+    "description": "The module provides an introduction to procedural programming using current language platforms. The module incorporates program design, problem solving, the importance of maintainable, robust software and testing as well as introducing procedural language main programming constructs. Students gain practical experience with program design, programming and testing during weekly laboratory sessions.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp101"
+  },
+  {
+    "code": "COMP105",
+    "title": "Programming Language Paradigms",
+    "year": 1,
+    "core": true,
+    "credits": 15,
+    "semester": "Semester 1",
+    "description": "This module is for students that already have some programming skills. Students will learn about the two main programming paradigms: imperative programming and functional programming. Since most introductory programming courses teach imperative programming, this module will focus on the functional paradigm. Students will learn how to program in Haskell, a popular functional programming language. They will learn how to formulate programs in a functional way, and the common techniques and idioms that are used to solve problems in functional programming.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp105"
+  },
+  {
+    "code": "COMP107",
+    "title": "Designing Systems for the Digital Society",
+    "year": 1,
+    "core": true,
+    "credits": 15,
+    "semester": "Semester 1",
+    "description": "This module will provide students with an all rounded appraisal of what is expected from a computing professional in the current digital society. Students will be introduced to social, legal and ethical aspects on computing and will develop employability skills. As a way to blend both theory and practice, students will be equipped with concepts and techniques for designing digital systems tailored to the needs of the user.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp107"
+  },
+  {
+    "code": "COMP108",
+    "title": "Data Structures and Algorithms",
+    "year": 1,
+    "core": true,
+    "credits": 15,
+    "semester": "Semester 2",
+    "description": "This module introduces students to some basic algorithms and data structures. It gives some fundamental concepts of design and analysis of algorithms, and implementation of algorithms by choosing appropriate data structures.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp108"
+  },
+  {
+    "code": "COMP109",
+    "title": "Foundations of Computer Science",
+    "year": 1,
+    "core": true,
+    "credits": 15,
+    "semester": "Semester 1",
+    "description": "This module provides students with the mathematical foundation, mathematical tools and basic proof techniques necessary for the study of Computer Science and develops the study skills necessary to learn new concepts in this area.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp109"
+  },
+  {
+    "code": "COMP111",
+    "title": "Introduction to Artificial Intelligence",
+    "year": 1,
+    "core": true,
+    "credits": 15,
+    "semester": "Semester 1",
+    "description": "Artificial intelligence (AI) is the theory and development of machines able to perform tasks normally requiring human intelligence, such as visual perception, speech recognition, decision-making, and translation between languages. In the 21st century, AI techniques became an essential part of the technology industry. High-profile examples include autonomous vehicles, medical diagnosis, creating art, proving mathematical theorems, playing games, search engines, and online assistants. This module provides an application driven introduction to AI through studying the basic problems most AI systems have to deal with: search problems, reasoning under uncertainty, knowledge representation, planning, and learning in intelligent systems. The module will also provide a basic introduction to the history and philosophy of AI as well as recent issues in ethics of AI.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp111"
+  },
+  {
+    "code": "COMP116",
+    "title": "Analytic Techniques for Computer Science",
+    "year": 1,
+    "core": true,
+    "credits": 15,
+    "semester": "Semester 2",
+    "description": "Many areas of Computer Science rely on formal analytic techniques and this module presents a basic grounding in a number of these topics focusing on their role and application to computational issues. Among the topics reviewed are Linear Algebra (with particular attention to Matrix Theory); Statistical aspects; Introductory calculus including the concepts of limits, continuity, basic differentiation and integration formulae; properties of Complex Numbers. If time allows a very brief overview of the principles of Information Theory will be included. The overriding aim of this module is to present the methods discussed in the context of practical Computer Science, and as such the emphasis will be on instilling confidence in applying techniques and not on providing rigorous supporting justifications of their validity.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp116"
+  },
+  {
+    "code": "COMP122",
+    "title": "Object-Oriented Programming",
+    "year": 1,
+    "core": true,
+    "credits": 15,
+    "semester": "Semester 2",
+    "description": "The intention of COMP122 is to introduce students to the concepts and methodology of object-oriented programming using the Java programming language. Topics covered include hierarchical structures, polymorphism, collections and iterators, exception handling, and graphical user interface design. Basic concepts of software design methodology, testing, and version control are also included in the module. It is normally expected that students have prior programming experience.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp122"
+  },
+  {
+    "code": "COMP124",
+    "title": "Computer Systems",
+    "year": 1,
+    "core": true,
+    "credits": 15,
+    "semester": "Semester 2",
+    "description": "This module provides a basic introduction to the important hardware and software components supporting the operation of computer systems. The module presents coverage of how low-level hardware components are organised so as to provide a platform on which complex software systems can be built. Coverage includes the important components of modern operating systems, including abstractions such as processes and concurrency. There is an opportunity to gain some practical awareness of low-level programming and a modern command-line environment.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp124"
+  },
+  {
+    "code": "COMP201",
+    "title": "Software Engineering I",
+    "year": 2,
+    "core": true,
+    "credits": 15,
+    "semester": "Semester 1",
+    "description": "This module deals with the issues associated with the analysis, design, implementation and testing of significant computing systems (that is, systems that are too large to be designed and developed by a single person).",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp201"
+  },
+  {
+    "code": "COMP202",
+    "title": "Complexity of Algorithms",
+    "year": 2,
+    "core": true,
+    "credits": 15,
+    "semester": "Semester 2",
+    "description": "This module studies techniques, such as dynamic programming and recursion, used for the design and analysis of algorithms and data structures. Some fundamental algorithmic problems are studied, such as searching, sorting and network flows and efficient algorithms for such problems. The emphasis of this module is on problem solving using efficient algorithms together with their formal analysis and implementation, thus enhancing the students' toolbox for efficient programming.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp202"
+  },
+  {
+    "code": "COMP207",
+    "title": "Database Development",
+    "year": 2,
+    "core": true,
+    "credits": 15,
+    "semester": "Semester 1",
+    "description": "This module introduces students to the problems arising from databases, including concurrency in databases, information security considerations and how they are solved; the integration of heterogeneous sources of information and the use of semi-structured data; non-relational databases and the economic factors involved in their selection and to techniques for analysing large amounts of data, the security issues and commercial factors involved with them.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp207"
+  },
+  {
+    "code": "COMP208",
+    "title": "Group Software Project",
+    "year": 2,
+    "core": true,
+    "credits": 15,
+    "semester": "Semester 2",
+    "description": "Software development skills form a fundamental part of the professional expertise of a Computer Scientist. Often the development is a team activity. The module provides the students with the unique opportunity to complete a sizeable software development project working as part of team.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp208"
+  },
+  {
+    "code": "COMP105",
+    "title": "Programming Language Paradigms",
+    "year": 2,
+    "core": false,
+    "credits": 15,
+    "semester": "Semester 1",
+    "description": "This module is for students that already have some programming skills. Students will learn about the two main programming paradigms: imperative programming and functional programming. Since most introductory programming courses teach imperative programming, this module will focus on the functional paradigm. Students will learn how to program in Haskell, a popular functional programming language. They will learn how to formulate programs in a functional way, and the common techniques and idioms that are used to solve problems in functional programming.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp105"
+  },
+  {
+    "code": "COMP211",
+    "title": "Computer Networks",
+    "year": 2,
+    "core": false,
+    "credits": 15,
+    "semester": "Semester 1",
+    "description": "This module provides an introduction to current computer networks and communications technologies. We will use the architecture and protocols of the Internet as a primary vehicle for studying fundamental computer networking concepts. This will include an in-depth study of the key protocols that enable communications accross the Internet. You will become familiar with the various network devices and network addressing schemes. We will identify critical network security issues and study approaches towards addressing these issues.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp211"
+  },
+  {
+    "code": "COMP212",
+    "title": "Distributed Systems",
+    "year": 2,
+    "core": false,
+    "credits": 15,
+    "semester": "Semester 2",
+    "description": "This module covers the concepts of distributed systems and the underlying principles of distributed computing and discusses the issues and various solutions proposed in the distributed computing community. Specifically, communication and broadcast, election algorithms, synchronization and concurrency, fault-tolerance and security related issues will be discussed in the lectures. Where applicable practical implementations of the concepts will be introduced.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp212"
+  },
+  {
+    "code": "COMP218",
+    "title": "Introduction to Theory of Computation",
+    "year": 2,
+    "core": false,
+    "credits": 15,
+    "semester": "Semester 1",
+    "description": "This module aims to introduce formal concepts of automata, grammars and languages; to introduce ideas of computability and decidability, and to illustrate the importance of automata, formal language theory and general models of computation in Computer Science and Artificial Intelligence.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp218"
+  },
+  {
+    "code": "COMP219",
+    "title": "Advanced Artificial Intelligence",
+    "year": 2,
+    "core": false,
+    "credits": 15,
+    "semester": "Semester 1",
+    "description": "This module will provide students with an introduction to the machine learning. It will contain traditional machine learning algorithms, deep learning algorithms, and probabilistic graphical models. In addition to discuss the excellent performance of machine learning, the module will also present the vulnerabilities of machine learning, to raise the awareness of the students on the safety, security, and trustworthiness of machine learning in real-world deployment. Both theoretical knowledge and practical skills will be offered.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp219"
+  },
+  {
+    "code": "COMP220",
+    "title": "Software Development Tools",
+    "year": 2,
+    "core": false,
+    "credits": 15,
+    "semester": "Semester 2",
+    "description": "This module covers the skills and knowledge required for the effective use of tools in the software development lifecycle.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp220"
+  },
+  {
+    "code": "COMP221",
+    "title": "Planning Your Career",
+    "year": 2,
+    "core": false,
+    "credits": 7,
+    "semester": "Semester 1",
+    "description": "This module aims to provide a more in depth experience of crucial employability skills needed to secure either a placement or a graduate job.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp221"
+  },
+  {
+    "code": "COMP222",
+    "title": "Principles of Computer Games Design and Implementation",
+    "year": 2,
+    "core": false,
+    "credits": 15,
+    "semester": "Semester 2",
+    "description": "This module introduces topics commonly present in the modern computer games from software architecture principles to advanced artificial intelligence techniques to the creation of 3D content. As part of the continuous assessment, students create a simple 3D video game using an existing game engine and an AI control procedure for a multiuser framework.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp222"
+  },
+  {
+    "code": "COMP226",
+    "title": "Computer-Based Trading in Financial Markets",
+    "year": 2,
+    "core": false,
+    "credits": 15,
+    "semester": "Semester 2",
+    "description": "The last few decades has seen a huge transformation in finance, where human traders have been increasingly replaced by algorithms. The aims of COMP226 are to:\n\n– Provide an understanding of financial markets at the level of individual trades; – Provide an overview of computer-based trading applications; – Introduce key issues with the use of market data; – Develop a practical understanding of the development of algorithmic trading strategies.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp226"
+  },
+  {
+    "code": "COMP228",
+    "title": "App Development",
+    "year": 2,
+    "core": false,
+    "credits": 15,
+    "semester": "Semester 1",
+    "description": "App Development is an exploration of the design and programming of application programs on mobile devices. It covers topics such as how to design for small displays and non-traditional input devices; what the expectations of mobile users are; how to use publicallly accessible data sources to develop innovative solutions.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp228"
+  },
+  {
+    "code": "COMP229",
+    "title": "Introduction to Data Science",
+    "year": 2,
+    "core": false,
+    "credits": 15,
+    "semester": "Semester 1",
+    "description": "This module provides a thorough introduction to the new subject of Data Science starting from the fundamental mathematical methods and developing real-life applications in several areas including Pattern Recognition, Materials Science, Computer Vision, Climate Analysis. The basic concepts from Linear Algebra and Metric Geometry will be gradually introduced without assuming any prior knowledge. The methods and algorithms from Graph Theory and Computational Geometry will be illustrated by worked examples and short programs/scripts.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp229"
+  },
+  {
+    "code": "COMP232",
+    "title": "Cyber Security",
+    "year": 2,
+    "core": false,
+    "credits": 15,
+    "semester": "Semester 2",
+    "description": "The module provides a thorough introduction to the area of Cyber Security, including cryptographic algorithms and protocols, systems vulnerabilities and attacks, computer networks and web security. The main basic concepts and theoretical foundations are presented in the lectures, while extensive practical sessions support the development of skills in practical cybersecurity.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp232"
+  },
+  {
+    "code": "COMP281",
+    "title": "Principles of C and Memory Management",
+    "year": 2,
+    "core": false,
+    "credits": 7,
+    "semester": "Semester 2",
+    "description": "When dealing with computationally intensive tasks, such as in scientific computing, it is important to make the most out of the available computational resources. In order to accomplish this, one can use low-level programming languages, such as assembly, but the downside is that these are difficult to write, port and maintain. Alternatively, one can pick a high-level language with a small computational overhead. This module will teach how to program in one such a language: the C programming language.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp281"
+  },
+  {
+    "code": "COMP282",
+    "title": "The C++ Programming Language",
+    "year": 2,
+    "core": false,
+    "credits": 7,
+    "semester": "Semester 2",
+    "description": "This module looks at the ways in which the C programming language can be extended to incorporate object oriented principles, by looking at C++. The module also examines the ways in which object orientation offers a natural means of developing graphical, event-driven applications within a powerful IDE.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp282"
+  },
+  {
+    "code": "COMP284",
+    "title": "Scripting Languages",
+    "year": 2,
+    "core": false,
+    "credits": 7,
+    "semester": "Semester 2",
+    "description": "COMP284 `Scripting Languages' is one of several technical skills/employability skills modules offered in the second semester of the second year of study. It addresses both the demand by employers and the desire of students that students should encounter a range of programming languages during their studies and should be able to use these programming languages productively. Scripting languages have gained enormously in their popularity with the expansion and development of the world wide wide and world wide web technologies as they are now the predominant languages used in the development of web applications. The module will cover two scripting languages, namely, JavaScript and PHP. At the end of the module students should be able to develop applications, both web-based and computer-based, in them.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp284"
+  },
+  {
+    "code": "COMP285",
+    "title": "Computer Aided Software Development",
+    "year": 2,
+    "core": false,
+    "credits": 7,
+    "semester": "Semester 2",
+    "description": "This module covers the theory and practice of the application of tools to the software development lifecyle",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp285"
+  },
+  {
+    "code": "ULMS254",
+    "title": "Becoming Entrepreneurial",
+    "year": 2,
+    "core": false,
+    "credits": 15,
+    "semester": "Semester 2",
+    "description": "This is a cross-disciplinary module focusing on the challenges of identifying, exploring, and implementing entrepreneurial opportunities that create and capture value. The module’s broad spectrum provides students with a foundation in entrepreneurial thinking, allowing them to develop the skills and attributes needed whether to build their own start up from the ground up or add value within existing companies through entrepreneurial and innovation applications. Students will develop an entrepreneurial mindset through experiential learning and embeddedness in the entrepreneurship ecosystem through start-ups and industries engagement as well as the Brett Centre for Entrepreneurship Venture Creation Programme, in which every part of the business journey is covered from ideation to pitching to a panel of industry experts.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/ulms254"
+  },
+  {
+    "code": "COMP390",
+    "title": "Honours Year Computer Science Project",
+    "year": 3,
+    "core": true,
+    "credits": 30,
+    "semester": "Whole Session",
+    "description": "The honours year project gives students the opportunity to study independently on an extended piece of work under the guidance of an academic supervisor. Many diverse projects are available for selection, inspired by the research of the department. Each student is encouraged to propose a project in an area that meets their own personal needs, whether it’s related to their career aspirations or simply an interesting academic pursuit. The project consolidates learning from the taught part of the course, with authentic assessment that is designed to encourage communication of complex ideas via a range of media. On completion of the module, students will have the confidence to pursue their career, having developed proficiency in their chosen topic and an ability to communicate clearly and effectively.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp390"
+  },
+  {
+    "code": "COMP304",
+    "title": "Knowledge Representation and Reasoning",
+    "year": 3,
+    "core": false,
+    "credits": 15,
+    "semester": "Semester 1",
+    "description": "This module presents formal ways to reason about knowledge and uncertain or partial information.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp304"
+  },
+  {
+    "code": "COMP305",
+    "title": "Biocomputation",
+    "year": 3,
+    "core": false,
+    "credits": 15,
+    "semester": "Semester 1",
+    "description": "Biology inspired adaptive algorithms such as Artificial Neural Networks (ANNs) and Genetic Algorithms (GAs) play an important role in modern computing, information processing, and machine learning. The latest increase in computer power ensured broad use of the algorithms to solve problems in science and engineering previously considered impossible to tackle. ANNs are now broadly used in pattern recognition, including speech recognition and classification problems, statistics, functional analysis, modelling financial series with considerable stochasticity, etc. GAs are search procedures based on the mechanics of natural selection and natural genetics. They provide effective solutions to a variety of optimisation problems in economics, linguistics, engineering, and computer science. Both ANNs and GAs can exploit massively parallel architectures to speed up problem solving and provide further understanding of intelligence and adaptation.The main goals of the module are to introduce students to some of the established work in the field of Artificial Neural Networks and Genetic Algorithms and their applications, particularly in relation to multidisciplinary research. To equip students with a broad overview of the field, placing it in a historical and scientific context. The module provides students with the knowledge and skills necessary to keep up-to-date in actively developing areas of science and technology and be able to make reasoned decisions.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp305"
+  },
+  {
+    "code": "COMP309",
+    "title": "Efficient Sequential Algorithms",
+    "year": 3,
+    "core": false,
+    "credits": 15,
+    "semester": "Semester 1",
+    "description": "This module aims to teach students some advanced topics in the design and analysis of efficient sequential algorithms, and a few key results related to the study of their complexity.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp309"
+  },
+  {
+    "code": "COMP310",
+    "title": "Multi-Agent Systems",
+    "year": 3,
+    "core": false,
+    "credits": 15,
+    "semester": "Semester 2",
+    "description": "Multi-agent systems have emerged as one of the most important areas of research and development in information technology in the 1990s. A multi-agent system is one composed of multiple interacting software components known as agents, which are typically capable of co-operating to solve problems that are beyond the abilities of any individual member. Multi-agent systems are important primarily because they have been found to have very wide applicability, in areas as diverse as industrial process control and electronic commerce. This module will begin by introducing the student to the notion of an agent, and will lead them to an understanding of what an agent is, how they can be constructed, and how agents can be made to co-operate effectively with one another to solve problems.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp310"
+  },
+  {
+    "code": "COMP313",
+    "title": "Formal Methods",
+    "year": 3,
+    "core": false,
+    "credits": 15,
+    "semester": "Semester 2",
+    "description": "As more complex computational systems are used within critical applications, it is becoming essential that these systems are formally specified. Such specifications are used to give a precise and unambiguous description of the required system. In addition, as computational systems become more complex in general, formal specification can allow us to define the key characteristics of systems in a clear way and so help the development process. Formal specifications provide the basis for verification of properties of systems. While there are a number of ways in which this can be achieved, the model-checking approach is a practical and popular way to verify the temporal properties of finite-state systems. Indeed, such temporal verification is widely used within the design of critical parts of integrated circuits, has recently been used to verify parts of the control mechanism for one of NASA’s space probes, and is now beginning to be used to verify general Java programs.\n\nThis module will introduce: the principles of standard formal methods, such as Z; the basic notions of temporal logic and its use in relation to reactive systems; the use of model checking techniques in the verification of reactive systems.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp313"
+  },
+  {
+    "code": "COMP315",
+    "title": "Cloud Computing for E-Commerce",
+    "year": 3,
+    "core": false,
+    "credits": 15,
+    "semester": "Semester 2",
+    "description": "This module will provide an introduction to cloud computing. It will cover physical cloud infrastructure (data-centres, networks and servers), and the software stacks that run on it (containers, micro-services, orchestration and web frameworks). During the course, students will assemble their own cloud-based application, which will be a webpage with a scalable micro-service-based backend.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp315"
+  },
+  {
+    "code": "COMP318",
+    "title": "Ontologies and Semantic Web",
+    "year": 3,
+    "core": false,
+    "credits": 15,
+    "semester": "Semester 2",
+    "description": "This modules provides a basic introduction to the main principles behind representing and retrieving knowledge effectively on the Web. The module covers the evolution from the standard Web to the Semantic Web, and gives student the opportunity to gain an awareness of the main methods and techniques, including practical awareness, of the main issues arising in annotating web pages with semantic information, in interlinking pages with similar semantic content and in effectively querying these pages.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp318"
+  },
+  {
+    "code": "COMP319",
+    "title": "Software Engineering II",
+    "year": 3,
+    "core": false,
+    "credits": 15,
+    "semester": "Semester 1",
+    "description": "The overall aim of this module is to introduce students to a range of advanced, near-research level topics in contemporary software engineering. The actual choice of topics will depend upon the interests of the lecturer and the topics current in the software engineering research literature at that time. The course will introduce issues from a problem (user-driven) perspective and a technology-driven perspective where users have new categories of software problems that they need to be solved, and where technology producers create technologies that present new opportunities for software products. It will be expected that students will read articles in the software engineering research literature, and will discuss these articles in a seminar-style forum.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp319"
+  },
+  {
+    "code": "COMP323",
+    "title": "Introduction to Computational Game Theory",
+    "year": 3,
+    "core": false,
+    "credits": 15,
+    "semester": "Semester 1",
+    "description": "This module is an introduction to the area of algorithmic game theory, which is a novel area in the intersection of economics and computer science. It provides tools for dealing with and analysing problems related to applications motivated by the Internet. Examples involve various Internet auctions and e-commerce systems, like, Google's sponsored search, Ebay auctions, recommendation systems, etc.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp323"
+  },
+  {
+    "code": "COMP324",
+    "title": "Network Mining and Analysis",
+    "year": 3,
+    "core": false,
+    "credits": 15,
+    "semester": "Semester 2",
+    "description": "Complex network structures are ubiquitous: the world-wide web, the internet, mobile phone networks, social communities, network structures in biology are just a few popular examples. The module shows how simple combinatorial and algorithmic techniques can be exploited to obtain useful information about these (often) massive structures.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp324"
+  },
+  {
+    "code": "COMP326",
+    "title": "Computational Game Theory and Mechanism Design",
+    "year": 3,
+    "core": false,
+    "credits": 15,
+    "semester": "Semester 2",
+    "description": "In this module we introduce and study games that have some underlying network structure or that appear in auctions. A focus will be on scheduling and routing, as well as on the computational aspects in the design of mechanisms and auctions.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp326"
+  },
+  {
+    "code": "COMP328",
+    "title": "High Performance Computing",
+    "year": 3,
+    "core": false,
+    "credits": 15,
+    "semester": "Semester 2",
+    "description": "In this module, we study the use of High-Performance Computing systems, from accessing them to programming for them. We study some theory including Computer Architecture at the hardware level to some fundamentals of parallelism. We then go into practical parallelism using C on multicore systems using OpenMP and multiprocessor/distributed systems using MPI. We will also briefly study GPU programming using CUDA, as well as some emerging hardware architectures.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp328"
+  },
+  {
+    "code": "COMP329",
+    "title": "Autonomous Mobile Robotics",
+    "year": 3,
+    "core": false,
+    "credits": 15,
+    "semester": "Semester 1",
+    "description": "The aims of this module are to develop an understanding of the principals of Robotics and Autonomous Systems, as well as the pragmatic skills of developing such systems on top of a Robotics Platform.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp329"
+  },
+  {
+    "code": "COMP331",
+    "title": "Optimisation",
+    "year": 3,
+    "core": false,
+    "credits": 15,
+    "semester": "Semester 1",
+    "description": "This module is an indepth tour over optimisation methods applied for various optimisation models. These methods are extensively used in both academic and industrial practices.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp331"
+  },
+  {
+    "code": "COMP335",
+    "title": "Communicating Computer Science",
+    "year": 3,
+    "core": false,
+    "credits": 15,
+    "semester": "Whole Session",
+    "description": "This module spans both semesters in the final year, with a small number of teacher training lectures in the first semester, followed by delivery of a lesson in the second semester as part of the department's outreach activities. Students will consider the issues associated with teaching STEM subjects in schools, and learn how to create a lesson plan that delivers a computer science topic within the context of the National Curriculum in Computing. They will then deliver this lesson several times in a real classroom setting, and reflect on its effectiveness in a written report. There is a significant amount of private study, with the majority of the time spent in the first semester, so students must manage their time effectively.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp335"
+  },
+  {
+    "code": "COMP336",
+    "title": "Big Data Analytics",
+    "year": 3,
+    "core": false,
+    "credits": 15,
+    "semester": "Semester 1",
+    "description": "This module provides an initial overview of key algorithms and algorithmic approaches and corresponding software environments used when developing solutions to Big Data problems and explains how to use these to analyse data. A significant portion of statistics, some advanced AI approaches as well as key deterministic and hybrid algorithms are included to support the development of future data analytics and to understand how to develop stochastic, machine learning and hybrid algorithms that can exploit Big Data and can be applied to solve real life problems.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp336"
+  },
+  {
+    "code": "COMP337",
+    "title": "Data Mining and Visualisation",
+    "year": 3,
+    "core": false,
+    "credits": 15,
+    "semester": "Semester 2",
+    "description": "To provide an in-depth, systematic and critical understanding of some of the current research issues at the forefront of the academic research domain of data mining. Google search framework and IBM Watson QA system and various other industrial level data mining applications are discussed.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp337"
+  },
+  {
+    "code": "COMP338",
+    "title": "Computer Vision",
+    "year": 3,
+    "core": false,
+    "credits": 15,
+    "semester": "Semester 1",
+    "description": "This module provides an introduction to the topic of Computer Vision and helps students develop the practical skills necessary to build computer vision applications. It presents fundamental problems in both 2D and 3D vision with a variety of classical and emerging approaches to overcome them. Specifically, the module includes both traditional computer vision techniques and deep learning–based methods. Closely aligned with the increasingly important field of artificial intelligence, it offers a strong foundation for students’ further study and future careers.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp338"
+  },
+  {
+    "code": "COMP341",
+    "title": "Robot Perception and Manipulation",
+    "year": 3,
+    "core": false,
+    "credits": 15,
+    "semester": "Semester 2",
+    "description": "In this module, we focus on how robots perceive the world and accomplish manipulation tasks, which is widely used in many applications such as warehouse robots and assistive robots in a domestic environment. We will study how sensory data, e.g., visual images and tactile data, is transformed into representations like features of object shapes, poses and textures. Such representations facilitate the grasping and manipulation of objects.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp341"
+  },
+  {
+    "code": "COMP342",
+    "title": "Advanced Topics in Computer Game Development",
+    "year": 3,
+    "core": false,
+    "credits": 15,
+    "semester": "Semester 2",
+    "description": "This module aims to cover advanced concepts underpinning computer games development; including game AI, content generation, graphics, physics and sound. As part of the continuous assessment, students apply those concepts to computer games development.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp342"
+  },
+  {
+    "code": "COMP343",
+    "title": "Computer Forensics",
+    "year": 3,
+    "core": false,
+    "credits": 15,
+    "semester": "Semester 2",
+    "description": "Forensic Computing involves the examining and analysing of data retrieved from various computer storage mediums, to be used as evidence in a court of law. Students will develop the skills and knowledge to undertake a forensic computing investigation in a systematic manner utilising existing methods, tools and techniques.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp343"
+  },
+  {
+    "code": "COMP345",
+    "title": "Quantum Computing and Security",
+    "year": 3,
+    "core": false,
+    "credits": 15,
+    "semester": "Semester 1",
+    "description": "Quantum computing is developing very fast and it holds the promise of great computational power to be utilized in various applications. In security it provides both a threat to classical cryptographic algorithms commonly used to protect information and new opportunities for the information protection using quantum cryptography.\n\nThis module is designed to introduce the students to the areas of quantum computing, its theoretical foundations and practical skills in programming quantum applications, and of quantum cryptography. It will be delivered in cooperation with Advanced Computing and Emerging Technologies Group, The Hartree Centre which will provide insight to the current industrial applications of quantum computing via guest lectures.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp345"
+  },
+  {
+    "code": "COMP346",
+    "title": "Music Intelligence",
+    "year": 3,
+    "core": false,
+    "credits": 15,
+    "semester": "Semester 2",
+    "description": null,
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/comp346"
+  },
+  {
+    "code": "ELEC319",
+    "title": "Image Processing",
+    "year": 3,
+    "core": false,
+    "credits": 7,
+    "semester": "Semester 1",
+    "description": "This module covers the fundamentals of how images are generated, represented, compressed and processed to extract features of interest.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/elec319"
+  },
+  {
+    "code": "ELEC320",
+    "title": "Neural Networks",
+    "year": 3,
+    "core": false,
+    "credits": 7,
+    "semester": "Semester 2",
+    "description": "Introduction to neural network theory, applications and artificial intelligence.",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/elec320"
+  },
+  {
+    "code": "PSYC327",
+    "title": "CYBERPSYCHOLOGY-HUMAN COMPUTER INTERACTION",
+    "year": 3,
+    "core": false,
+    "credits": 15,
+    "semester": "Semester 1",
+    "description": "This module offers an in-depth understanding of cyberpsychology, as technology has become an integral part of our everyday lives. The discussed topics are related to social media (i.e., digital identity, cyber deception), cybercognition (i.e., multitasking and attention) cybertherapy (i.e., interventions with the VR and AI applications) and gaming (i.e., mental and physical health issues), cyber pathology (i.e., the problematic use of the Internet and dark personality traits), digital education (i.e., multimedia and VR applications for learning purposes) and cybercrime (i.e., cyberbullying, cyberdating abuse).\n\nDiscussions on various cyberpsychology topics will foster class debate enhancing student communication and critical thinking skills via online tools (i.e., Padlet). Students can also participate in the discussion using online forums through CANVAS, Microsoft Teams and/or LinkedIn.\n\nBy following this module students develop their digital literacy skills through blog preparation (digital writing, digital imaging, and digital audio-visual editing).",
+    "url": "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons/modules/psyc327"
+  }
+]
