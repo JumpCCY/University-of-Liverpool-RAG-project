@@ -1,0 +1,21 @@
+[
+    {
+        "title": "year_one_course_info",
+        "year": 1,
+        "text": "In year one you will learn the fundamentals of Computer Science. Starting with an introduction to procedural programming using commonly found language platforms, you will move on to learn about the importance of hardware and software components within the operation of computer systems, formal analytic techniques and the development of artificial intelligence."
+    },
+    {
+        "title": "year_one_pathway",
+        "year": 1,
+        "text": "In year one students will typically undertake either COMP101 (Introduction to Programming) or COMP105 (Programming Language Paradigms) based on prior exposure to programming (eg Computer Science A level). Students without a background will normally study COMP101, however in some instances may be permitted to enrol on COMP105 instead."
+    },
+    {
+        "title": "year_two_course_info",
+        "year": 2,
+        "text": "In year two you will expand your knowledge of key concepts and skills related to software development and database development. You will also begin to choose which wider elements of computer science you want to engage with such as cyber security, computer-based trading in financial markets and principles of computer game design."
+    },
+    {
+        "title": "year_two_and_three_pathways",
+        "text": "In years two and three, module choices take students down a general or specialist pathway. Students can graduate with Computer Science BSc (Hons), or with one of four named pathways: Algorithms and Optimisation; Artificial Intelligence; Cyber Security; or Data Science."
+    }
+]
