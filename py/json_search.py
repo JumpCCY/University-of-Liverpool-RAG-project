@@ -15,6 +15,8 @@ QUALIFICATION_MAP = {
 def load_universities(universities: list) -> dict[str, list[dict]]:
     """
     Loads the qualification records for the given list of universities.
+
+    return: dictionary where the keys are university names and the values are lists of qualification records (as dictionaries).
     """
     records = {}
     for uni in universities:
@@ -23,4 +25,4 @@ def load_universities(universities: list) -> dict[str, list[dict]]:
             continue  # skip unknown universities
         with open(f"{DATA_DIR}/{file_name}", "r") as f:
             records[uni] = json.load(f) # return list of dict of qualifications for each university
-    return records
+    return records #return can be multiple universities 

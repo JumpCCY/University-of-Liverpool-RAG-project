@@ -20,9 +20,10 @@ ollama_ef = OllamaEmbeddingFunction(
     model_name="qwen3-embedding:8b",
 )
     
-#create chroma client
+#create chroma client save on the file
 chroma_client = chromadb.PersistentClient(path="chroma_db")
 
+# delete the collection if it exists and rewrite it with the new data
 try:
     chroma_client.delete_collection("my_collection")
 except Exception:
@@ -30,14 +31,14 @@ except Exception:
 
 collection = chroma_client.create_collection(
     name="my_collection",
-    embedding_function=ollama_ef
+    embedding_function=ollama_ef #pass ollama embedding function on line 18 (qwen3-embedding:8b)
 )
 
-# for populating the collection with modules
+# populating the collection with university of liverpool modules
 for module in pull_data("cs_modules"):
     desc = module.get("description") or ""
     collection.add(
-        ids=[module["code"]],
+        ids=[f"{module['code']}_y{module['year']}"],
         documents=[f"{module['code']}: {module['title']} [{module['credits']} credits, year {module['year']}, semester {module['semester']}, {'Compulsory' if module['core'] else 'Optional'}] {desc}"],
         metadatas=[
             {
@@ -54,6 +55,7 @@ for module in pull_data("cs_modules"):
     )
 print("Module data added to the collection.")
 
+#populating the collection with computer science course info data
 for info in pull_data("courses_info"):
     collection.add(
         ids=[info["title"]],
