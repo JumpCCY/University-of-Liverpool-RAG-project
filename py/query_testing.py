@@ -1,35 +1,32 @@
 import RAG_main
 
-general_branch_tests = [
-    # topic-module questions (confirm -> list -> explain shape)
-    "do we have any cyber security modules?",
-    "any modules about game development?",
-    "do we teach data science?",
-    "anything on robotics?",
-    "do we have modules on quantum computing?",
+test_query = [
+    # --- prompt-rule fixes (negative-claim + Yes-bolding) ---
+    "are there any modules outside the COMP department?",   # -> hedge, NOT false "No"
+    "what are the short 7-credit modules?",                 # -> partial list, NO "only"
+    "is there a placement year?",                           # -> "we don't hold that", not "No"
 
-    # specific-module questions
-    "what's COMP226 about?",
-    "what does the music intelligence module cover?",
-    "tell me about the final year project",
+    # --- separate-file fixes (router example + code-shortcut) ---
+    "anything on robotics?",                                # -> COMP329 + COMP341 (router fix)
+    "my daughter did CS A level — does she skip the intro programming module?",  # -> general branch (router fix)
+    "is COMP105 a first year or second year module?",       # -> BOTH years (code-shortcut fix)
 
-    # course-info questions
-    "what do students learn in first year?",
-    "my daughter did CS A level — does she skip the intro programming module?",
-    "what pathways can they graduate with?",
-    "when do students start choosing options?",
+    # --- false-premise calibration (already passed, confirm no regression) ---
+    "if a student has A level maths, which first year module do they take?",     # -> correct the premise
+    "does having an A level in computing help with any specific modules?",        # -> correct the premise
+    "if a student is good at maths, are there modules that suit them?",           # -> normal answer, NO over-fire
 
-    # edge cases
-    "is COMP105 a first year or second year module?",
-    "are there any modules outside the COMP department?",
-    "do we have a blockchain module?",
-    "what are the short 7-credit modules?",
-    "is there a placement year?",
+    # --- controls (must still pass) ---
+    "do we have modules on AI?",                            # -> Yes + list + pathway
+    "what's the music intelligence module about?",          # -> exists, no description held
+    "do we have a blockchain module?",                      # -> confident No
+    "can students specialise?",                             # -> four pathways
 ]
 
 answers = {}
-print(f"Loaded {len(general_branch_tests)} general branch test questions.")
-for i, query in enumerate(general_branch_tests):
+print(f"Loaded {len(test_query)} general branch test questions.")
+for i, query in enumerate(test_query):
+    print(f"Testing question {i+1}")
     answers[query] = RAG_main.main(query)
     print(f"Answer from question {i+1} -> Done")
 
