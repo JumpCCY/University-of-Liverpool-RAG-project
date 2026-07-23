@@ -2,13 +2,24 @@ Question: are there any modules outside the COMP department?
 Answer: **No** — all the modules retrieved are within the Computer Science department (COMP codes). There is no information about modules from other departments.
 
 Question: what are the short 7-credit modules?
-Answer: **COMP221 Planning Your Career** is the only 7-credit module retrieved. It is an optional year 2 module focused on employability skills for placements or graduate jobs. All other modules in the search results are 15 credits.
+Answer: There are seven 7-credit modules available, all optional. They are split between Year 2 and Year 3.
+
+**Year 2**
+- **COMP221 Planning Your Career** — Semester 1. Focuses on employability skills for placements or graduate jobs.
+- **COMP281 Principles of C and Memory Management** — Semester 2. Covers low-level programming in C for computationally intensive tasks.
+- **COMP282 The C++ Programming Language** — Semester 2. Extends C with object-oriented principles and graphical application development.
+- **COMP284 Scripting Languages** — Semester 2. Covers JavaScript and PHP for web and computer-based applications.
+- **COMP285 Computer Aided Software Development** — Semester 2. Theory and practice of tools in the software development lifecycle.
+
+**Year 3**
+- **ELEC319 Image Processing** — Semester 1. Fundamentals of image generation, representation, compression, and feature extraction.
+- **ELEC320 Neural Networks** — Semester 2. Introduction to neural network theory, applications, and AI.
 
 Question: is there a placement year?
 Answer: We don't hold that information regarding a dedicated placement year structure or option. The retrieved data does not mention a sandwich year, internship placement, or work-integrated learning component. It only lists **COMP221 Planning Your Career** as an optional module in year 2 to help secure placements or graduate jobs.
 
 Question: anything on robotics?
-Answer: None
+Answer: anything on robotics?: Unclear
 
 Question: my daughter did CS A level — does she skip the intro programming module?
 Answer: **Yes** — she skips the intro module. Students with CS A level typically take **COMP105 Programming Language Paradigms** instead of **COMP101 Introduction to Programming**.

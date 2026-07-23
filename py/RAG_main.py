@@ -103,7 +103,7 @@ def main(user_query: str) -> str:
         answer = LLM_query(prompts.GENERAL_ANSWERER, prompting).message.content
         return answer
     else:
-        print("UNCLEAR")
+        return (f"{user_query}: Unclear")
         ... # if dont know just use LLM to answer the question without any context ?
 
 if __name__ == "__main__":

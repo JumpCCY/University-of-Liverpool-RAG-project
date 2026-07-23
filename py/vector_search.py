@@ -31,32 +31,41 @@ def metadata_search(search_result: chromadb.GetResult, result_list: list):
         result_list.append(answer)
 
 
-def extract_year(q):
+def extract_year(q) -> list[int]:
     q = q.lower()
-    m = re.search(r"year\s*([123])", q)  # "year 2", "year2"
-    if m:
-        return int(m.group(1))
-    m = re.search(r"([123])(?:st|nd|rd)\s*year", q)  # "2nd year", "1st year"
-    if m:
-        return int(m.group(1))
-    words = {"first": 1, "second": 2, "third": 3, "final": 3}
-    for w, n in words.items():
-        if re.search(rf"\b{w}\s*year", q):  # "first year", "final year"
-            return n
-    return None
+    years = [int(x) for x in re.findall(r"year\s*([123])", q)]
+    years += [int(x) for x in re.findall(r"([123])(?:st|nd|rd)\s*year", q)]
+    for w, n in {"first": 1, "second": 2, "third": 3, "final": 3}.items():
+        if re.search(rf"\b{w}\s+year", q):
+            years.append(n)
+    return sorted(set(years))
 
-
-def extract_semester(q):
+def extract_semester(q) -> list[str]:
+    """
+    Extracts the semester information from the query.
+    """
     q = q.lower()
-    m = re.search(r"semester\s*([12])", q)  # "semester 1", "semester2"
+    words = {"one": "1", "two": "2", "first": "1", "second": "2"}
+    NUM = r"(?:one|two|first|second|[12])"
+
+    # "semester 1 and 2", "semester one and two", "semester 2 and 1", "semesters 1, 2"
+    m = re.search(rf"semesters?\s*({NUM}(?:\s*(?:and|,|&|or)\s*{NUM})*)", q)
     if m:
-        return f"Semester {m.group(1)}"
-    m = re.search(r"([12])(?:st|nd)\s*semester", q)  # "1st semester"
+        nums = re.findall(NUM, m.group(1))
+        return [f"Semester {words.get(n, n)}" for n in nums]
+
+    # "1st semester", "first semester", "2nd and 1st semester"
+    m = re.search(
+        rf"({NUM}(?:st|nd)?(?:\s*(?:and|,|&|or)\s*{NUM}(?:st|nd)?)*)\s*semesters?", q
+    )
     if m:
-        return f"Semester {m.group(1)}"
-    if re.search(r"\b(whole|entire)\s+(session|year)", q):  # "whole semester" modules
-        return "Whole Session"
-    return None
+        nums = re.findall(NUM, m.group(1))
+        return [f"Semester {words.get(n, n)}" for n in nums]
+
+    if re.search(r"\b(?:whole|entire)\s+(?:session|year)", q):
+        return ["Whole Session"]
+
+    return []
 
 
 def vector_similarity_search(query: str, n_results: int = 5) -> list[dict]:
@@ -65,25 +74,39 @@ def vector_similarity_search(query: str, n_results: int = 5) -> list[dict]:
 
     return: A list of dictionaries containing the search results, each with keys "distance", "source_type", and "document".
     """
+    module_codes = re.findall(r"\b[A-Z]{2,4}\d{3}\b", query.upper())  # return list
+    credits = [int(c) for c in re.findall(r"(\d+)[- ]?credits?", query.lower())]  # return list
+    years = extract_year(query)  # return list
+    semesters = extract_semester(query)  # return list
 
-    filters = {}
+    active = [f for f in (module_codes, credits, years, semesters) if f]
 
-    module_codes = re.findall(r"\b[A-Z]{2,4}\d{3}\b", query.upper())
-    credit = re.search(r"(\d+)[- ]?credit", query.lower())
-    year = extract_year(query)
-    semester = extract_semester(query)
+    if (len(active) > 1):
+        filters = {"$and": []}
 
-    if module_codes:
-        filters["code"] = {"$in": module_codes}
-    if credit:
-        filters["credits"] = int(credit.group(1))
-    if year:
-        filters["year"] = year
-    if semester:
-        filters["semester"] = semester
+        if module_codes:
+            filters["$and"].append({"code": {"$in": module_codes}})
+        if credits:
+            filters["$and"].append({"credits": {"$in": credits}})
+        if years:
+            filters["$and"].append({"year": {"$in": years}})
+        if semesters:
+            filters["$and"].append({"semester": {"$in": semesters}})
+    elif (len(active) == 1):
+        filters = {}
+        if module_codes:
+            filters["code"] = {"$in": module_codes}
+        if credits:
+            filters["credits"] = {"$in": credits}
+        if years:
+            filters["year"] = {"$in": years}
+        if semesters:
+            filters["semester"] = {"$in": semesters}
+    else:
+        filters = None
 
     result_list = []
-
+    
     if filters:
         results = collection.get(where=filters, include=["documents", "metadatas"])
         metadata_search(results, result_list)
@@ -97,6 +120,7 @@ def vector_similarity_search(query: str, n_results: int = 5) -> list[dict]:
             answer["distance"] = dist
             answer["source_type"] = meta.get("source_type")
             answer["document"] = doc
+            answer["metadata"] = meta  
             result_list.append(answer)
 
     return result_list
