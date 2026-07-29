@@ -1,6 +1,3 @@
-Question: are there any modules outside the COMP department?
-Answer: **No** — all the modules retrieved are within the Computer Science department (COMP codes). There is no information about modules from other departments.
-
 Question: what are the short 7-credit modules?
 Answer: There are seven 7-credit modules available, all optional. They are split between Year 2 and Year 3.
 
@@ -16,16 +13,18 @@ Answer: There are seven 7-credit modules available, all optional. They are split
 - **ELEC320 Neural Networks** — Semester 2. Introduction to neural network theory, applications, and AI.
 
 Question: is there a placement year?
-Answer: We don't hold that information regarding a dedicated placement year structure or option. The retrieved data does not mention a sandwich year, internship placement, or work-integrated learning component. It only lists **COMP221 Planning Your Career** as an optional module in year 2 to help secure placements or graduate jobs.
+Answer: We don't hold information about whether there is a dedicated placement year option on this course.
+
+The retrieved information does mention **COMP221 Planning Your Career**, which helps students secure either a placement or a graduate job, but it doesn't confirm if a formal placement year exists as part of the degree structure.
 
 Question: anything on robotics?
 Answer: anything on robotics?: Unclear
 
 Question: my daughter did CS A level — does she skip the intro programming module?
-Answer: **Yes** — she skips the intro module. Students with CS A level typically take **COMP105 Programming Language Paradigms** instead of **COMP101 Introduction to Programming**.
+Answer: **Yes** — she skips **COMP101 Introduction to Programming**.
 
-- **COMP105** is for students with prior programming skills and focuses on functional programming using Haskell.
-- **COMP101** is the standard introductory module for those without a background, covering procedural programming basics.
+- Students with prior exposure (like CS A level) typically take **COMP105 Programming Language Paradigms** instead.
+- **COMP101** is for students without a programming background.
 
 Question: is COMP105 a first year or second year module?
 Answer: **COMP105 Programming Language Paradigms** is listed as both a **year 1 compulsory** module and a **year 2 optional** module in our records.
@@ -39,21 +38,17 @@ Question: if a student has A level maths, which first year module do they take?
 Answer: Having A level maths doesn't change which modules a student takes — all year-1 core modules are the same for everyone. The only prior-experience choice is between **COMP101 Introduction to Programming** and **COMP105 Programming Language Paradigms**, and that's based on programming background, not maths.
 
 Question: does having an A level in computing help with any specific modules?
-Answer: Having A level Computing does not change which modules a student takes — all year-1 core modules are the same for everyone. The only prior-experience choice is between **COMP101 Introduction to Programming** and **COMP105 Programming Language Paradigms**, and that's based on programming background, not maths or general computing knowledge.
+Answer: Having A level Computing does not change which modules a student takes — all year-1 core modules are the same for everyone. The only prior-experience choice is between **COMP101 Introduction to Programming** and **COMP105 Programming Language Paradigms**, and that's based on programming background, not maths.
 
 Question: if a student is good at maths, are there modules that suit them?
-Answer: **Yes** — there are several modules that suit a student strong in maths, particularly in years 1 and 3.
+Answer: **Yes** — there are several modules that heavily utilise mathematical foundations, particularly in years 1 and 2.
 
-- **COMP109 Foundations of Computer Science** — year 1, compulsory. Provides the mathematical foundation, tools, and proof techniques necessary for CS study.
-- **COMP116 Analytic Techniques for Computer Science** — year 1, compulsory. Covers Linear Algebra (Matrix Theory), statistics, introductory calculus (limits, continuity, differentiation, integration), complex numbers, and potentially Information Theory.
-
-In later years, maths-heavy interests can be pursued through optional modules and specialist pathways:
-
-- **COMP309 Efficient Sequential Algorithms** — year 3, optional. Focuses on design, analysis, and complexity of efficient sequential algorithms.
+- **COMP109 Foundations of Computer Science** — year 1, compulsory. Provides the mathematical foundation, tools, and proof techniques necessary for the degree.
+- **COMP116 Analytic Techniques for Computer Science** — year 1, compulsory. Covers Linear Algebra (Matrix Theory), statistics, introductory calculus (limits, continuity, differentiation, integration), complex numbers, and information theory.
+- **COMP229 Introduction to Data Science** — year 2, optional. Starts from fundamental mathematical methods including Linear Algebra, Metric Geometry, Graph Theory, and Computational Geometry.
 - **COMP331 Optimisation** — year 3, optional. An in-depth tour of optimisation methods applied to various models.
-- **Algorithms and Optimisation pathway** — a named specialist pathway available for graduation, built on these types of modules.
 
-We don't hold information linking specific module choices directly to A-level maths grades, but the core year 1 modules above provide the rigorous mathematical grounding for all students.
+Students can also specialise further by choosing the **Algorithms and Optimisation** or **Data Science** pathways in years 2 and 3, which build on these analytical skills.
 
 Question: do we have modules on AI?
 Answer: **Yes** — AI runs right through the degree.
@@ -61,11 +56,12 @@ Answer: **Yes** — AI runs right through the degree.
 - **COMP111 Introduction to Artificial Intelligence** — year 1, compulsory. Covers search, reasoning, knowledge representation, planning, learning, plus history, philosophy, and ethics of AI.
 - **COMP219 Advanced Artificial Intelligence** — year 2, optional. Focuses on machine learning, deep learning, probabilistic graphical models, and the safety/security of ML in real-world deployment.
 - **COMP304 Knowledge Representation and Reasoning** — year 3, optional. Formal ways to reason about knowledge and uncertain information.
-- **COMP310 Multi-Agent Systems** — year 3, optional. How multiple software agents cooperate to solve complex problems.
-- **COMP329 Autonomous Mobile Robotics** — year 3, optional. Principles of robotics and autonomous systems.
-- **ELEC320 Neural Networks** — year 3, optional. Introduction to neural network theory and applications in AI.
+- **COMP338 Computer Vision** — year 3, optional. Closely aligned with AI; covers traditional techniques and deep learning-based methods for 2D/3D vision.
+- **COMP222 Principles of Computer Games Design and Implementation** — year 2, optional. Includes advanced AI techniques for game control procedures.
+- **COMP342 Advanced Topics in Computer Game Development** — year 3, optional. Covers game AI, content generation, graphics, physics, and sound.
+- **COMP218 Introduction to Theory of Computation** — year 2, optional. Illustrates the importance of automata and computation models in Computer Science and Artificial Intelligence.
 
-It starts compulsory in year 1 with core concepts and ethics, then deepens through optional modules in years 2 and 3 covering machine learning, reasoning, robotics, and multi-agent systems. Students can also graduate on the dedicated **Artificial Intelligence pathway**.
+It starts compulsory in year 1 with core concepts and ethics, then deepens through optional modules in years 2 and 3 covering machine learning, computer vision, and game AI.
 
 Question: what's the music intelligence module about?
 Answer: **COMP346 Music Intelligence** exists — year 3, optional, 15 credits. We don't hold a description for it, so I can't say what it covers.

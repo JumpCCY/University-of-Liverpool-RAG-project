@@ -68,18 +68,22 @@ def extract_semester(q) -> list[str]:
     return []
 
 
-def vector_similarity_search(query: str, n_results: int = 5) -> list[dict]:
+def vector_similarity_search(original_query: str, search_query: str = None, n_results: int = 5) -> list[dict]:
     """
     Performs a vector similarity search on the ChromaDB collection.
 
     return: A list of dictionaries containing the search results, each with keys "distance", "source_type", and "document".
     """
-    module_codes = re.findall(r"\b[A-Z]{2,4}\d{3}\b", query.upper())  # return list
-    credits = [int(c) for c in re.findall(r"(\d+)[- ]?credits?", query.lower())]  # return list
-    years = extract_year(query)  # return list
-    semesters = extract_semester(query)  # return list
 
-    active = [f for f in (module_codes, credits, years, semesters) if f]
+    if search_query is None:
+        search_query = original_query
+
+    module_codes = re.findall(r"\b[A-Z]{2,4}\d{3}\b", original_query.upper())  # return list
+    credits = [int(c) for c in re.findall(r"(\d+)[- ]?credits?", original_query.lower())]  # return list
+    years = extract_year(original_query)  # return list
+    semesters = extract_semester(original_query)  # return list
+
+    active = [f for f in (module_codes, credits, years, semesters) if f] # if any of the list are not empty we will at that to the list this cause list len +1 
 
     if (len(active) > 1):
         filters = {"$and": []}
@@ -112,7 +116,7 @@ def vector_similarity_search(query: str, n_results: int = 5) -> list[dict]:
         metadata_search(results, result_list)
     else:
         # pure vector similarity search
-        results = collection.query(query_texts=[query], n_results=n_results)
+        results = collection.query(query_texts=[search_query], n_results=n_results)
         for doc, meta, dist in zip(
             results["documents"][0], results["metadatas"][0], results["distances"][0]
         ):

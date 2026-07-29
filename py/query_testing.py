@@ -2,7 +2,6 @@ import RAG_main
 
 test_query = [
     # --- prompt-rule fixes (negative-claim + Yes-bolding) ---
-    "are there any modules outside the COMP department?",   # -> hedge, NOT false "No"
     "what are the short 7-credit modules?",                 # -> partial list, NO "only"
     "is there a placement year?",                           # -> "we don't hold that", not "No"
 

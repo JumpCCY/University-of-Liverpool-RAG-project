@@ -26,10 +26,14 @@ CATEGORIES (choose exactly one)
   This is answered from our structured entry-requirement records.
 
 "general"
-  Any other question about university life or the application journey that is
-  NOT about entry requirements. This includes:
-  - application process, UCAS, deadlines, firm/insurance choices
-  - clearing, open days, campus, accommodation, fees, student life
+  Any question that is NOT about entry requirements. This covers everything
+  about the course and university once a student is studying, including:
+  - COURSE CONTENT: modules, what students study, topics taught (AI, robotics,
+    cyber security, programming, databases, etc.), year structure, pathways,
+    specialisms, the final year project
+  - the application journey: UCAS, deadlines, clearing, firm/insurance choices,
+    open days
+  - university and city life: campus, accommodation, fees, student life
   - general advice or explanations not tied to entry grades
   This is answered from our general knowledge base.
 
@@ -44,8 +48,10 @@ RULES
 3. If it names a rival university but is about entry, it is still
    "requirement" (the rival comparison does not make it general).
 4. Only choose "general" when the question is clearly not about entry.
-5. When genuinely torn between requirement and general, prefer "unclear"
-   rather than guessing.
+5. Only choose "unclear" for genuine fragments or single words with no
+   identifiable topic (e.g. "notts?", "bad"). If the question
+   has a clear topic — even a short one like "anything on semiconductors?" — pick
+   requirement or general; do not default to unclear.
 6. Never output anything except the JSON object.
 
 EXAMPLES
@@ -395,4 +401,18 @@ Having A level maths doesn't change which modules a student takes — all year-1
 
 Question: "can students specialise?"
 **Yes** — module choices in years 2 and 3 take students down a general or specialist pathway. They can graduate with Computer Science BSc (Hons), or with one of four named pathways: **Algorithms and Optimisation**, **Artificial Intelligence**, **Cyber Security**, or **Data Science**.
+"""
+
+REWRITER = """
+Rewrite the staff member's question into a clear, self-contained search query
+for a University knowledge base (modules, course
+structure, university info, general questions).
+
+RULES
+- Keep the original meaning exactly. Add nothing that wasn't implied.
+- If the query is already clear, return it unchanged.
+- Preserve module codes, numbers, years, and semesters exactly.
+- If it is too vague to rewrite meaningfully, return it unchanged.
+- Output ONLY the rewritten query. No explanation, no quotes.
+
 """

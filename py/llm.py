@@ -1,17 +1,18 @@
 import ollama
 
 
-def LLM_query(system_prompt: str, user_query: str) -> dict:
+def LLM_query(system_prompt: str, user_query: str, model: str) -> dict:
     """
     Queries the LLM model with the given user query and returns the response.
     Args:
         system_prompt (str): The system prompt to set the context for the LLM.
         user_query (str): The query to send to the LLM.
+        model (str): The LLM model to use.
     Returns:
         ollama response 
     """
     response = ollama.chat(
-        model="qwen3.6:27b",
+        model=model,
         messages=[
             {
                 "role": "system",
