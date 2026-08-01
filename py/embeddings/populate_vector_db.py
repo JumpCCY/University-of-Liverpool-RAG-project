@@ -6,7 +6,8 @@ from chromadb.utils.embedding_functions.ollama_embedding_function import (
 
 PATH = {
     "cs_modules": "json/bsc_cs_modules.json",
-    "courses_info": "json/courses_info.json"
+    "courses_info": "json/courses_info.json",
+    "guilds": "json/liverpool_guilds.json",
 }
 
 
@@ -66,4 +67,29 @@ for info in pull_data("courses_info"):
             }
         ]
     )
+
 print("Course info data added to the collection.")
+
+for guild in pull_data("guilds"):
+    if guild.get("short_description") is None or guild["short_description"] == "":
+        collection.add(
+            ids=[guild["guild_name"]],
+            documents=[f"{guild['guild_name']} : {guild['long_description']}"],
+            metadatas=[
+                {
+                    "source_type": "guild",
+                }
+            ]
+        )
+    else:
+        collection.add(
+            ids=[guild["guild_name"]],
+            documents=[f"{guild['guild_name']} : {guild['short_description']} {guild['long_description']}"],
+            metadatas=[
+                {
+                    "source_type": "guild",
+                }
+            ]
+        )
+
+print("Guild data added to the collection.")

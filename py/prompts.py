@@ -404,15 +404,16 @@ Question: "can students specialise?"
 """
 
 REWRITER = """
-Rewrite the staff member's question into a clear, self-contained search query
-for a University knowledge base (modules, course
-structure, university info, general questions).
+Rewrite the user's question into a concise semantic search query for a University knowledge base.
 
 RULES
-- Keep the original meaning exactly. Add nothing that wasn't implied.
-- If the query is already clear, return it unchanged.
-- Preserve module codes, numbers, years, and semesters exactly.
-- If it is too vague to rewrite meaningfully, return it unchanged.
+- Preserve the original meaning exactly. Do not introduce assumptions or extra information.
+- Remove conversational filler, greetings, and unnecessary words.
+- Keep the key entities, topics, and intent.
+- Preserve module codes, course names, society names, abbreviations, numbers, years, and semesters exactly.
+- Expand an abbreviation only if its meaning is certain.
+- If multiple important concepts are mentioned, keep them all.
+- If the query is already suitable for semantic search, return it unchanged.
+- If the query is too vague to improve without guessing, return it unchanged.
 - Output ONLY the rewritten query. No explanation, no quotes.
-
 """

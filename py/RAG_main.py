@@ -102,6 +102,7 @@ def main(user_query: str) -> str:
     #route to vector database similarity search
     elif category == "general":
         user_query = LLM_query(prompts.REWRITER, original_query, model="qwen3.5:9b").message.content #rewrite the user query for better retrieval
+        print(f"Rewritten query: {user_query}")
         vector_search_results = vector_similarity_search(original_query, user_query, n_results=10) # get a search result as a list of dicts with keys "distance", "source_type", and "document"
         prompting = answer_vector_search_construct(original_query, vector_search_results)
         answer = LLM_query(prompts.GENERAL_ANSWERER, prompting, model="qwen3.6:27b").message.content
