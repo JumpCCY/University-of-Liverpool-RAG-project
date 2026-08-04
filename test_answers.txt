@@ -1,74 +1,148 @@
-Question: what are the short 7-credit modules?
-Answer: There are seven 7-credit modules available, all optional. They are split between Year 2 and Year 3.
+Question: is there a machine learning module?
+Answer: **Yes** — there is a dedicated machine learning module.
 
-**Year 2**
-- **COMP221 Planning Your Career** — Semester 1. Focuses on employability skills for placements or graduate jobs.
-- **COMP281 Principles of C and Memory Management** — Semester 2. Covers low-level programming in C for computationally intensive tasks.
-- **COMP282 The C++ Programming Language** — Semester 2. Extends C with object-oriented principles and graphical application development.
-- **COMP284 Scripting Languages** — Semester 2. Covers JavaScript and PHP for web and computer-based applications.
-- **COMP285 Computer Aided Software Development** — Semester 2. Theory and practice of tools in the software development lifecycle.
+- **COMP219 Advanced Artificial Intelligence** — year 2, optional. This provides an introduction to machine learning, covering traditional algorithms, deep learning, and probabilistic graphical models. It also addresses the safety, security, and trustworthiness of ML in real-world deployment.
 
-**Year 3**
-- **ELEC319 Image Processing** — Semester 1. Fundamentals of image generation, representation, compression, and feature extraction.
-- **ELEC320 Neural Networks** — Semester 2. Introduction to neural network theory, applications, and AI.
+Machine learning concepts also appear in other optional modules:
+- **COMP338 Computer Vision** — year 3, optional. Includes deep learning–based methods for 2D and 3D vision.
+- **COMP337 Data Mining and Visualisation** — year 3, optional. Covers data mining techniques used in industrial applications like Google search and IBM Watson.
 
-Question: is there a placement year?
-Answer: We don't hold information about whether there is a dedicated placement year option on this course.
+Question: what cyber security modules are there?
+Answer: **Yes** — there are several modules covering cyber security, ranging from core technical foundations to advanced topics like quantum cryptography.
 
-The retrieved information does mention **COMP221 Planning Your Career**, which helps students secure either a placement or a graduate job, but it doesn't confirm if a formal placement year exists as part of the degree structure.
+- **COMP232 Cyber Security** — year 2, optional. Covers cryptographic algorithms, systems vulnerabilities, network and web security, with practical sessions.
+- **COMP345 Quantum Computing and Security** — year 3, optional. Focuses on quantum computing threats to classical cryptography and new opportunities in quantum cryptography.
+- **COMP211 Computer Networks** — year 2, optional. Includes an identification of critical network security issues and approaches to addressing them.
+- **PSYC327 Cyberpsychology-Human Computer Interaction** — year 3, optional. Covers cybercrime topics such as cyberbullying and cyberdating abuse, alongside digital identity and deception.
 
-Question: anything on robotics?
-Answer: anything on robotics?: Unclear
+Security runs through the degree via these optional choices in years 2 and 3, allowing students to specialise further if they choose the **Cyber Security pathway**.
 
-Question: my daughter did CS A level — does she skip the intro programming module?
-Answer: **Yes** — she skips **COMP101 Introduction to Programming**.
+Question: do you teach game development?
+Answer: **Yes** — game development runs through years 2 and 3.
 
-- Students with prior exposure (like CS A level) typically take **COMP105 Programming Language Paradigms** instead.
-- **COMP101** is for students without a programming background.
+- **COMP222 Principles of Computer Games Design and Implementation** — year 2, optional. Covers software architecture, AI techniques, and 3D content creation; students build a simple 3D video game using an engine.
+- **COMP342 Advanced Topics in Computer Game Development** — year 3, optional. Covers advanced concepts including game AI, content generation, graphics, physics, and sound.
 
-Question: is COMP105 a first year or second year module?
-Answer: **COMP105 Programming Language Paradigms** is listed as both a **year 1 compulsory** module and a **year 2 optional** module in our records.
+Game development is introduced as a specialist area in year two, with deeper technical focus available in year three.
 
-- **Year 1, Semester 1**: Compulsory (for students with prior programming skills).
-- **Year 2, Semester 1**: Optional.
+Question: any modules on databases?
+Answer: **Yes** — there is a dedicated database module, plus several related options on data handling and analysis.
 
-It covers imperative and functional programming paradigms, focusing on Haskell.
+- **COMP207 Database Development** — year 2, compulsory. Covers concurrency, security, heterogeneous data sources, semi-structured data, non-relational databases, and large-scale data analysis.
 
-Question: if a student has A level maths, which first year module do they take?
-Answer: Having A level maths doesn't change which modules a student takes — all year-1 core modules are the same for everyone. The only prior-experience choice is between **COMP101 Introduction to Programming** and **COMP105 Programming Language Paradigms**, and that's based on programming background, not maths.
+Other relevant modules include:
+- **COMP108 Data Structures and Algorithms** — year 1, compulsory. Fundamental algorithms and data structures.
+- **COMP337 Data Mining and Visualisation** — year 3, optional. Research issues in data mining and industrial applications.
+- **COMP324 Network Mining and Analysis** — year 3, optional. Analyzing complex network structures like the web and social communities.
+- **COMP318 Ontologies and Semantic Web** — year 3, optional. Representing and retrieving knowledge on the web.
+- **COMP304 Knowledge Representation and Reasoning** — year 3, optional. Formal reasoning about knowledge and uncertain information.
 
-Question: does having an A level in computing help with any specific modules?
-Answer: Having A level Computing does not change which modules a student takes — all year-1 core modules are the same for everyone. The only prior-experience choice is between **COMP101 Introduction to Programming** and **COMP105 Programming Language Paradigms**, and that's based on programming background, not maths.
+Question: is there a gaming society?
+Answer: We don't hold information about a specific gaming society. The retrieved list includes societies for **Trading Card Games**, **Poker**, and **Cubing**, but no general video or board gaming society is mentioned.
 
-Question: if a student is good at maths, are there modules that suit them?
-Answer: **Yes** — there are several modules that heavily utilise mathematical foundations, particularly in years 1 and 2.
+Question: what clubs can students join?
+Answer: We don't hold a complete list of all clubs, but the retrieved information highlights these specific societies and committees:
 
-- **COMP109 Foundations of Computer Science** — year 1, compulsory. Provides the mathematical foundation, tools, and proof techniques necessary for the degree.
-- **COMP116 Analytic Techniques for Computer Science** — year 1, compulsory. Covers Linear Algebra (Matrix Theory), statistics, introductory calculus (limits, continuity, differentiation, integration), complex numbers, and information theory.
-- **COMP229 Introduction to Data Science** — year 2, optional. Starts from fundamental mathematical methods including Linear Algebra, Metric Geometry, Graph Theory, and Computational Geometry.
-- **COMP331 Optimisation** — year 3, optional. An in-depth tour of optimisation methods applied to various models.
+- **UoL Fashion Society** — for fashion lovers to share tips, learn skills, and meet others.
+- **Pub Exploration Society** — exploring pubs in Liverpool and meeting new people.
+- **Liverpool Model UN Society** — debating global issues and sharpening diplomacy skills.
+- **Comedy Society** — enjoying sitcoms, stand-up, improv, and sketch comedy, with trips to the Hot Water Comedy Club.
+- **Indie Society** — listed, but no further detail is held.
 
-Students can also specialise further by choosing the **Algorithms and Optimisation** or **Data Science** pathways in years 2 and 3, which build on these analytical skills.
+There are also Halls' Student Committees for residents of specific halls:
+- **Tudor Close Halls' Student Committee**
+- **Crown Place Halls' Student Committee**
+- **Greenbank Student Village Halls' Student Committee**
+- **Philharmonic Court Halls' Student Committee**
+- **Dover Court Halls' Student Committee**
 
-Question: do we have modules on AI?
+These committees organise events and activities for students living in those halls.
+
+Question: is there a christian society?
+Answer: **Yes** — there is a **Christian Union**.
+
+- It is described as a diverse group of students meeting to share about Jesus and his message.
+- The aim is to give every student on campus an opportunity to hear and respond to the gospel.
+- They also hold regular socials, food sharing, and community events.
+
+Question: are there any social groups for freshers?
+Answer: **Yes** — there are many social groups for freshers. Here are some examples from our knowledge base:
+
+- **Pub Exploration Society** — explore local pubs and meet people.
+- **Cubing Society** — learn to solve Rubik’s cubes, weekly meetups.
+- **UoL Fashion Society** — coffee chats, fashion tips, and socials.
+- **COMPSOC** — computing society with workshops, hackathons, and socials.
+- **Hong Kong Society** — support network for Hong Kong students.
+- **German Society** — German culture events, pub trips, and board games.
+- **Liverpool Sikh Society** — cultural events, charity work, and socials.
+- **Pak Soc** — celebrate Pakistani culture through events and socials.
+- **Kpop Society** — inclusive space for K-pop fans to connect.
+
+Question: is there anything on biology?
+Answer: **No** — there are no biology modules on this Computer Science course.
+
+The retrieved module list contains no biology-specific content. The only reference to biology is a brief mention in **COMP324 Network Mining and Analysis**, which cites "network structures in biology" as one example of complex networks, but the module itself focuses on combinatorial and algorithmic techniques for network analysis, not biological science.
+
+Question: do you have anything about business?
+Answer: **Yes** — there is one specific business-related module on the course.
+
+- **ULMS254 Becoming Entrepreneurial** — year 2, optional, 15 credits. It focuses on identifying and implementing entrepreneurial opportunities, developing an entrepreneurial mindset through experiential learning, and covers the business journey from ideation to pitching to industry experts.
+
+We don't hold information about other specific business modules (such as management or marketing) in the retrieved data. However, there are student societies for **Accounting and Finance** and **Economics** that offer networking and career development opportunities if the student is interested in those fields.
+
+Question: is there anything for people into AI?
 Answer: **Yes** — AI runs right through the degree.
 
-- **COMP111 Introduction to Artificial Intelligence** — year 1, compulsory. Covers search, reasoning, knowledge representation, planning, learning, plus history, philosophy, and ethics of AI.
-- **COMP219 Advanced Artificial Intelligence** — year 2, optional. Focuses on machine learning, deep learning, probabilistic graphical models, and the safety/security of ML in real-world deployment.
-- **COMP304 Knowledge Representation and Reasoning** — year 3, optional. Formal ways to reason about knowledge and uncertain information.
-- **COMP338 Computer Vision** — year 3, optional. Closely aligned with AI; covers traditional techniques and deep learning-based methods for 2D/3D vision.
-- **COMP222 Principles of Computer Games Design and Implementation** — year 2, optional. Includes advanced AI techniques for game control procedures.
-- **COMP342 Advanced Topics in Computer Game Development** — year 3, optional. Covers game AI, content generation, graphics, physics, and sound.
-- **COMP218 Introduction to Theory of Computation** — year 2, optional. Illustrates the importance of automata and computation models in Computer Science and Artificial Intelligence.
+- **COMP111 Introduction to Artificial Intelligence** — year 1, compulsory. Covers search problems, reasoning under uncertainty, knowledge representation, planning, and learning, plus history, philosophy, and ethics of AI.
+- **COMP304 Knowledge Representation and Reasoning** — year 3, optional. Formal ways to reason about knowledge and uncertain or partial information.
+- **COMP346 Music Intelligence** — year 3, optional. We don't hold a description for it, so I can't say what it covers.
 
-It starts compulsory in year 1 with core concepts and ethics, then deepens through optional modules in years 2 and 3 covering machine learning, computer vision, and game AI.
+It starts compulsory in year 1 and deepens through optional modules later. Students can also graduate on the dedicated **Artificial Intelligence pathway**.
 
-Question: what's the music intelligence module about?
-Answer: **COMP346 Music Intelligence** exists — year 3, optional, 15 credits. We don't hold a description for it, so I can't say what it covers.
+Question: anything music related?
+Answer: **Yes** — there is one music-related module on the course, plus several student societies for musical interests.
 
-Question: do we have a blockchain module?
-Answer: **No** — there's no blockchain module on this course.
+- **COMP346 Music Intelligence** — year 3, optional, 15 credits. We don't hold a description for it, so I can't say what it covers.
 
-Question: can students specialise?
-Answer: **Yes** — module choices in years 2 and 3 take students down a general or specialist pathway. They can graduate with Computer Science BSc (Hons), or with one of four named pathways: **Algorithms and Optimisation**, **Artificial Intelligence**, **Cyber Security**, or **Data Science**.
+Outside of the degree, students can join:
+- **LUMS - Liverpool University Music Society** — offers 9 ensembles including orchestra, choir, and big band across classical, jazz, pop, and film music.
+- **Kpop Society** — for fans of K-pop and Hallyu culture.
+- **Rock Society** — for rock, punk, alt, and metal fans, focusing on gigs and festivals.
+- **Beatles Society** — for Beatles fans to connect and learn more about the band.
+
+Question: is there something for people who like maths?
+Answer: We don't hold that information. The retrieved results only list student societies (such as the Cubing Society or History Society) and do not contain details about course modules or whether specific modules cater to students who enjoy maths.
+
+Question: what's available for someone interested in robotics?
+Answer: **Yes** — there are two dedicated optional modules in year 3, plus relevant societies for hands-on experience.
+
+- **COMP329 Autonomous Mobile Robotics** — year 3, semester 1, optional, 15 credits. Covers principles of robotics and autonomous systems, with practical skills in developing systems on a robotics platform.
+- **COMP341 Robot Perception and Manipulation** — year 3, semester 2, optional, 15 credits. Focuses on how robots perceive the world (visual/tactile data) to accomplish manipulation tasks like grasping objects, used in warehouse and assistive robots.
+
+For practical engagement outside the curriculum:
+- **Coding and Robotics Society** — dedicated to electronics and coding at all levels; no prior skills required.
+- **COMPSOC** — the main computing society, offering workshops, hackathons, and tech community events.
+
+Question: is there a biology subject?
+Answer: No, **Biology** is not a required subject; we require **Maths** or **Computer Science**.
+- Mandatory subjects: **Maths** or **Computer Science** are strictly required for all routes.
+- A-level standard: **AAB** including **Maths** or **Computer Science**.
+- Accepted variations: **Mathematics (Pure)**, **Mathematics (Pure and Applied)**, and **Mathematics (Pure) and Statistics**.
+- Exclusions: **IT**, **ICT**, and **Software Systems Development** are not accepted.
+
+Question: do you teach anything about finance?
+Answer: **Yes** — there is one specific finance-related module on the Computer Science course.
+
+- **COMP226 Computer-Based Trading in Financial Markets** — year 2, optional, 15 credits. It covers financial markets at the trade level, computer-based trading applications, market data issues, and developing algorithmic trading strategies.
+
+There is also a cross-disciplinary module on entrepreneurship:
+- **ULMS254 Becoming Entrepreneurial** — year 2, optional, 15 credits. This focuses on identifying and implementing entrepreneurial opportunities, covering the business journey from ideation to pitching.
+
+We don't hold information about other finance modules or general accounting courses within this specific Computer Science degree structure.
+
+Question: what's COMP305 about?
+Answer: **COMP305 Biocomputation** — year 3, optional, 15 credits. It covers biology-inspired adaptive algorithms, specifically **Artificial Neural Networks (ANNs)** and **Genetic Algorithms (GAs)**. Students learn how these are used in pattern recognition, speech recognition, financial modelling, and optimisation problems across science and engineering. The module also places the field in historical and scientific context to help students keep up-to-date with developments.
+
+Question: is there a blockchain module?
+Answer: **No** — there is no blockchain module on this course.
 

@@ -77,9 +77,12 @@ def scrape_liverpool_guilds():
                 "short_description": short_desc,
                 "long_description": long_desc
             }
-            
-            guilds_data.append(guild_info)
-            
+
+            if guild_info["short_description"] == "" and guild_info["long_description"] == "":
+                continue  # Skip guilds with no descriptions
+            else:
+                guilds_data.append(guild_info)
+                
             # Be polite to the server: wait 1 second between requests
             time.sleep(1)
             

@@ -94,6 +94,12 @@ EXAMPLES
 
 "what about them"
 {"category": "unclear"}
+
+"is there a biology subject?"
+{"category": "general"}
+
+"do you have a subject on robotics?"
+{"category": "general"}
 """
 
 EXTRACTOR = """
@@ -259,6 +265,12 @@ Answer ONLY the question asked. When listing facts, prioritize them in this orde
 - If the exact university asked about has NO records provided in the context, state plainly: "We don't hold data for [University Name]." Do not guess.
 - Do not paraphrase or simplify grade conditions. Quote them exactly.
 - If the question is entirely unrelated to admissions requirements, reply: "Out of scope for admissions RAG."
+- When grades meet the standard offer, lead with a clear yes.
+- When grades are BELOW standard but a conditional route exists (EPQ, contextual,
+  etc.), do NOT lead with "Yes". Lead with the standard offer, then present the
+  conditional route as the exception: e.g. "ABB is below our standard AAB, but
+  it's accepted WITH an A in the EPQ." Make clear the route is conditional on
+  something the student must actually have.
 
 ### OUTPUT FORMAT (STRICT)
 - **Line 1:** The direct, bottom-line answer to the question.
@@ -416,4 +428,8 @@ RULES
 - If the query is already suitable for semantic search, return it unchanged.
 - If the query is too vague to improve without guessing, return it unchanged.
 - Output ONLY the rewritten query. No explanation, no quotes.
+- Do NOT add generic context like "at the university", "available", "courses",
+  or "University of Liverpool" — the knowledge base is already entirely about
+  this university. Focus only on the specific topic asked about.
+- Prefer a short, dense query (2-6 words) over a full sentence.
 """

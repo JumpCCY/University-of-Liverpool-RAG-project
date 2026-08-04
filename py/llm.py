@@ -11,6 +11,7 @@ def LLM_query(system_prompt: str, user_query: str, model: str) -> dict:
     Returns:
         ollama response 
     """
+    print(f"Call LLM {model}")
     response = ollama.chat(
         model=model,
         messages=[

@@ -1,25 +1,33 @@
 import RAG_main
 
 test_query = [
-    # --- prompt-rule fixes (negative-claim + Yes-bolding) ---
-    "what are the short 7-credit modules?",                 # -> partial list, NO "only"
-    "is there a placement year?",                           # -> "we don't hold that", not "No"
+    # --- clearly modules ---
+    "is there a machine learning module?",
+    "what cyber security modules are there?",
+    "do you teach game development?",
+    "any modules on databases?",
 
-    # --- separate-file fixes (router example + code-shortcut) ---
-    "anything on robotics?",                                # -> COMP329 + COMP341 (router fix)
-    "my daughter did CS A level — does she skip the intro programming module?",  # -> general branch (router fix)
-    "is COMP105 a first year or second year module?",       # -> BOTH years (code-shortcut fix)
+    # --- clearly societies/clubs ---
+    "is there a gaming society?",
+    "what clubs can students join?",
+    "is there a christian society?",
+    "are there any social groups for freshers?",
 
-    # --- false-premise calibration (already passed, confirm no regression) ---
-    "if a student has A level maths, which first year module do they take?",     # -> correct the premise
-    "does having an A level in computing help with any specific modules?",        # -> correct the premise
-    "if a student is good at maths, are there modules that suit them?",           # -> normal answer, NO over-fire
+    # --- genuinely ambiguous: could be module OR society ---
+    "is there anything on biology?",
+    "do you have anything about business?",          # ULMS254 module AND possibly a society
+    "is there anything for people into AI?",         # AI modules AND possibly an AI society
+    "anything music related?",                        # COMP346 Music Intelligence AND music societies
+    "is there something for people who like maths?", # maths modules AND possibly a maths society
+    "what's available for someone interested in robotics?",  # COMP329/341 AND possibly robotics club
 
-    # --- controls (must still pass) ---
-    "do we have modules on AI?",                            # -> Yes + list + pathway
-    "what's the music intelligence module about?",          # -> exists, no description held
-    "do we have a blockchain module?",                      # -> confident No
-    "can students specialise?",                             # -> four pathways
+    # --- the trap: word appears in a module as an EXAMPLE, not as the subject ---
+    "is there a biology subject?",                    # COMP324 mentions biology as an example only
+    "do you teach anything about finance?",           # COMP226 (trading) — finance as application
+
+    # --- clean controls ---
+    "what's COMP305 about?",                          # specific module, no ambiguity
+    "is there a blockchain module?",                  # true negative
 ]
 
 answers = {}
