@@ -101,8 +101,8 @@ for link in links:
 
     scholarships.append(scholarship)
 
-    time.sleep(3)
+    time.sleep(1)
 
 json_data = json.dumps(scholarships, indent=4, ensure_ascii=False)
-with open("scholarships.json", "w", encoding="utf-8") as f:
+with open("data/json/scholarships.json", "w", encoding="utf-8") as f:
     f.write(json_data)

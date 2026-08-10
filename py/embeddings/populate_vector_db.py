@@ -5,9 +5,11 @@ from chromadb.utils.embedding_functions.ollama_embedding_function import (
 )
 
 PATH = {
-    "cs_modules": "json/bsc_cs_modules.json",
-    "courses_info": "json/courses_info.json",
-    "guilds": "json/liverpool_guilds.json",
+    "cs_modules": "data/json/bsc_cs_modules.json",
+    "courses_info": "data/json/courses_info.json",
+    "guilds": "data/json/liverpool_guilds.json",
+    "scholarships": "data/json/scholarships.json",
+    "fees": "data/json/fees.json"
 }
 
 
@@ -70,6 +72,7 @@ for info in pull_data("courses_info"):
 
 print("Course info data added to the collection.")
 
+# populating the collection with guild data
 for guild in pull_data("guilds"):
     if guild.get("short_description") is None or guild["short_description"] == "":
         collection.add(
@@ -93,3 +96,54 @@ for guild in pull_data("guilds"):
         )
 
 print("Guild data added to the collection.")
+
+# populating the collection with scholarship data
+# loop for each scholarship, add the general content and then loop through each section and add the section content
+# if there is no general content, only add the sections
+# sections will always add along the scholarship title and section title to the document for context (hirachical)
+for scholarship in pull_data("scholarships"):
+
+    scholarship_title = scholarship["title"]
+    if scholarship["content"]:
+        text = "\n\n".join(scholarship["content"])
+        collection.add(
+            ids = [f"{scholarship_title}_general"],
+            documents = [f"Scholarship: {scholarship_title}\n\n{text}"],
+            metadatas = [{
+                "source_type": "scholarship",
+                "scholarship_title": scholarship_title,
+                "section" : "general",
+            }]   
+        )
+
+    for section_idx, section in enumerate(scholarship["sections"]):
+        section_title = section["title"]
+        section_content = "\n\n".join(section["content"])
+        collection.add(
+            ids = [f"{scholarship_title}_{section_title}_{section_idx}"],
+            documents = [f"Scholarship: {scholarship_title}\n\nSection: {section_title}\n\n{section_content}"],
+            metadatas = [{
+                "source_type": "scholarship",
+                "scholarship_title": scholarship_title,
+                "section" : section_title,
+            }]
+        )
+
+print("Scholarship data added to the collection.")
+
+for fee in pull_data("fees"):
+
+    fee_title = fee["title"]
+    text = ", ".join(fee["info"])
+
+    collection.add(
+        ids=[fee["title"]],
+        documents=[f"{fee['title']} : {text}"],
+        metadatas=[
+            {
+                "source_type": "fee",
+            }
+        ]
+    )
+
+print("fees data added to the collection.")

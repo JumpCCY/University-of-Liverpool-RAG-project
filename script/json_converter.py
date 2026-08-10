@@ -51,5 +51,5 @@ for name in UNIVERSITY_NAMES:
         qualifications.append(info)
 
 
-    with open(f"{name}_qualifications.json", "w") as f:
+    with open(f"data/json/{name}_qualifications.json", "w") as f:
         json.dump(qualifications, f, indent=4, ensure_ascii=False)
