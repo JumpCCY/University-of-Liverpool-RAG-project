@@ -1,3 +1,4 @@
+import os
 import chromadb
 from chromadb.utils.embedding_functions.ollama_embedding_function import (
     OllamaEmbeddingFunction,
@@ -5,7 +6,9 @@ from chromadb.utils.embedding_functions.ollama_embedding_function import (
 import re
 from rich import print
 
-client = chromadb.PersistentClient(path="chroma_db")
+CHROMA_DB_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "chroma_db")
+
+client = chromadb.PersistentClient(path=CHROMA_DB_PATH)
 
 ollama_ef = OllamaEmbeddingFunction(
     url="http://localhost:11434",
@@ -83,49 +86,41 @@ def vector_similarity_search(original_query: str, search_query: str = None, n_re
     years = extract_year(original_query)  # return list
     semesters = extract_semester(original_query)  # return list
 
-    active = [f for f in (module_codes, credits, years, semesters) if f] # if any of the list are not empty we will at that to the list this cause list len +1 
-
-    if (len(active) > 1):
-        filters = {"$and": []}
-
-        if module_codes:
-            filters["$and"].append({"code": {"$in": module_codes}})
-        if credits:
-            filters["$and"].append({"credits": {"$in": credits}})
-        if years:
-            filters["$and"].append({"year": {"$in": years}})
-        if semesters:
-            filters["$and"].append({"semester": {"$in": semesters}})
-    elif (len(active) == 1):
-        filters = {}
-        if module_codes:
-            filters["code"] = {"$in": module_codes}
-        if credits:
-            filters["credits"] = {"$in": credits}
-        if years:
-            filters["year"] = {"$in": years}
-        if semesters:
-            filters["semester"] = {"$in": semesters}
-    else:
-        filters = None
-
     result_list = []
-    
-    if filters:
-        results = collection.get(where=filters, include=["documents", "metadatas"])
+
+    # a module code is an exact identifier, so look it up directly instead of searching
+    if module_codes:
+        results = collection.get(where={"code": {"$in": module_codes}}, include=["documents", "metadatas"])
         metadata_search(results, result_list)
+        return result_list
+
+    facets = []
+    if credits:
+        facets.append({"credits": {"$in": credits}})
+    if years:
+        facets.append({"year": {"$in": years}})
+    if semesters:
+        facets.append({"semester": {"$in": semesters}})
+
+    if not facets:
+        filters = None
     else:
-        # pure vector similarity search
-        results = collection.query(query_texts=[search_query], n_results=n_results)
-        for doc, meta, dist in zip(
-            results["documents"][0], results["metadatas"][0], results["distances"][0]
-        ):
-            answer = {}
-            answer["distance"] = dist
-            answer["source_type"] = meta.get("source_type")
-            answer["document"] = doc
-            answer["metadata"] = meta  
-            result_list.append(answer)
+        # these fields only exist on module documents, so filtering on them alone would
+        # exclude every guild/scholarship/fee doc. narrow the modules, leave the rest eligible.
+        module_filter = facets[0] if len(facets) == 1 else {"$and": facets}
+        filters = {"$or": [module_filter, {"source_type": {"$ne": "module"}}]}
+
+    # filters narrow the candidates, the query still ranks them
+    results = collection.query(query_texts=[search_query], where=filters, n_results=n_results)
+    for doc, meta, dist in zip(
+        results["documents"][0], results["metadatas"][0], results["distances"][0]
+    ):
+        answer = {}
+        answer["distance"] = dist
+        answer["source_type"] = meta.get("source_type")
+        answer["document"] = doc
+        answer["metadata"] = meta
+        result_list.append(answer)
 
     return result_list
 

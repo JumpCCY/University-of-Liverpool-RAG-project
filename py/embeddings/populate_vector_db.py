@@ -117,15 +117,29 @@ for scholarship in pull_data("scholarships"):
         )
 
     for section_idx, section in enumerate(scholarship["sections"]):
+
         section_title = section["title"]
-        section_content = "\n\n".join(section["content"])
+
+        section_content = "\n\n".join(
+            section["content"]
+        ).strip()
+
+        if not section_content:
+            continue
+
         collection.add(
-            ids = [f"{scholarship_title}_{section_title}_{section_idx}"],
-            documents = [f"Scholarship: {scholarship_title}\n\nSection: {section_title}\n\n{section_content}"],
-            metadatas = [{
+            ids=[
+                f"{scholarship_title}_{section_title}_{section_idx}"
+            ],
+            documents=[
+                f"Scholarship: {scholarship_title}\n"
+                f"Section: {section_title}\n\n"
+                f"{section_content}"
+            ],
+            metadatas=[{
                 "source_type": "scholarship",
                 "scholarship_title": scholarship_title,
-                "section" : section_title,
+                "section": section_title,
             }]
         )
 

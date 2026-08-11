@@ -1,6 +1,7 @@
 import json
+import os
 
-DATA_DIR = "json/"
+DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "json")
 QUALIFICATION_MAP = {
     "University of Liverpool":  "liverpool_qualifications.json",
     "University of York":       "york_qualifications.json",
@@ -23,6 +24,6 @@ def load_universities(universities: list) -> dict[str, list[dict]]:
         file_name = QUALIFICATION_MAP.get(uni)
         if not file_name:
             continue  # skip unknown universities
-        with open(f"{DATA_DIR}/{file_name}", "r") as f:
+        with open(os.path.join(DATA_DIR, file_name), "r") as f:
             records[uni] = json.load(f) # return list of dict of qualifications for each university
     return records #return can be multiple universities 

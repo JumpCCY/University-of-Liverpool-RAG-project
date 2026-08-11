@@ -1,8 +1,39 @@
+import subprocess
+import time
+import urllib.request
+import urllib.error
+
 from llm import LLM_query
 import prompts
-import json
 from json_search import load_universities
 from vector_search import vector_similarity_search
+import json
+
+OLLAMA_URL = "http://127.0.0.1:11434"
+
+def ensure_ollama_running(timeout: int = 30) -> None:
+    """
+    Makes sure the Ollama server is up before we start querying it.
+    Opens the Ollama app (which starts its background server) if it isn't already running.
+    """
+    try:
+        urllib.request.urlopen(OLLAMA_URL, timeout=1)
+        return # already running
+    except (urllib.error.URLError, OSError):
+        pass
+
+    print("Ollama not running, starting it...")
+    subprocess.Popen(["open", "-a", "Ollama"])
+
+    for _ in range(timeout):
+        try:
+            urllib.request.urlopen(OLLAMA_URL, timeout=1)
+            print("Ollama is up.")
+            return
+        except (urllib.error.URLError, OSError):
+            time.sleep(1)
+
+    raise RuntimeError(f"Ollama did not start within {timeout} seconds.")
 
 KNOWN_UNIVERSITIES = ["University of Liverpool", "University of York", "University of Leeds",
     "University of Manchester", "Newcastle University",
@@ -103,7 +134,7 @@ def main(user_query: str) -> str:
     elif category == "general":
         #user_query = LLM_query(prompts.REWRITER, original_query, model="qwen3.5:9b").message.content #rewrite the user query for better retrieval
         #print(f"Rewritten query: {user_query}")
-        vector_search_results = vector_similarity_search(original_query, user_query, n_results=20) # get a search result as a list of dicts with keys "distance", "source_type", and "document"
+        vector_search_results = vector_similarity_search(original_query, user_query, n_results=10) # get a search result as a list of dicts with keys "distance", "source_type", and "document"
         prompting = answer_vector_search_construct(original_query, vector_search_results) # include search results in the query 
         answer = LLM_query(prompts.GENERAL_ANSWERER, prompting, model="qwen3.6:27b").message.content
         return answer
@@ -112,5 +143,6 @@ def main(user_query: str) -> str:
         ... # if dont know just use LLM to answer the question without any context ?
 
 if __name__ == "__main__":
+    ensure_ollama_running()
     user_query = input("Enter your query: ")
     print(main(user_query))

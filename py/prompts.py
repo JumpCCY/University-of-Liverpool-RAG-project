@@ -128,7 +128,7 @@ universities
     York -> "University of York"
     Leeds -> "University of Leeds"
     Manchester -> "University of Manchester"
-    Newcastle -> "University of Newcastle"
+    Newcastle -> "Newcastle University"
     Sheffield -> "University of Sheffield"
     Nottingham / Notts -> "University of Nottingham"
     Lancaster -> "University of Lancaster"
