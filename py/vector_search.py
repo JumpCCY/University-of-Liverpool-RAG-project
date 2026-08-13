@@ -35,6 +35,9 @@ def metadata_search(search_result: chromadb.GetResult, result_list: list):
 
 
 def extract_year(q) -> list[int]:
+    """
+    Extracts the year information from the query. if the query asking about year. for searching a module
+    """
     q = q.lower()
     years = [int(x) for x in re.findall(r"year\s*([123])", q)]
     years += [int(x) for x in re.findall(r"([123])(?:st|nd|rd)\s*year", q)]
@@ -45,7 +48,7 @@ def extract_year(q) -> list[int]:
 
 def extract_semester(q) -> list[str]:
     """
-    Extracts the semester information from the query.
+    Extracts the semester information from the query. for searching a module
     """
     q = q.lower()
     words = {"one": "1", "two": "2", "first": "1", "second": "2"}
@@ -126,7 +129,6 @@ def vector_similarity_search(original_query: str, search_query: str = None, n_re
 
 
 if __name__ == "__main__":
-    # Example usage
     query = input("Enter your query for vector similarity search: ")
     k = input("Enter the number of results to return (default 5): ")
     r = vector_similarity_search(query, n_results=int(k) if k.isdigit() else 5)

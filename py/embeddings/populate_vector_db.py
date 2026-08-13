@@ -1,8 +1,13 @@
+from pathlib import Path
+import sys
 import chromadb
 import json
 from chromadb.utils.embedding_functions.ollama_embedding_function import (
     OllamaEmbeddingFunction,
 )
+sys.path.append(str(Path(__file__).parent.parent.parent))  
+
+from script import scholar_chunking, general_chunking
 
 PATH = {
     "cs_modules": "data/json/bsc_cs_modules.json",
@@ -14,7 +19,7 @@ PATH = {
 
 
 def pull_data(path):
-    with open(PATH[path], "r") as f:
+    with open(PATH[path], "r", encoding="utf-8") as f:
         data = json.load(f)
         return data
     
@@ -37,7 +42,7 @@ collection = chroma_client.create_collection(
     embedding_function=ollama_ef #pass ollama embedding function on line 18 (qwen3-embedding:8b)
 )
 
-# populating the collection with university of liverpool modules
+# populating the collection with university of liverpool cs modules
 for module in pull_data("cs_modules"):
     desc = module.get("description") or ""
     collection.add(
@@ -66,6 +71,7 @@ for info in pull_data("courses_info"):
         metadatas=[
             {
                 "source_type": "course_info",
+                "title" : info["title"],
             }
         ]
     )
@@ -74,6 +80,7 @@ print("Course info data added to the collection.")
 
 # populating the collection with guild data
 for guild in pull_data("guilds"):
+    # if there is no short description, only add the long description to the collection
     if guild.get("short_description") is None or guild["short_description"] == "":
         collection.add(
             ids=[guild["guild_name"]],
@@ -81,9 +88,11 @@ for guild in pull_data("guilds"):
             metadatas=[
                 {
                     "source_type": "guild",
+                    "guild_name": guild["guild_name"],
                 }
             ]
         )
+        # else we add both the short and long descriptions to the collection
     else:
         collection.add(
             ids=[guild["guild_name"]],
@@ -91,6 +100,7 @@ for guild in pull_data("guilds"):
             metadatas=[
                 {
                     "source_type": "guild",
+                    "guild_name": guild["guild_name"],
                 }
             ]
         )
@@ -98,50 +108,17 @@ for guild in pull_data("guilds"):
 print("Guild data added to the collection.")
 
 # populating the collection with scholarship data
-# loop for each scholarship, add the general content and then loop through each section and add the section content
-# if there is no general content, only add the sections
-# sections will always add along the scholarship title and section title to the document for context (hirachical)
-for scholarship in pull_data("scholarships"):
-
-    scholarship_title = scholarship["title"]
-    if scholarship["content"]:
-        text = "\n\n".join(scholarship["content"])
-        collection.add(
-            ids = [f"{scholarship_title}_general"],
-            documents = [f"Scholarship: {scholarship_title}\n\n{text}"],
-            metadatas = [{
-                "source_type": "scholarship",
-                "scholarship_title": scholarship_title,
-                "section" : "general",
-            }]   
-        )
-
-    for section_idx, section in enumerate(scholarship["sections"]):
-
-        section_title = section["title"]
-
-        section_content = "\n\n".join(
-            section["content"]
-        ).strip()
-
-        if not section_content:
-            continue
-
-        collection.add(
-            ids=[
-                f"{scholarship_title}_{section_title}_{section_idx}"
-            ],
-            documents=[
-                f"Scholarship: {scholarship_title}\n"
-                f"Section: {section_title}\n\n"
-                f"{section_content}"
-            ],
-            metadatas=[{
-                "source_type": "scholarship",
-                "scholarship_title": scholarship_title,
-                "section": section_title,
-            }]
-        )
+for i, doc in enumerate(scholar_chunking.chunking()):
+    md = doc.metadata
+    collection.add(
+        ids=[f"scholarship_{md['scholarship']}_{i}"],
+        documents=[doc.page_content],
+        metadatas=[{
+            "source_type": "scholarship",
+            "scholarship_title": md.get("scholarship", ""),
+            "section": md.get("Header 2") or md.get("Header 3") or md.get("Header 1") or "general", # if no header, default to "general"
+        }],
+    )
 
 print("Scholarship data added to the collection.")
 
@@ -161,3 +138,18 @@ for fee in pull_data("fees"):
     )
 
 print("fees data added to the collection.")
+
+# populating the collection with general data
+for i, doc in enumerate(general_chunking.chunking()):
+    md = doc.metadata
+    collection.add(
+        ids=[f"general_{md['page']}_{i}"],
+        documents=[doc.page_content],
+        metadatas=[{
+            "source_type": "general",
+            "page_title": md.get("page", ""),
+            "section": md.get("Header 2") or md.get("Header 3") or md.get("Header 1") or "general", # if no header, default to "general"
+        }],
+    )
+
+print("General data added to the collection.")
