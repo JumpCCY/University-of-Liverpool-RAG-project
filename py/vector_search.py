@@ -74,16 +74,20 @@ def extract_semester(q) -> list[str]:
     return []
 
 
-def vector_similarity_search(original_query: str, search_query: str = None, n_results: int = 5) -> list[dict]:
+def vector_similarity_search(original_query: str, search_query: str = None, source_type: str = None, n_results: int = 5) -> list[dict]:
     """
     Performs a vector similarity search on the ChromaDB collection.
 
     return: A list of dictionaries containing the search results, each with keys "distance", "source_type", and "document".
+
+    source_type can be one of the following: "module", "course_info", "guild", "scholarship", "fee", "general"
     """
 
+    # this is for rewriting 
     if search_query is None:
         search_query = original_query
 
+    #find all things related to module codes, credits, years, and semesters in the original query (this is for modules searching)
     module_codes = re.findall(r"\b[A-Z]{2,4}\d{3}\b", original_query.upper())  # return list
     credits = [int(c) for c in re.findall(r"(\d+)[- ]?credits?", original_query.lower())]  # return list
     years = extract_year(original_query)  # return list
@@ -96,7 +100,8 @@ def vector_similarity_search(original_query: str, search_query: str = None, n_re
         results = collection.get(where={"code": {"$in": module_codes}}, include=["documents", "metadatas"])
         metadata_search(results, result_list)
         return result_list
-
+    
+    # now we check for multiple filters credits year semester ex. "modules with 20 credits in year 2 semester 1" or "modules in year 3 semester 2 with 10 credits"
     facets = []
     if credits:
         facets.append({"credits": {"$in": credits}})
@@ -105,16 +110,36 @@ def vector_similarity_search(original_query: str, search_query: str = None, n_re
     if semesters:
         facets.append({"semester": {"$in": semesters}})
 
-    if not facets:
-        filters = None
+    # if source_type is none or general we just give them None cause its the same so we generalize.
+    if source_type not in (None, "general"):
+        pinned = source_type # only "module", "course_info", "guild", "scholarship", "fee"
     else:
-        # these fields only exist on module documents, so filtering on them alone would
-        # exclude every guild/scholarship/fee doc. narrow the modules, leave the rest eligible.
-        module_filter = facets[0] if len(facets) == 1 else {"$and": facets}
-        filters = {"$or": [module_filter, {"source_type": {"$ne": "module"}}]}
+        pinned = None
 
-    # filters narrow the candidates, the query still ranks them
+    # if pinned is not none we add the source type filter to the clauses list. 
+    clauses = []
+    if pinned:
+        clauses.append({"source_type": pinned})
+    # if facets is not empty we check if pinned is module or not, if yes just add those filters. 
+    # if the query is not detected as a module question but has something like "20 credits" or "year 2" 
+    # instead we search both modules and all soruce types that are not in modules
+    if facets:
+        if pinned == "module":
+            clauses.extend(facets)
+        elif pinned is None:
+            module_filter = facets[0] if len(facets) == 1 else {"$and": facets} # if there is only one filter we just use that, if there are multiple filters we use $and to combine them.
+            clauses.append({"$or": [module_filter, {"source_type": {"$ne": "module"}}]}) # faces or something that is not in source_type = module.
+
+    if not clauses:
+        filters = None # normal similarity search.
+    elif len(clauses) == 1:
+        filters = clauses[0]
+    else:
+        filters = {"$and": clauses}
+
     results = collection.query(query_texts=[search_query], where=filters, n_results=n_results)
+
+    # normal function for returning the results as a list of dicts with keys "distance", "source_type", and "document"
     for doc, meta, dist in zip(
         results["documents"][0], results["metadatas"][0], results["distances"][0]
     ):

@@ -34,6 +34,21 @@ URLS = [
         "https://www.liverpool.ac.uk/student-life/local-commuter-students/things-to-do/",
         "https://www.liverpool.ac.uk/student-life/local-commuter-students/commuting/",
 
+        #accommodation
+        "https://www.liverpool.ac.uk/accommodation/applying/",
+        "https://www.liverpool.ac.uk/accommodation/how-to-pay-your-fees/accommodation-discount/",
+        "https://www.liverpool.ac.uk/accommodation/how-to-pay-your-fees/whatsincluded/",
+        "https://www.liverpool.ac.uk/accommodation/how-to-pay-your-fees/",
+        "https://www.liverpool.ac.uk/accommodation/life-in-halls/getting-around/",
+
+        "https://www.liverpool.ac.uk/accommodation/find-accommodation/crown-place/",
+        "https://www.liverpool.ac.uk/accommodation/find-accommodation/greenbank-student-village/",
+        "https://www.liverpool.ac.uk/accommodation/find-accommodation/dover-court/",
+        "https://www.liverpool.ac.uk/accommodation/find-accommodation/melville-grove/",
+        "https://www.liverpool.ac.uk/accommodation/find-accommodation/philharmonic-court/",
+        "https://www.liverpool.ac.uk/accommodation/find-accommodation/tudor-close/",
+        "https://www.liverpool.ac.uk/accommodation/find-accommodation/vine-court/"
+
         ]
 
 PARENT_DIR = Path(__file__).resolve().parent.parent # to the root of the project (go up two levels)
@@ -49,18 +64,27 @@ for url in URLS:
         soup = BeautifulSoup(html, "html.parser")
 
     #loop for each scholarship link, scrape the scholarship page and save the content to an html file just the content from div that contains the data 
+        if "https://www.liverpool.ac.uk/student-life/" in url:
+            title = url.replace("https://www.liverpool.ac.uk/student-life/", "").replace("/", "_").strip("_")
 
-        title = url.replace("https://www.liverpool.ac.uk/student-life/", "").replace("/", "_").strip("_")
-        r = soup.find('div', class_='rb-content-flow')
+        elif "https://www.liverpool.ac.uk/accommodation/" in url:
+            title = url.replace("https://www.liverpool.ac.uk/", "").replace("/", "_").strip("_")
+
+        r = soup.find('main')
 
         if r is None:
             print(f"Warning: No content found for {url}. Skipping.")
             continue
 
+
         output_path = PARENT_DIR / "data" / "general" / f"{title}.html"
         with open(output_path, "w", encoding="utf-8") as f:
             f.write(str(r))
 
+        print(f"Content saved: {title}")
+
         time.sleep(1)
     except Exception as e:
         print(f"Error {url}: {e}")
+
+print("done!")

@@ -147,8 +147,9 @@ for i, doc in enumerate(general_chunking.chunking()):
         documents=[doc.page_content],
         metadatas=[{
             "source_type": "general",
-            "page_title": md.get("page", ""),
+            "main_section": md.get("main_section", ""),
             "section": md.get("Header 2") or md.get("Header 3") or md.get("Header 1") or "general", # if no header, default to "general"
+            "page_title": md.get("page", ""),
         }],
     )
 

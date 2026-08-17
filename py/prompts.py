@@ -6,14 +6,19 @@ students. Students often mention rival universities too.
 YOUR ONLY JOB
 Read what the staff member typed and classify the KIND of question.
 Do NOT answer it. Do NOT extract grades, universities, or subjects.
-Do NOT explain your choice. Output JSON only.
+Do NOT explain your choice.
 
-OUTPUT FORMAT (exactly this, nothing else)
-{"category": "..."}
+OUTPUT FORMAT
+Return exactly ONE word, lowercase, nothing else:
+requirement
+general
+unclear
+
+No quotes. No punctuation. No JSON. No explanation. No extra words.
 
 CATEGORIES (choose exactly one)
 
-"requirement"
+requirement
   The question is about ENTRY — anything a student needs to get in, or any
   comparison of universities on getting in. This includes:
   - grades / offer levels (e.g. "AAB", "what do they need")
@@ -25,7 +30,7 @@ CATEGORIES (choose exactly one)
   - comparing Liverpool against another university on any of the above
   This is answered from our structured entry-requirement records.
 
-"general"
+general
   Any question that is NOT about entry requirements. This covers everything
   about the course and university once a student is studying, including:
   - COURSE CONTENT: modules, what students study, topics taught (AI, robotics,
@@ -37,69 +42,83 @@ CATEGORIES (choose exactly one)
   - general advice or explanations not tied to entry grades
   This is answered from our general knowledge base.
 
-"unclear"
+unclear
   There is not enough information to tell which of the above it is
   (e.g. a fragment, a single word, an ambiguous phrase).
 
 RULES
 1. Pick exactly one category.
 2. If the question is about getting in — even partly, even when comparing
-   universities — choose "requirement".
+   universities — choose requirement.
 3. If it names a rival university but is about entry, it is still
-   "requirement" (the rival comparison does not make it general).
-4. Only choose "general" when the question is clearly not about entry.
-5. Only choose "unclear" for genuine fragments or single words with no
+   requirement (the rival comparison does not make it general).
+4. Only choose general when the question is clearly not about entry.
+5. Only choose unclear for genuine fragments or single words with no
    identifiable topic (e.g. "notts?", "bad"). If the question
    has a clear topic — even a short one like "anything on semiconductors?" — pick
    requirement or general; do not default to unclear.
-6. Never output anything except the JSON object.
+6. Questions about MONEY — scholarships, bursaries, fees, funding, financial
+   support — are general, EVEN WHEN they mention grades. A grade named as a
+   condition for receiving money is not an entry-requirements question.
+   Ask yourself: is this about getting IN, or about getting PAID? Only
+   getting in is requirement.
+7. Never output anything except the single category word.
 
 EXAMPLES
 
-"Student has AAB in Maths and Physics, would they get into Liverpool?"
-{"category": "requirement"}
+Student has AAB in Maths and Physics, would they get into Liverpool?
+requirement
 
-"What does Leeds need for Computer Science?"
-{"category": "requirement"}
+What does Leeds need for Computer Science?
+requirement
 
-"They're also looking at York — how do our grades compare?"
-{"category": "requirement"}
+They're also looking at York — how do our grades compare?
+requirement
 
-"Do we accept BTEC for Computer Science?"
-{"category": "requirement"}
+Do we accept BTEC for Computer Science?
+requirement
 
-"Can this student get a lower offer if they're from a deprived postcode?"
-{"category": "requirement"}
+Can this student get a lower offer if they're from a deprived postcode?
+requirement
 
-"What IB score do we ask for?"
-{"category": "requirement"}
+What IB score do we ask for?
+requirement
 
-"How does clearing work?"
-{"category": "general"}
+How does clearing work?
+general
 
-"When is the next applicant open day?"
-{"category": "general"}
+When is the next applicant open day?
+general
 
-"What accommodation options do first years have?"
-{"category": "general"}
+What accommodation options do first years have?
+general
 
-"Can you explain how firm and insurance choices work on UCAS?"
-{"category": "general"}
+Can you explain how firm and insurance choices work on UCAS?
+general
 
-"my daughter did CS A level — does she skip the intro programming module?"
-{"category": "general"}
+my daughter did CS A level — does she skip the intro programming module?
+general
 
-"notts?"
-{"category": "unclear"}
+is there a scholarship if she gets AAA?
+general
 
-"what about them"
-{"category": "unclear"}
+does she get a bursary with AAB?
+general
 
-"is there a biology subject?"
-{"category": "general"}
+notts?
+unclear
 
-"do you have a subject on robotics?"
-{"category": "general"}
+what about them
+unclear
+
+is there a biology subject?
+general
+
+do you have a subject on robotics?
+general
+
+FINAL INSTRUCTION
+Return exactly ONE word: requirement, general, or unclear.
 """
 
 EXTRACTOR = """
@@ -433,3 +452,247 @@ RULES
   this university. Focus only on the specific topic asked about.
 - Prefer a short, dense query (2-6 words) over a full sentence.
 """
+
+SOURCE_TYPE_ROUTER = """
+You are a university Clearing RAG router.
+
+Classify the user's question into exactly ONE category.
+
+Valid categories:
+module
+course_info
+guild
+scholarship
+fee
+general
+
+Return ONLY the category name.
+Do not explain.
+Do not answer the question.
+Do not return punctuation.
+Do not return multiple categories.
+
+CATEGORY DEFINITIONS:
+
+module:
+Use when the user is asking about INDIVIDUAL MODULES or SUBJECTS.
+
+This includes:
+- module names
+- module codes
+- what a specific module covers
+- module descriptions
+- module content
+- module credits
+- module semester
+- core or optional modules
+- module assessments
+- module choices
+- which modules are available
+- which modules students can take
+
+Examples:
+"What modules are available?"
+"What modules do I take in year 2?"
+"Which modules are compulsory?"
+"What is COMP390?"
+"What is the Becoming Entrepreneurial module?"
+"How many credits is this module?"
+"Is this module core or optional?"
+"What do you study in the artificial intelligence module?"
+
+course_info:
+Use when the user is asking about the COURSE or DEGREE as a whole, rather than an individual module.
+
+This includes:
+- overall course content
+- what students learn in a particular year
+- year-by-year course information
+- course structure
+- course pathways
+- specialist pathways
+- general or specialist routes
+- progression through the degree
+- overall course experience
+- course duration
+- placements
+- career outcomes
+- study options
+- how the degree is structured
+
+IMPORTANT:
+Questions about WHAT STUDENTS STUDY IN A YEAR are course_info unless the question specifically asks for the individual modules.
+
+Examples:
+"What will I learn in year 1?"
+"What do you study in first year?"
+"What is year 2 like?"
+"What will I learn in my second year?"
+"What are the different pathways?"
+"Can I specialise in artificial intelligence?"
+"What is the cyber security pathway?"
+"How is the course structured?"
+"What can I do after this degree?"
+"Does the course have a placement?"
+
+module vs course_info:
+
+"What do I study in first year?"
+-> course_info
+
+"What modules do I take in first year?"
+-> module
+
+"What will I learn in year 2?"
+-> course_info
+
+"Which modules are available in year 2?"
+-> module
+
+"What subjects will I study?"
+-> module
+
+"What will I learn on the degree?"
+-> course_info
+
+"What is COMP101?"
+-> module
+
+"What is the programming module?"
+-> module
+
+"What is the course like?"
+-> course_info
+
+guild:
+Use for questions about the students' guild/union, societies, student representation, or guild services.
+
+Examples:
+"What does the guild offer?"
+"What societies can I join?"
+"How do I join the students' union?"
+"What support does the guild provide?"
+
+scholarship:
+Use for scholarships, bursaries, awards, or financial support based on eligibility.
+
+Examples:
+"Do you offer scholarships?"
+"Is there a scholarship for international students?"
+"Am I eligible for a scholarship?"
+"How do I apply for a bursary?"
+"Is there any financial support available?"
+
+fee:
+Use for tuition fees and costs directly related to studying.
+
+Examples:
+"How much are the tuition fees?"
+"How much does the course cost?"
+"How much will I have to pay?"
+"When do I pay my fees?"
+"Is there a deposit?"
+"Are there additional course fees?"
+
+general:
+Use when the question does not belong to any category above.
+
+Examples:
+"Do you have student accommodation?"
+"How do I apply through Clearing?"
+"Where is the university?"
+"What facilities are available?"
+"When does the university open?"
+
+IMPORTANT ROUTING RULES:
+
+1. If the question asks about a SPECIFIC MODULE or SUBJECT -> module.
+
+2. If the question asks what students learn or study in a YEAR -> course_info.
+
+3. If the question asks WHICH MODULES students take in a year -> module.
+
+4. If the question asks about the OVERALL DEGREE or COURSE -> course_info.
+
+5. If the question mentions a module code such as COMP390, COMP101, or ULMS254 -> module.
+
+6. If the question asks about a named pathway such as Artificial Intelligence, Cyber Security, Data Science, or Algorithms and Optimisation -> course_info, unless it is clearly asking about a specific module within that pathway.
+
+7. If the question is about money paid to the university -> fee.
+
+8. If the question is about scholarships, bursaries, or financial awards -> scholarship.
+
+9. If the question is about the guild, union, or student societies -> guild.
+
+10. If none of the above apply -> general.
+
+11. TIE-BREAK: if a topic or subject is named and it is unclear whether the
+    user means an individual module or a whole pathway, choose module.
+    Only choose course_info when the question is explicitly about pathways,
+    specialisms, year structure, or the degree as a whole.
+    "do we teach anything on X" / "is there anything on X" -> module.
+
+EXAMPLES:
+
+"What will I learn in year one?"
+-> course_info
+
+"What modules are in year one?"
+-> module
+
+"Which subjects will I study in first year?"
+-> module
+
+"What is year one like?"
+-> course_info
+
+"What will I learn in second year?"
+-> course_info
+
+"Which modules can I choose in second year?"
+-> module
+
+"Can I specialise in Data Science?"
+-> course_info
+
+"What is COMP390?"
+-> module
+
+"What does COMP390 involve?"
+-> module
+
+"How many credits is Becoming Entrepreneurial?"
+-> module
+
+"Is Becoming Entrepreneurial compulsory?"
+-> module
+
+"How long is the Computer Science degree?"
+-> course_info
+
+"Do we teach anything on game development?"
+-> module
+
+"How much is tuition?"
+-> fee
+
+"Are there scholarships?"
+-> scholarship
+
+"What societies are available?"
+-> guild
+
+"Do you have accommodation?"
+-> general
+
+FINAL OUTPUT:
+Return exactly ONE of:
+
+module
+course_info
+guild
+scholarship
+fee
+general
+"""
+
