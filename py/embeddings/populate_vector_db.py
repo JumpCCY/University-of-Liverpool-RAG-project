@@ -5,16 +5,24 @@ import json
 from chromadb.utils.embedding_functions.ollama_embedding_function import (
     OllamaEmbeddingFunction,
 )
-sys.path.append(str(Path(__file__).parent.parent.parent))  
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+
+sys.path.append(str(PROJECT_ROOT))
 
 from script import scholar_chunking, general_chunking
 
+# anchored to the project root so this script reads and writes the same files no
+# matter which directory it is run from. a relative path here built a second, empty
+# chroma_db inside py/ whenever the script was run from there, while vector_search.py
+# kept reading the one in the project root.
+CHROMA_DB_PATH = PROJECT_ROOT / "chroma_db"
+
 PATH = {
-    "cs_modules": "data/json/bsc_cs_modules.json",
-    "courses_info": "data/json/courses_info.json",
-    "guilds": "data/json/liverpool_guilds.json",
-    "scholarships": "data/json/scholarships.json",
-    "fees": "data/json/fees.json"
+    "cs_modules": PROJECT_ROOT / "data/json/bsc_cs_modules.json",
+    "courses_info": PROJECT_ROOT / "data/json/courses_info.json",
+    "guilds": PROJECT_ROOT / "data/json/liverpool_guilds.json",
+    "scholarships": PROJECT_ROOT / "data/json/scholarships.json",
+    "fees": PROJECT_ROOT / "data/json/fees.json"
 }
 
 
@@ -29,7 +37,7 @@ ollama_ef = OllamaEmbeddingFunction(
 )
     
 #create chroma client save on the file
-chroma_client = chromadb.PersistentClient(path="chroma_db")
+chroma_client = chromadb.PersistentClient(path=str(CHROMA_DB_PATH))
 
 # delete the collection if it exists and rewrite it with the new data
 try:
@@ -81,7 +89,7 @@ print("Course info data added to the collection.")
 # populating the collection with guild data
 for guild in pull_data("guilds"):
     # if there is no short description, only add the long description to the collection
-    if guild.get("short_description") is None or guild["short_description"] == "":
+    if guild.get("short_description") is None or guild.get("short_description")  == "":
         collection.add(
             ids=[guild["guild_name"]],
             documents=[f"{guild['guild_name']} : {guild['long_description']}"],
@@ -93,6 +101,19 @@ for guild in pull_data("guilds"):
             ]
         )
         # else we add both the short and long descriptions to the collection
+
+    # in case guild short description is the duplicate of long desctiption so we just embedd long des to prevent dupe.
+    elif guild.get("short_description") in guild.get("long_description"):
+        collection.add(
+                    ids=[guild["guild_name"]],
+                    documents=[f"{guild['guild_name']} : {guild['long_description']}"],
+                    metadatas=[
+                        {
+                            "source_type": "guild",
+                            "guild_name": guild["guild_name"],
+                        }
+                    ]
+                )
     else:
         collection.add(
             ids=[guild["guild_name"]],

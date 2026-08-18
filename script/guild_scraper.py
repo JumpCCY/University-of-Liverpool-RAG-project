@@ -5,6 +5,10 @@ import time
 import re
 from urllib.parse import urljoin
 
+# there are some page that contain just test, test group 
+TEST_GROUP = re.compile(r"^test|test group|training demo", re.I)
+
+
 def clean_text(text):
     """
     Cleans the scraped text by removing excessive whitespace, 
@@ -78,11 +82,12 @@ def scrape_liverpool_guilds():
                 "long_description": long_desc
             }
 
-            if guild_info["short_description"] == "" and guild_info["long_description"] == "":
-                continue  # Skip guilds with no descriptions
-            else:
-                guilds_data.append(guild_info)
-                
+            # if theres blank site on the web we scrape just skip it ex web site that has "test"
+            if TEST_GROUP.search(guild_name):
+                continue
+
+            guilds_data.append(guild_info)
+
             # Be polite to the server: wait 1 second between requests
             time.sleep(1)
             

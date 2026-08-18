@@ -17,6 +17,120 @@ ollama_ef = OllamaEmbeddingFunction(
 
 collection = client.get_collection("my_collection", embedding_function=ollama_ef)
 
+# a handful of societies and modules exist on the site as a name with no description.
+# embedded as a bare name they land near the centre of the vector space, which makes
+# them moderately close to EVERY query - "Indie Society" was the most retrieved guild
+# document in testing, ahead of every society that actually has content. we keep them
+# (they are real) but only let them through on a strong, direct match.
+MIN_INFO_CHARS = 40
+LOW_INFO_MAX_DISTANCE = 0.30
+
+# these are noises which containes in almost every chunk so we have to match them up and then push them back by penalty
+BOILERPLATE_SECTIONS = re.compile(
+    r"completing your application|submitting your application|personal statement|"
+    r"application step|supporting your application|additional information|"
+    r"decisions|how to apply|how do i apply",
+    re.I,
+)
+BOILERPLATE_PENALTY = 0.15
+
+SCHOLARSHIP_POOL = 100      # every scholarship chunk, so no scholarship is missed
+FOCUS_MARGIN = 0.12         # one scholarship this much closer than the next = a question about that one
+
+
+def normalise(text: str) -> str:
+    """cleaning the text make it lower case remove additional space and symbol"""
+    return " ".join(re.sub(r"[^a-z0-9]+", " ", text.lower()).split())
+
+
+def title_keys(title: str) -> set[str]:
+    """
+    clearn the text and creates different versions that could appear in a question.
+    """
+    base = normalise(title)
+    keys = {base, re.sub(r"^the ", "", base)}
+    for k in list(keys):
+        words = k.split()
+        if words and words[-1].endswith("s"):
+            keys.add(" ".join(words[:-1] + [words[-1][:-1]]))
+    return {k for k in keys if len(k) > 8} # return a dict of scholarship variations with char > 8
+
+
+SCHOLARSHIP_TITLES = {} # every scholarship name in the vector database
+
+scholarships = collection.get(where={"source_type": "scholarship"},include=["metadatas"])["metadatas"]
+
+# get all name of scholarships in the database and then store it in a dict with different variations 
+for m in scholarships:
+    if m.get("scholarship_title"):
+        title = m["scholarship_title"]
+        SCHOLARSHIP_TITLES[title] = title_keys(title) 
+
+def named_scholarship(query: str) -> str | None:
+    """Return the scholarship the query names, if it names one."""
+    q = normalise(query)
+
+    matched_titles = []
+
+    # if theres any match title in the query if there's one we exit the loop 
+    for title, keys in SCHOLARSHIP_TITLES.items():
+        for key in keys:
+            if key in q:
+                matched_titles.append(title)
+                break
+
+    if not matched_titles:
+        return None
+
+    longest_title = max(matched_titles, key=len) # just incase there are the same name but with shorter ones
+
+    return longest_title
+
+
+def informative_body(document: str) -> str:
+    """
+    Strip the prefix added at ingest so only the descriptive text is measured.
+    Covers the four document shapes built in populate_vector_db.py.
+    """
+    if "\n" in document:                      # scholarship / general: "[crumb] heading\nbody"
+        return document.split("\n", 1)[1].strip()
+    if "] " in document:                      # module: "CODE: Title [credits, year...] description"
+        return document.split("] ", 1)[1].strip()
+    if " : " in document:                     # guild / fee / course_info: "Name : description"
+        return document.split(" : ", 1)[1].strip()
+    return document.strip()
+
+
+def is_low_info(document: str) -> bool:
+    """A document with no body carries no signal beyond its own name."""
+    return len(informative_body(document)) < MIN_INFO_CHARS
+
+
+def to_answer(doc: str, meta: dict, dist: float) -> dict:
+    """Build the result dict used everywhere in this module."""
+    return {"distance": dist, "source_type": meta.get("source_type"), "document": doc, "metadata": meta}
+
+
+def query_rows(results: chromadb.QueryResult) -> list[tuple]:
+    """get the query result from chroma and turn it into a lists"""
+    return list(zip(results["documents"][0], results["metadatas"][0], results["distances"][0]))
+
+
+def drop_low_info(rows: list[tuple]) -> list[tuple]:
+    """
+    Remove name-only documents unless they are a strong direct match.
+    """
+    filtered_rows = []
+    for r in rows:
+        document = r[0]
+        distance = r[2]
+
+        # get only rows that is not low information such as empty page or the one that has low distance ex. direct name match 
+        if not is_low_info(document) or distance < LOW_INFO_MAX_DISTANCE:
+            filtered_rows.append(r)
+
+    return filtered_rows
+
 
 def metadata_search(search_result: chromadb.GetResult, result_list: list):
     """
@@ -74,6 +188,69 @@ def extract_semester(q) -> list[str]:
     return []
 
 
+def scholarship_search(search_query: str, n_results: int) -> list[dict]:
+    """
+    Retrieve at the SCHOLARSHIP level instead of the chunk level.
+
+    Ranking chunks lets a few scholarships fill every slot with near-identical
+    application paperwork while most of the 15 never reach the answerer - staff were
+    being told "we hold details for six scholarships" when there are 15. Scoring each
+    scholarship by its best substantive chunk guarantees breadth instead.
+    """
+
+    named = named_scholarship(search_query) # detect scholarship name in the query, if theres any match 
+    # work like search in modules. search that scholarship directly by its name and return all chunks of that scholarship if the query is about a specific scholarship
+    if named:
+        record = collection.get(where={"scholarship_title": named}, include=["documents", "metadatas"])
+        return [to_answer(d, m, 0.0) for d, m in zip(record["documents"], record["metadatas"])]
+
+    # search all scholarship rank with them in a list of tuples 
+    rows = query_rows(collection.query(
+        query_texts=[search_query],
+        where={"source_type": "scholarship"},
+        n_results=SCHOLARSHIP_POOL,
+    ))
+
+    # keep the best chunk per scholarship, preferring sections that actually the closest 
+    best = {}
+    for doc, meta, dist in rows:
+        title = meta.get("scholarship_title")
+        if not title:
+            continue
+        score = dist + (BOILERPLATE_PENALTY if BOILERPLATE_SECTIONS.search(meta.get("section", "")) else 0.0) # if there's some noise such as apply step, completing application we add penalty 
+        # so we test for every title which one is the best match then we keep those in dict, there are multiple best from different titles.
+        if title not in best or score < best[title][0]:
+            best[title] = (score, dist, doc, meta)
+
+    ordered = sorted(best.values())
+
+    # if one scholarship distance is clearly seperated then we return only that scholarship, otherwise we return the top n_results (normal search) scholarships
+    if len(ordered) >= 2 and ordered[1][0] - ordered[0][0] > FOCUS_MARGIN:
+        focused = collection.get(
+            where={"scholarship_title": ordered[0][3]["scholarship_title"]},
+            include=["documents", "metadatas"],
+        )
+        results = []
+
+        for d, m in zip(focused["documents"], focused["metadatas"]):
+            answer = to_answer(d, m, ordered[0][1])
+            results.append(answer)
+
+        return results
+
+    results = []
+
+    for item in ordered[:n_results]:
+        dist = item[1]
+        doc = item[2]
+        meta = item[3]
+
+        answer = to_answer(doc, meta, dist)
+        results.append(answer)
+
+    return results
+
+
 def vector_similarity_search(original_query: str, search_query: str = None, source_type: str = None, n_results: int = 5) -> list[dict]:
     """
     Performs a vector similarity search on the ChromaDB collection.
@@ -100,7 +277,11 @@ def vector_similarity_search(original_query: str, search_query: str = None, sour
         results = collection.get(where={"code": {"$in": module_codes}}, include=["documents", "metadatas"])
         metadata_search(results, result_list)
         return result_list
-    
+
+    # scholarship questions are about scholarships, not chunks - handled separately
+    if source_type == "scholarship":
+        return scholarship_search(search_query, n_results)
+
     # now we check for multiple filters credits year semester ex. "modules with 20 credits in year 2 semester 1" or "modules in year 3 semester 2 with 10 credits"
     facets = []
     if credits:
@@ -112,7 +293,7 @@ def vector_similarity_search(original_query: str, search_query: str = None, sour
 
     # if source_type is none or general we just give them None cause its the same so we generalize.
     if source_type not in (None, "general"):
-        pinned = source_type # only "module", "course_info", "guild", "scholarship", "fee"
+        pinned = source_type # one of the specific source types: module, course_info, guild, scholarship, or fee
     else:
         pinned = None
 
@@ -121,14 +302,14 @@ def vector_similarity_search(original_query: str, search_query: str = None, sour
     if pinned:
         clauses.append({"source_type": pinned})
     # if facets is not empty we check if pinned is module or not, if yes just add those filters. 
-    # if the query is not detected as a module question but has something like "20 credits" or "year 2" 
-    # instead we search both modules and all soruce types that are not in modules
+    # if the query is not detected as a module question but has something like or "year two" 
+    # instead we search both modules and all soruce types that are not in modules so the result doesnt stuck with just value from filter
     if facets:
         if pinned == "module":
             clauses.extend(facets)
         elif pinned is None:
             module_filter = facets[0] if len(facets) == 1 else {"$and": facets} # if there is only one filter we just use that, if there are multiple filters we use $and to combine them.
-            clauses.append({"$or": [module_filter, {"source_type": {"$ne": "module"}}]}) # faces or something that is not in source_type = module.
+            clauses.append({"$or": [module_filter, {"source_type": {"$ne": "module"}}]}) # faces or something that is not in source_type = module. this make that if the query mentioned year or semester but not about module we still get the result from other source types that are not in module.
 
     if not clauses:
         filters = None # normal similarity search.
@@ -137,18 +318,24 @@ def vector_similarity_search(original_query: str, search_query: str = None, sour
     else:
         filters = {"$and": clauses}
 
-    results = collection.query(query_texts=[search_query], where=filters, n_results=n_results)
+    # search more then we need then drop low information documents and return only the top n_results
+    # Semantic search + metadata filters
+    results = collection.query(query_texts=[search_query], where=filters, n_results=n_results * 3)
+    rows = drop_low_info(query_rows(results))[:n_results] # get only top n_results after dropping low information documents. 
+
+    # if theres a filter to search but after search we get less than n_results we backfill with other source types that are not in the pinned source type.
+    # data that has low chunk such as course_info, fee
+    if pinned and len(rows) < n_results:
+        backfill = collection.query(
+            query_texts=[search_query],
+            where={"source_type": {"$ne": pinned}},
+            n_results=(n_results - len(rows)) * 3,
+        )
+        rows += drop_low_info(query_rows(backfill))[: n_results - len(rows)]
 
     # normal function for returning the results as a list of dicts with keys "distance", "source_type", and "document"
-    for doc, meta, dist in zip(
-        results["documents"][0], results["metadatas"][0], results["distances"][0]
-    ):
-        answer = {}
-        answer["distance"] = dist
-        answer["source_type"] = meta.get("source_type")
-        answer["document"] = doc
-        answer["metadata"] = meta
-        result_list.append(answer)
+    for doc, meta, dist in rows:
+        result_list.append(to_answer(doc, meta, dist))
 
     return result_list
 

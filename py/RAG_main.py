@@ -138,7 +138,7 @@ def main(user_query: str) -> str:
         source_type = LLM_query(prompts.SOURCE_TYPE_ROUTER, original_query, model="qwen3.5:9b").message.content.strip() # detect what type of source it is (module, course_info, guild, scholarship, fee, general)
         if source_type not in {"module", "course_info", "guild", "scholarship", "fee", "general"}:
             source_type = "general" # if source type is not one of the known types, default to general
-        vector_search_results = vector_similarity_search(original_query, user_query, source_type, n_results=10) # get a search result as a list of dicts with keys "distance", "source_type", and "document"
+        vector_search_results = vector_similarity_search(original_query, user_query, source_type, n_results=20) # get a search result as a list of dicts with keys "distance", "source_type", and "document"
         prompting = answer_vector_search_construct(original_query, vector_search_results) # include search results in the query 
         answer = LLM_query(prompts.GENERAL_ANSWERER, prompting, model="qwen3.6:27b").message.content
         return answer

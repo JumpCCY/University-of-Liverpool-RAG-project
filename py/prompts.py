@@ -62,7 +62,16 @@ RULES
    condition for receiving money is not an entry-requirements question.
    Ask yourself: is this about getting IN, or about getting PAID? Only
    getting in is requirement.
-7. Never output anything except the single category word.
+7. When the staff member describes a student's PERSONAL CIRCUMSTANCES and asks
+   what is available to them, that is general — not unclear, and not requirement.
+   Circumstances include: being in care or a care leaver, being estranged from
+   parents, being a young carer, being an asylum seeker or refugee, having a
+   disability, being a mature student, being the first in the family to go to
+   university, low household income, or being from a widening participation
+   background. Vague wording like "any help?", "what can she get?" or "is there
+   anything for her?" is still a clear question — it is asking what support the
+   University offers, so choose general.
+8. Never output anything except the single category word.
 
 EXAMPLES
 
@@ -103,6 +112,15 @@ is there a scholarship if she gets AAA?
 general
 
 does she get a bursary with AAB?
+general
+
+she looks after her mum, she's 19, any help?
+general
+
+she's been in care, what can she get?
+general
+
+he's estranged from his parents, is there anything for him?
 general
 
 notts?
@@ -695,4 +713,3 @@ scholarship
 fee
 general
 """
-
