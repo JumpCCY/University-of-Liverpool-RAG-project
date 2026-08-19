@@ -96,7 +96,7 @@ def scrape_liverpool_guilds():
             continue
 
     # 3. Save the collected data to a JSON file
-    output_filename = 'data/json/liverpool_guilds.json'
+    output_filename = 'data/liverpool/json/guilds.json'
     with open(output_filename, 'w', encoding='utf-8') as json_file:
         json.dump(guilds_data, json_file, indent=4, ensure_ascii=False)
         

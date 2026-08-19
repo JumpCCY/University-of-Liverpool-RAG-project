@@ -77,7 +77,7 @@ for url in URLS:
             continue
 
 
-        output_path = PARENT_DIR / "data" / "general" / f"{title}.html"
+        output_path = PARENT_DIR / "data" / "liverpool" / "general" / f"{title}.html"
         with open(output_path, "w", encoding="utf-8") as f:
             f.write(str(r))
 

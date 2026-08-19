@@ -35,7 +35,7 @@ def clean_text(value):
 
 
 for name in UNIVERSITY_NAMES:
-    path = f"{name}_cs_requirements.xlsx"
+    path = f"data/raw/{name}_cs_requirements.xlsx"
     workbook = openpyxl.load_workbook(path)
     sheet_obj = workbook.worksheets[0]
 
@@ -51,5 +51,5 @@ for name in UNIVERSITY_NAMES:
         qualifications.append(info)
 
 
-    with open(f"data/json/{name}_qualifications.json", "w") as f:
+    with open(f"data/{name}/json/qualifications.json", "w") as f:
         json.dump(qualifications, f, indent=4, ensure_ascii=False)

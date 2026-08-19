@@ -4,7 +4,7 @@ from pathlib import Path
 from rich import print
 from bs4 import BeautifulSoup
 
-folder = Path(__file__).parent.parent / "data" / "scholarships"
+folder = Path(__file__).parent.parent / "data" / "liverpool" / "scholarships"
 
 def preprocess_html(html):
     """Flatten inline tags into reading-order text BEFORE splitting.

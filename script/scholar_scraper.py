@@ -27,6 +27,6 @@ for link in links:
     title = link_soup.find('h1').get_text(strip=True).replace(" ", "_")
     r = link_soup.find('div', class_='rb-content-flow')
 
-    output_path = PARENT_DIR / "data" / "scholarships" / f"{title}.html"
+    output_path = PARENT_DIR / "data" / "liverpool" / "scholarships" / f"{title}.html"
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(str(r))

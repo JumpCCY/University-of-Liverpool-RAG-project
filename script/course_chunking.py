@@ -7,10 +7,9 @@ from langchain_text_splitters import (
 import re
 from rich import print
 
-folder = Path(__file__).parent.parent / "data" / "course"
+folder = Path(__file__).parent.parent / "data" / "liverpool" / "course"
 
-# every file here comes from the one BSc Computer Science course page, so the crumb
-# says which course it is and the page name says which section of it.
+
 MAIN_SECTION = "computer science bsc"
 
 # chunks whose body matches any of these are CMS boilerplate, not content
@@ -28,8 +27,6 @@ NOISE_PATTERNS = [
 ]
 
 # the course page repeats the whole module list inside accordions, and we already hold
-# all 57 modules as their own chunks from bsc_cs_modules.json. a chunk naming this many
-# module codes is one of those accordions, so it is a duplicate and we drop it.
 MODULE_CODE = re.compile(r"\b(?:COMP|ELEC|PSYC|ULMS)\d{3}\b")
 MAX_MODULE_CODES = 3
 

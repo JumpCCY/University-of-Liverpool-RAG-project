@@ -6,6 +6,7 @@ from chromadb.utils.embedding_functions.ollama_embedding_function import (
 import re
 from rich import print
 import models
+from json_search import UNIVERSITY_FOLDER
 
 CHROMA_DB_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "chroma_db")
 
@@ -38,6 +39,27 @@ BOILERPLATE_PENALTY = 0.15
 SCHOLARSHIP_POOL = 100      # every scholarship chunk, so no scholarship is missed
 MODULE_POOL = 100           # every module chunk, so no module is missed from a year/semester list
 FOCUS_MARGIN = 0.12         # one scholarship this much closer than the next = a question about that one
+
+RIVAL_RESULTS = 6           # rivals are lazily embedded so we only take a summary from them
+
+# each university has its own collection, so rebuilding one does not re-embed the others
+UNIVERSITY_COLLECTIONS = {
+    "University of Liverpool":  "my_collection",
+    "University of Manchester": "manchester",
+    "University of Sheffield":  "sheffield",
+    "University of Leeds":      "leeds",
+    "Newcastle University":     "newcastle",
+    "University of Nottingham": "nottingham",
+    "University of York":       "york",
+    "University of Lancaster":  "lancaster",
+}
+
+# these share a city name with a university we hold, so strip them before matching
+OTHER_INSTITUTIONS = re.compile(
+    r"liverpool john moores|ljmu|manchester metropolitan|mmu|leeds beckett|"
+    r"leeds trinity|york st john|sheffield hallam|nottingham trent|northumbria",
+    re.I,
+)
 
 
 # the related information we group it together so that if the user is searching for one of them we can return all of them (n).
@@ -378,6 +400,55 @@ def vector_similarity_search(original_query: str, search_query: str = None, sour
         result_list.append(to_answer(doc, meta, dist))
 
     return result_list
+
+
+def named_universities(query: str) -> list[str]:
+    """Universities the query names. Liverpool is always first, we compare against it."""
+    q = OTHER_INSTITUTIONS.sub(" ", query.lower()) # so "liverpool john moores" is not us
+
+    found = ["University of Liverpool"]
+    for uni, folder in UNIVERSITY_FOLDER.items(): # the folder name is also the city keyword
+        if uni not in found and re.search(rf"\b{folder}\b", q):
+            found.append(uni)
+
+    return found
+
+
+def rival_search(university: str, search_query: str, n_results: int = RIVAL_RESULTS) -> list[dict]:
+    """Rivals are lazily embedded, so no scope groups or facets here. Just the closest n."""
+    name = UNIVERSITY_COLLECTIONS.get(university)
+    if not name:
+        return []
+
+    try:
+        rival = client.get_collection(name, embedding_function=ollama_ef)
+    except Exception:
+        return [] 
+
+    results = []
+    for doc, meta, dist in query_rows(rival.query(query_texts=[search_query], n_results=n_results)):
+        results.append(to_answer(doc, meta, dist))
+
+    return results
+
+
+def search_all_universities(original_query: str, search_query: str = None, source_type: str = None, n_results: int = 20) -> dict[str, list[dict]]:
+    """
+    Search every university the query names. Liverpool gets the full pipeline, rivals get a summary.
+
+    return: dict of university name -> list of result dicts
+    """
+    if search_query is None:
+        search_query = original_query
+
+    results = {}
+    for uni in named_universities(original_query):
+        if uni == "University of Liverpool":
+            results[uni] = vector_similarity_search(original_query, search_query, source_type, n_results)
+        else:
+            results[uni] = rival_search(uni, search_query)
+
+    return results
 
 
 if __name__ == "__main__":

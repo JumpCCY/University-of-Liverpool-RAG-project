@@ -6,9 +6,8 @@ import urllib.error
 from llm import LLM_query, LLM_query_stream
 import prompts
 from json_search import load_universities
-from vector_search import vector_similarity_search
+from vector_search import vector_similarity_search, named_universities
 import models
-import json
 
 OLLAMA_URL = models.OLLAMA_URL
 
@@ -41,42 +40,11 @@ KNOWN_UNIVERSITIES = ["University of Liverpool", "University of York", "Universi
     "University of Sheffield", "University of Nottingham",
     "University of Lancaster",]
 
-def query_to_json(prompt, query, model) -> dict:
-    """
-    Queries the LLM with the given prompt, and returns the parsed JSON response.
-
-    This only for query that we expect to return a JSON such as extractor and router. For other queries, use LLM_query directly.
-    """
-    response = LLM_query(prompt, query, model=model).message.content
-    try:
-        response = json.loads(response)
-    except json.JSONDecodeError:
-        response = {}
-    return response
-
-def extract_metadata(user_query) -> dict:
-    """
-    Extracts metadata from the user query and adds the University of Liverpool if not present.
-    """
-    data = query_to_json(prompts.EXTRACTOR, user_query, model=models.LOW_EFFORT) # extracted qualification and university information mentioned from the user query
-    unis = data.get("universities") or []
-
-    #insert University of Liverpool because this is from University of Liverpool staff and we want to compare against it.
-    if "University of Liverpool" not in unis:
-        unis.insert(0, "University of Liverpool")
-
-    return {
-        "universities": unis,
-        "student_grades": data.get("student_grades") or "",
-        "qualification_type": data.get("qualification_type") or ""
-    }
-
-def answer_qualification_constuct(user_query: str, extracted_meta: dict, qualifications_data: dict) -> str:
+def answer_qualification_constuct(user_query: str, qualifications_data: dict) -> str:
     """
     Constructs the context for answering qualification-related questions.
     Args:
         user_query (str): The user's query.
-        extracted_meta (dict): example -> {"universities": ["University of Liverpool", "University of York"], "student_grades": "2:1", "qualification_type": "BSc Computer Science"}
         qualifications_data (dict): Qualification records for the relevant universities retrieved from JSON files.
     """
     SKIP_FIELDS = {"id", "university", "course", "headline_grade", "additional_conditions"}
@@ -93,8 +61,6 @@ def answer_qualification_constuct(user_query: str, extracted_meta: dict, qualifi
             context += "\n"
 
     user_content = f"""STAFF QUESTION: {user_query}
-
-    STUDENT GRADES: {extracted_meta.get('student_grades') or "(not stated)"}
 
     UNIVERSITY RECORDS:{context}"""
     return user_content
@@ -139,9 +105,9 @@ def route_and_build(user_query: str) -> tuple[str | None, str]:
 
     # route to JSON data for accuracy
     if category == "requirement":
-        metadata = extract_metadata(original_query) # handle requirement questions
-        qualifications_data = load_universities(metadata["universities"]) # load the qualification records for the universities mentioned in the user query
-        prompting = answer_qualification_constuct(original_query, metadata, qualifications_data)
+        universities = named_universities(original_query) # regex
+        qualifications_data = load_universities(universities) # load the qualification records for the universities mentioned in the user query
+        prompting = answer_qualification_constuct(original_query, qualifications_data)
         return prompts.ANSWERER, prompting
 
     #route to vector database similarity search

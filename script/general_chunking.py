@@ -7,7 +7,7 @@ from langchain_text_splitters import (
 import re
 from rich import print
 
-folder = Path(__file__).parent.parent / "data" / "general"
+folder = Path(__file__).parent.parent / "data" / "liverpool" / "general"
 
 # chunks whose body matches any of these are CMS boilerplate, not content
 NOISE_PATTERNS = [

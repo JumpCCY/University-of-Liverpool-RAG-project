@@ -24,4 +24,4 @@ for h4 in pullout.find_all("h4"):
     info = [clean(l) for l in p.get_text().split("\n") if clean(l)]
     data.append({"title": clean(h4.get_text()), "info": info})
 
-json.dump(data, open("data/json/fees.json", "w"), indent=4, ensure_ascii=False)
+json.dump(data, open("data/liverpool/json/fees.json", "w"), indent=4, ensure_ascii=False)

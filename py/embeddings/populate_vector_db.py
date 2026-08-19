@@ -20,12 +20,20 @@ from script import scholar_chunking, general_chunking, course_chunking
 # kept reading the one in the project root.
 CHROMA_DB_PATH = PROJECT_ROOT / "chroma_db"
 
+# every chunk this script writes is University of Liverpool. a rival is populated by the
+# same code pointed at its own folder, and this metadata is what keeps them apart at
+# retrieval time - without it a search would blend a Liverpool module and a Manchester
+# one into one answer, which is exactly what the answerer is told never to do.
+UNIVERSITY = "University of Liverpool"
+
+LIVERPOOL_JSON = PROJECT_ROOT / "data" / "liverpool" / "json"
+
 PATH = {
-    "cs_modules": PROJECT_ROOT / "data/json/bsc_cs_modules.json",
-    "courses_info": PROJECT_ROOT / "data/json/courses_info.json",
-    "guilds": PROJECT_ROOT / "data/json/liverpool_guilds.json",
-    "scholarships": PROJECT_ROOT / "data/json/scholarships.json",
-    "fees": PROJECT_ROOT / "data/json/fees.json"
+    "cs_modules": LIVERPOOL_JSON / "bsc_cs_modules.json",
+    "courses_info": LIVERPOOL_JSON / "courses_info.json",
+    "guilds": LIVERPOOL_JSON / "guilds.json",
+    "scholarships": LIVERPOOL_JSON / "scholarships.json",
+    "fees": LIVERPOOL_JSON / "fees.json"
 }
 
 
@@ -62,6 +70,7 @@ for module in pull_data("cs_modules"):
         metadatas=[
             {
                 "source_type": "module",
+                "university": UNIVERSITY,
                 "code": module["code"],
                 "title": module["title"],
                 "year": module["year"],
@@ -82,6 +91,7 @@ for info in pull_data("courses_info"):
         metadatas=[
             {
                 "source_type": "course_info",
+                "university": UNIVERSITY,
                 "title" : info["title"],
             }
         ]
@@ -101,6 +111,7 @@ for i, doc in enumerate(course_chunking.chunking()):
         documents=[doc.page_content],
         metadatas=[{
             "source_type": "course_info",
+            "university": UNIVERSITY,
             "main_section": md.get("main_section", ""),
             "section": md.get("Header 2") or md.get("Header 3") or md.get("Header 4") or "general", # if no header, default to "general"
             "page_title": md.get("page", ""),
@@ -119,6 +130,7 @@ for guild in pull_data("guilds"):
             metadatas=[
                 {
                     "source_type": "guild",
+                    "university": UNIVERSITY,
                     "guild_name": guild["guild_name"],
                 }
             ]
@@ -133,6 +145,7 @@ for guild in pull_data("guilds"):
                     metadatas=[
                         {
                             "source_type": "guild",
+                            "university": UNIVERSITY,
                             "guild_name": guild["guild_name"],
                         }
                     ]
@@ -144,6 +157,7 @@ for guild in pull_data("guilds"):
             metadatas=[
                 {
                     "source_type": "guild",
+                    "university": UNIVERSITY,
                     "guild_name": guild["guild_name"],
                 }
             ]
@@ -159,6 +173,7 @@ for i, doc in enumerate(scholar_chunking.chunking()):
         documents=[doc.page_content],
         metadatas=[{
             "source_type": "scholarship",
+            "university": UNIVERSITY,
             "scholarship_title": md.get("scholarship", ""),
             "section": md.get("Header 2") or md.get("Header 3") or md.get("Header 1") or "general", # if no header, default to "general"
         }],
@@ -177,6 +192,7 @@ for fee in pull_data("fees"):
         metadatas=[
             {
                 "source_type": "fee",
+                "university": UNIVERSITY,
             }
         ]
     )
@@ -191,6 +207,7 @@ for i, doc in enumerate(general_chunking.chunking()):
         documents=[doc.page_content],
         metadatas=[{
             "source_type": "general",
+            "university": UNIVERSITY,
             "main_section": md.get("main_section", ""),
             "section": md.get("Header 2") or md.get("Header 3") or md.get("Header 1") or "general", # if no header, default to "general"
             "page_title": md.get("page", ""),
