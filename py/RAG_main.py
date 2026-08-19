@@ -6,7 +6,7 @@ import urllib.error
 from llm import LLM_query, LLM_query_stream
 import prompts
 from json_search import load_universities
-from vector_search import vector_similarity_search, named_universities
+from vector_search import search_all_universities, named_universities
 import models
 
 OLLAMA_URL = models.OLLAMA_URL
@@ -65,16 +65,24 @@ def answer_qualification_constuct(user_query: str, qualifications_data: dict) ->
     UNIVERSITY RECORDS:{context}"""
     return user_content
 
-def answer_vector_search_construct(user_query: str, vector_search_results: list[dict]) -> str:
+def answer_vector_search_construct(user_query: str, vector_search_results: dict[str, list[dict]]) -> str:
     """
     Constructs the context for answering general questions using vector search results.
     Args:
         user_query (str): The user's query.
-        vector_search_results (list[dict]): List of search results, each containing "distance", "source_type", and "document".
+        vector_search_results (dict): university name -> list of results with "distance", "source_type", and "document".
     """
     str_for_llm = ""
-    for vector_search_result in vector_search_results:
-        str_for_llm += vector_search_result["document"] + "\n\n"
+    # header per university so the answerer can tell whose fact is whose and never merge them
+    for university, results in vector_search_results.items():
+        str_for_llm += f"\n=== {university} ===\n"
+
+        if not results:
+            str_for_llm += "We hold no information about this university." + "\n"
+            continue
+
+        for result in results:
+            str_for_llm += result["document"] + "\n\n"
 
     user_content = f"""STAFF QUESTION: {user_query}
 
@@ -105,22 +113,24 @@ def route_and_build(user_query: str) -> tuple[str | None, str]:
 
     # route to JSON data for accuracy
     if category == "requirement":
-        universities = named_universities(original_query) # regex
+        universities = named_universities(original_query) # regex to find the universities mentioned in the user query
         qualifications_data = load_universities(universities) # load the qualification records for the universities mentioned in the user query
         prompting = answer_qualification_constuct(original_query, qualifications_data)
         return prompts.ANSWERER, prompting
 
     #route to vector database similarity search
     elif category == "general":
+
         #user_query = LLM_query(prompts.REWRITER, original_query, model=models.LOW_EFFORT).message.content #rewrite the user query for better retrieval
         #print(f"Rewritten query: {user_query}")
 
-        # do sub routing for soruce type (module, course_info, guild, scholarship, fee, general) and then do vector search for each source type and combine the results
+        # do sub routing
         source_type = LLM_query(prompts.SOURCE_TYPE_ROUTER, original_query, model=models.LOW_EFFORT).message.content.strip() # detect what type of source it is (module, course_info, guild, scholarship, fee, general)
         print(source_type)
         if source_type not in {"module", "course_info", "guild", "scholarship", "fee", "general"}:
             source_type = "general" # if source type is not one of the known types, default to general
-        vector_search_results = vector_similarity_search(original_query, user_query, source_type, n_results=20) # get a search result as a list of dicts with keys "distance", "source_type", and "document"
+
+        vector_search_results = search_all_universities(original_query, user_query, source_type, n_results=20) # university name -> list of results
         prompting = answer_vector_search_construct(original_query, vector_search_results) # include search results in the query
         return prompts.GENERAL_ANSWERER, prompting
 

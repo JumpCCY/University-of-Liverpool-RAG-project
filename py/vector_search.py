@@ -40,8 +40,6 @@ SCHOLARSHIP_POOL = 100      # every scholarship chunk, so no scholarship is miss
 MODULE_POOL = 100           # every module chunk, so no module is missed from a year/semester list
 FOCUS_MARGIN = 0.12         # one scholarship this much closer than the next = a question about that one
 
-RIVAL_RESULTS = 6           # rivals are lazily embedded so we only take a summary from them
-
 # each university has its own collection, so rebuilding one does not re-embed the others
 UNIVERSITY_COLLECTIONS = {
     "University of Liverpool":  "my_collection",
@@ -414,7 +412,7 @@ def named_universities(query: str) -> list[str]:
     return found
 
 
-def rival_search(university: str, search_query: str, n_results: int = RIVAL_RESULTS) -> list[dict]:
+def rival_search(university: str, search_query: str, n_results: int = 20) -> list[dict]:
     """Rivals are lazily embedded, so no scope groups or facets here. Just the closest n."""
     name = UNIVERSITY_COLLECTIONS.get(university)
     if not name:
@@ -435,6 +433,7 @@ def rival_search(university: str, search_query: str, n_results: int = RIVAL_RESU
 def search_all_universities(original_query: str, search_query: str = None, source_type: str = None, n_results: int = 20) -> dict[str, list[dict]]:
     """
     Search every university the query names. Liverpool gets the full pipeline, rivals get a summary.
+    If theres not any university name in the query we just search for University of Liverpool.
 
     return: dict of university name -> list of result dicts
     """
@@ -444,9 +443,9 @@ def search_all_universities(original_query: str, search_query: str = None, sourc
     results = {}
     for uni in named_universities(original_query):
         if uni == "University of Liverpool":
-            results[uni] = vector_similarity_search(original_query, search_query, source_type, n_results)
+            results[uni] = vector_similarity_search(original_query, search_query, source_type, n_results) # main function 
         else:
-            results[uni] = rival_search(uni, search_query)
+            results[uni] = rival_search(uni, search_query, n_results)
 
     return results
 
