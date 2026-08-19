@@ -150,8 +150,8 @@ def route_and_build(user_query: str) -> tuple[str | None, str]:
         #print(f"Rewritten query: {user_query}")
 
         # do sub routing for soruce type (module, course_info, guild, scholarship, fee, general) and then do vector search for each source type and combine the results
-
         source_type = LLM_query(prompts.SOURCE_TYPE_ROUTER, original_query, model=models.LOW_EFFORT).message.content.strip() # detect what type of source it is (module, course_info, guild, scholarship, fee, general)
+        print(source_type)
         if source_type not in {"module", "course_info", "guild", "scholarship", "fee", "general"}:
             source_type = "general" # if source type is not one of the known types, default to general
         vector_search_results = vector_similarity_search(original_query, user_query, source_type, n_results=20) # get a search result as a list of dicts with keys "distance", "source_type", and "document"

@@ -12,7 +12,7 @@ sys.path.append(str(PROJECT_ROOT / "py"))  # so the shared model config can be i
 
 import models
 
-from script import scholar_chunking, general_chunking
+from script import scholar_chunking, general_chunking, course_chunking
 
 # anchored to the project root so this script reads and writes the same files no
 # matter which directory it is run from. a relative path here built a second, empty
@@ -88,6 +88,26 @@ for info in pull_data("courses_info"):
     )
 
 print("Course info data added to the collection.")
+
+# populating the collection with the bsc computer science course page.
+# same source_type as courses_info on purpose so both land in the same retrieval scope.
+# the hand written json only covers year one and two and the pathways, the course page
+# fills in accreditation, careers, year in industry, year abroad, how you're taught and
+# assessed, the school and the support available.
+for i, doc in enumerate(course_chunking.chunking()):
+    md = doc.metadata
+    collection.add(
+        ids=[f"course_{md['page']}_{i}"],
+        documents=[doc.page_content],
+        metadatas=[{
+            "source_type": "course_info",
+            "main_section": md.get("main_section", ""),
+            "section": md.get("Header 2") or md.get("Header 3") or md.get("Header 4") or "general", # if no header, default to "general"
+            "page_title": md.get("page", ""),
+        }],
+    )
+
+print("Course page data added to the collection.")
 
 # populating the collection with guild data
 for guild in pull_data("guilds"):
