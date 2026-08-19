@@ -128,6 +128,11 @@ def route_and_build(user_query: str) -> tuple[str | None, str]:
         to show instead.
     """
     original_query = user_query
+
+    # check for empty query and return a message if so
+    if not user_query or not user_query.strip():
+        return None, "No question was entered."
+
     category = LLM_query(prompts.ROUTER, original_query, model=models.LOW_EFFORT).message.content.strip() # route the query to either requirement or general
     if category not in {"requirement", "general", "unclear"}: #if category is not one of the three known categories default to unclear
         category = "unclear"
@@ -185,7 +190,9 @@ def main_stream(user_query: str):
 
 if __name__ == "__main__":
     ensure_ollama_running()
-    user_query = input("Enter your query: ")
+    user_query = input("Enter your query: ").strip()
+    while not user_query:   # a stray newline from pasting submits an empty line
+        user_query = input("Enter your query: ").strip()
     for piece in main_stream(user_query):   # printed as it arrives instead of all at the end
         print(piece, end="", flush=True)
     print()
