@@ -39,6 +39,14 @@ SCHOLARSHIP_POOL = 100      # every scholarship chunk, so no scholarship is miss
 FOCUS_MARGIN = 0.12         # one scholarship this much closer than the next = a question about that one
 
 
+# the related information we group it together so that if the user is searching for one of them we can return all of them (n).
+SCOPE_GROUPS = {
+    "module":      ["module", "course_info", "fee"],
+    "course_info": ["module", "course_info", "fee"],
+    "fee":         ["module", "course_info", "fee"],
+}
+
+
 def normalise(text: str) -> str:
     """cleaning the text make it lower case remove additional space and symbol"""
     return " ".join(re.sub(r"[^a-z0-9]+", " ", text.lower()).split())
@@ -54,7 +62,12 @@ def title_keys(title: str) -> set[str]:
         words = k.split()
         if words and words[-1].endswith("s"):
             keys.add(" ".join(words[:-1] + [words[-1][:-1]]))
-    return {k for k in keys if len(k) > 8} # return a dict of scholarship variations with char > 8
+    # return a dict of scholarship variations with char > 8
+    long_enough = set()
+    for k in keys:
+        if len(k) > 8:
+            long_enough.add(k)
+    return long_enough
 
 
 SCHOLARSHIP_TITLES = {} # every scholarship name in the vector database
@@ -154,8 +167,11 @@ def extract_year(q) -> list[int]:
     Extracts the year information from the query. if the query asking about year. for searching a module
     """
     q = q.lower()
-    years = [int(x) for x in re.findall(r"year\s*([123])", q)]
-    years += [int(x) for x in re.findall(r"([123])(?:st|nd|rd)\s*year", q)]
+    years = []
+    for x in re.findall(r"year\s*([123])", q):
+        years.append(int(x))
+    for x in re.findall(r"([123])(?:st|nd|rd)\s*year", q):
+        years.append(int(x))
     for w, n in {"first": 1, "second": 2, "third": 3, "final": 3}.items():
         if re.search(rf"\b{w}\s+year", q):
             years.append(n)
@@ -173,7 +189,10 @@ def extract_semester(q) -> list[str]:
     m = re.search(rf"semesters?\s*({NUM}(?:\s*(?:and|,|&|or)\s*{NUM})*)", q)
     if m:
         nums = re.findall(NUM, m.group(1))
-        return [f"Semester {words.get(n, n)}" for n in nums]
+        found = []
+        for n in nums:
+            found.append(f"Semester {words.get(n, n)}")
+        return found
 
     # "1st semester", "first semester", "2nd and 1st semester"
     m = re.search(
@@ -181,7 +200,10 @@ def extract_semester(q) -> list[str]:
     )
     if m:
         nums = re.findall(NUM, m.group(1))
-        return [f"Semester {words.get(n, n)}" for n in nums]
+        found = []
+        for n in nums:
+            found.append(f"Semester {words.get(n, n)}")
+        return found
 
     if re.search(r"\b(?:whole|entire)\s+(?:session|year)", q):
         return ["Whole Session"]
@@ -203,7 +225,10 @@ def scholarship_search(search_query: str, n_results: int) -> list[dict]:
     # work like search in modules. search that scholarship directly by its name and return all chunks of that scholarship if the query is about a specific scholarship
     if named:
         record = collection.get(where={"scholarship_title": named}, include=["documents", "metadatas"])
-        return [to_answer(d, m, 0.0) for d, m in zip(record["documents"], record["metadatas"])]
+        results = []
+        for d, m in zip(record["documents"], record["metadatas"]):
+            results.append(to_answer(d, m, 0.0))
+        return results
 
     # search all scholarship rank with them in a list of tuples 
     rows = query_rows(collection.query(
@@ -267,7 +292,9 @@ def vector_similarity_search(original_query: str, search_query: str = None, sour
 
     #find all things related to module codes, credits, years, and semesters in the original query (this is for modules searching)
     module_codes = re.findall(r"\b[A-Z]{2,4}\d{3}\b", original_query.upper())  # return list
-    credits = [int(c) for c in re.findall(r"(\d+)[- ]?credits?", original_query.lower())]  # return list
+    credits = []  # return list
+    for c in re.findall(r"(\d+)[- ]?credits?", original_query.lower()):
+        credits.append(int(c))
     years = extract_year(original_query)  # return list
     semesters = extract_semester(original_query)  # return list
 
@@ -292,25 +319,28 @@ def vector_similarity_search(original_query: str, search_query: str = None, sour
     if semesters:
         facets.append({"semester": {"$in": semesters}})
 
-    # if source_type is none or general we just give them None cause its the same so we generalize.
-    if source_type not in (None, "general"):
-        pinned = source_type # one of the specific source types: module, course_info, guild, scholarship, or fee
+    # general means "search everything", so it has no scope of its own. anything else
+    # widens to its scope group, or to just itself when it is big enough to stand alone.
+    if source_type in (None, "general"):
+        scope = None
     else:
-        pinned = None
+        scope = SCOPE_GROUPS.get(source_type, [source_type])
 
-    # if pinned is not none we add the source type filter to the clauses list. 
     clauses = []
-    if pinned:
-        clauses.append({"source_type": pinned})
-    # if facets is not empty we check if pinned is module or not, if yes just add those filters. 
-    # if the query is not detected as a module question but has something like or "year two" 
-    # instead we search both modules and all soruce types that are not in modules so the result doesnt stuck with just value from filter
+    if scope:
+        if len(scope) == 1:
+            scope_filter = {"source_type": scope[0]}
+        else:
+            scope_filter = {"source_type": {"$in": scope}}
+        clauses.append(scope_filter)
+
+    # a module must match the facets; anything that is not a module has no year,
+    # semester or credits field, so it stays eligible. this form is right for every
+    # scope - inside a module-only scope it reduces to the facets themselves, so the
+    # old separate branch for pinned == "module" is no longer needed.
     if facets:
-        if pinned == "module":
-            clauses.extend(facets)
-        elif pinned is None:
-            module_filter = facets[0] if len(facets) == 1 else {"$and": facets} # if there is only one filter we just use that, if there are multiple filters we use $and to combine them.
-            clauses.append({"$or": [module_filter, {"source_type": {"$ne": "module"}}]}) # faces or something that is not in source_type = module. this make that if the query mentioned year or semester but not about module we still get the result from other source types that are not in module.
+        module_filter = facets[0] if len(facets) == 1 else {"$and": facets} # if there is only one filter we just use that, if there are multiple filters we use $and to combine them.
+        clauses.append({"$or": [module_filter, {"source_type": {"$ne": "module"}}]})
 
     if not clauses:
         filters = None # normal similarity search.
@@ -322,27 +352,7 @@ def vector_similarity_search(original_query: str, search_query: str = None, sour
     # search more then we need then drop low information documents and return only the top n_results
     # Semantic search + metadata filters
     results = collection.query(query_texts=[search_query], where=filters, n_results=n_results * 3)
-    rows = drop_low_info(query_rows(results))[:n_results] # get only top n_results after dropping low information documents. 
-
-    # if theres a filter to search but after search we get less than n_results we backfill with other source types that are not in the pinned source type.
-    # data that has low chunk such as course_info, fee
-    if pinned and len(rows) < n_results:
-        # the facets must survive here too. without them a query like "year 1
-        # semester 1" backfilled modules from every year and semester, so the
-        # right ones never arrived together.
-        backfill_clauses = [{"source_type": {"$ne": pinned}}]
-        if facets:
-            module_filter = facets[0] if len(facets) == 1 else {"$and": facets}
-            # a module must match the facets; anything that is not a module has no
-            # year/semester/credits fields, so it stays eligible
-            backfill_clauses.append({"$or": [module_filter, {"source_type": {"$ne": "module"}}]})
-
-        backfill = collection.query(
-            query_texts=[search_query],
-            where=backfill_clauses[0] if len(backfill_clauses) == 1 else {"$and": backfill_clauses},
-            n_results=(n_results - len(rows)) * 3,
-        )
-        rows += drop_low_info(query_rows(backfill))[: n_results - len(rows)]
+    rows = drop_low_info(query_rows(results))[:n_results] # get only top n_results after dropping low information documents.
 
     # normal function for returning the results as a list of dicts with keys "distance", "source_type", and "document"
     for doc, meta, dist in rows:

@@ -44,7 +44,6 @@ def LLM_query(system_prompt: str, user_query: str, model: str):
     Returns:
         a response with .message.content, whichever provider is in use
     """
-    print(f"Call LLM {model}")
 
     if models.PROVIDER == "openai":
         response = client.responses.create(
