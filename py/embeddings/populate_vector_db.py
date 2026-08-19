@@ -8,6 +8,9 @@ from chromadb.utils.embedding_functions.ollama_embedding_function import (
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 
 sys.path.append(str(PROJECT_ROOT))
+sys.path.append(str(PROJECT_ROOT / "py"))  # so the shared model config can be imported
+
+import models
 
 from script import scholar_chunking, general_chunking
 
@@ -32,8 +35,8 @@ def pull_data(path):
         return data
     
 ollama_ef = OllamaEmbeddingFunction(
-    url="http://localhost:11434",
-    model_name="qwen3-embedding:8b",
+    url=models.OLLAMA_URL,
+    model_name=models.EMBEDDING,
 )
     
 #create chroma client save on the file
@@ -47,7 +50,7 @@ except Exception:
 
 collection = chroma_client.create_collection(
     name="my_collection",
-    embedding_function=ollama_ef #pass ollama embedding function on line 18 (qwen3-embedding:8b)
+    embedding_function=ollama_ef #pass ollama embedding function (see models.EMBEDDING)
 )
 
 # populating the collection with university of liverpool cs modules

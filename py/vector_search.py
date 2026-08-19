@@ -5,14 +5,15 @@ from chromadb.utils.embedding_functions.ollama_embedding_function import (
 )
 import re
 from rich import print
+import models
 
 CHROMA_DB_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "chroma_db")
 
 client = chromadb.PersistentClient(path=CHROMA_DB_PATH)
 
 ollama_ef = OllamaEmbeddingFunction(
-    url="http://localhost:11434",
-    model_name="qwen3-embedding:8b",
+    url=models.OLLAMA_URL,
+    model_name=models.EMBEDDING,
 )
 
 collection = client.get_collection("my_collection", embedding_function=ollama_ef)
@@ -326,9 +327,19 @@ def vector_similarity_search(original_query: str, search_query: str = None, sour
     # if theres a filter to search but after search we get less than n_results we backfill with other source types that are not in the pinned source type.
     # data that has low chunk such as course_info, fee
     if pinned and len(rows) < n_results:
+        # the facets must survive here too. without them a query like "year 1
+        # semester 1" backfilled modules from every year and semester, so the
+        # right ones never arrived together.
+        backfill_clauses = [{"source_type": {"$ne": pinned}}]
+        if facets:
+            module_filter = facets[0] if len(facets) == 1 else {"$and": facets}
+            # a module must match the facets; anything that is not a module has no
+            # year/semester/credits fields, so it stays eligible
+            backfill_clauses.append({"$or": [module_filter, {"source_type": {"$ne": "module"}}]})
+
         backfill = collection.query(
             query_texts=[search_query],
-            where={"source_type": {"$ne": pinned}},
+            where=backfill_clauses[0] if len(backfill_clauses) == 1 else {"$and": backfill_clauses},
             n_results=(n_results - len(rows)) * 3,
         )
         rows += drop_low_info(query_rows(backfill))[: n_results - len(rows)]
