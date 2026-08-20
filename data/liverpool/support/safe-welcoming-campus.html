@@ -1,0 +1,202 @@
+<section class="clearfix full" id="main-content" role="main">
+<!-- COMMON BANNER FOR ALL PAGES IN A SECTION -->
+<!-- OLD BANNER SLOT FOR LONDON AND CPD -->
+<div class="category-page" data-content-type="1345">
+<header class="clearfix" id="section-banner-buffer">
+<section class="department-hero-banner"></section>
+<div class="department-full-width-module introductory-message">
+<div class="faculty-level-container">
+<div class="faculty-level-inner">
+<nav class="clearfix" id="breadcrumb"><ul><li><a href="https://www.liverpool.ac.uk">University home</a> &gt; </li><li><a href="/studentsupport/">Student Services</a> &gt; </li><li>Safe and Welcoming Campus</li></ul></nav>
+<h1>Safe and Welcoming Campus</h1>
+<p>At the University of Liverpool, we’re committed to building a campus environment where every student feels safe, supported, and respected.</p>
+<p>If you’ve experienced or witnessed harassment, sexual misconduct, bullying, hate crime, assault, discrimination, or any behaviour that makes you feel unsafe, uncomfortable, or targeted, we want to know about it.</p>
+<p>Together, we can create a respectful and inclusive community for everyone.</p>
+</div>
+</div>
+</div>
+</header>
+<input id="video-type" type="hidden" value="blank"/><div class="department-full-width-module video clearfix"><div class="faculty-level-container"><div class="faculty-level-inner"><div class="video-code clearfix"><iframe allowfullscreen="true" class="video-frame" frameborder="" height="557.227px" id="object" mozallowfullscreen="true" msallowfullscreen="true" oallowfullscreen="true" scrolling="no" src="" style="max-width: 100%;" title="" webkitallowfullscreen="true" width="951px"></iframe></div><div class="video-summary"><h2 data-feature="videobox"></h2><p></p></div></div></div></div><script type="text/javascript">$(document).ready(function() { var video = $("#video-type").val(); var code = ""; var href = ""; if (video == "stream") { href = "https://stream.liv.ac.uk/s/"+code; $(".video-frame").attr("src",href); } if (video == "youtube") { href = "https://www.youtube.com/embed/"+code; $(".video-frame").attr("src",href); } if (video == "panopto") { href = "https://liverpool.cloud.panopto.eu/Panopto/Pages/Embed.aspx?id="+code+"&autoplay=false&offerviewer=true&showtitle=true&showbrand=true&captions=true&interactivity=all"; $(".video-frame").attr("src",href); } if (video == "blank") { $("div.video").hide(); } });</script>
+<script type="text/javascript">// By Chris Coyier & tweaked by Mathias Bynens
+
+$(function() {
+
+	// Find all YouTube videos
+	var $allVideos = $("iframe[src^='//www.youtube.com']"),
+
+	    // The element that is fluid width
+	    $fluidEl = $("body");
+
+	// Figure out and save aspect ratio for each video
+	$allVideos.each(function() {
+
+		$(this)
+			.data('aspectRatio', this.height / this.width)
+
+			// and remove the hard coded width/height
+			.removeAttr('height')
+			.removeAttr('width');
+
+	});
+
+	// When the window is resized
+	// (You'll probably want to debounce this)
+	$(window).resize(function() {
+
+		var newWidth = $fluidEl.width();
+
+		// Resize all videos according to their own aspect ratio
+		$allVideos.each(function() {
+
+			var $el = $(this);
+			$el
+				.width(newWidth)
+				.height(newWidth * $el.data('aspectRatio'));
+
+		});
+
+	// Kick off one resize to fix all videos on page load
+	}).resize();
+
+});</script>
+<article class="content full">
+<div class="faculty-level-container">
+<div class="faculty-level-inner">
+<div class="content full-width grid grid-column-3">
+<div class="card">
+<a class="btn btn-primary overlay" href="/studentsupport/safe-welcoming-campus/healthy-relationships/">Healthy Relationships</a>
+<div class="card-body" data-feature="modules1">
+<h2 class="card-title heading">Healthy Relationships</h2>
+<p>All new students are required to complete our Consent &amp; Bystander Training, delivered online in partnership with Brook. Find out why it matters and access your faculty's Canvas course.</p>
+</div>
+</div>
+<div class="card" data-feature="modules2">
+<a class="btn btn-primary overlay" href="/studentsupport/safe-welcoming-campus/access-university-support/">How to Access University Support</a>
+<div class="card-body">
+<h2 class="card-title heading">How to Access University Support</h2>
+<p>You don’t have to go through anything alone. This page includes how to access support from the University, including the Wellbeing Advice and Guidance Team.</p>
+</div>
+</div>
+<div class="card" data-feature="modules3">
+<a class="btn btn-primary overlay" href="/studentsupport/safe-welcoming-campus/external-support/">External Support</a>
+<div class="card-body">
+<h2 class="card-title heading">External Support</h2>
+<p>You may find it helpful to speak to organisations outside of the University who can provide more specialised support. This page provides details of local and national services offering specialist advice and support.</p>
+</div>
+</div>
+<div class="card" data-feature="modules4">
+<a class="btn btn-primary overlay" href="/studentsupport/safe-welcoming-campus/make-a-report/">How to Make a Report</a>
+<div class="card-body">
+<h2 class="card-title heading">How to Report an Incident</h2>
+<p>This page walks you through your options on how to report any incident of harassment and sexual misconduct and explains what happens next.</p>
+</div>
+</div>
+<div class="card" data-feature="modules5">
+<a class="btn btn-primary overlay" href="/studentsupport/safe-welcoming-campus/building/">Building a Safe and Welcoming Campus</a>
+<div class="card-body">
+<h2 class="card-title heading">Building a Safe &amp; Welcoming Campus</h2>
+<p>This page outlines the University’s strategy for tackling a number of concerns including harassment and sexual misconduct. It also highlights the steps we’re taking to promote a positive culture for everyone.</p>
+</div>
+</div>
+<div class="card" data-feature="modules6">
+<a class="btn btn-primary overlay" href="/studentsupport/safe-welcoming-campus/harassment-sexual-misconduct/">Harassment and Sexual Misconduct</a>
+<div class="card-body">
+<h2 class="card-title heading">Harassment and Sexual Misconduct</h2>
+<p>Learn more about harassment and sexual misconduct, how to report if you are being affected by these behaviours and what support is available.</p>
+</div>
+</div>
+<div class="card" data-feature="modules7">
+<a class="btn btn-primary overlay" href="/studentsupport/safe-welcoming-campus/bullying/">Bullying</a>
+<div class="card-body">
+<h2 class="card-title heading">Bullying</h2>
+<p>Whether it's verbal, written, physical or online, bullying can have a serious impact. This page explains what bullying is, how to recognise it, how to report it and what support is available if you or someone you know is being bullied.</p>
+</div>
+</div>
+<div class="card" data-feature="modules8">
+<a class="btn btn-primary overlay" href="/studentsupport/safe-welcoming-campus/online-harassment/">Online harassment</a>
+<div class="card-body">
+<h2 class="card-title heading">Online Harassment</h2>
+<p>Online spaces should feel safe. Learn what online harassment is, how to report it and what support is available.</p>
+</div>
+</div>
+<div class="card" data-feature="modules9">
+<a class="btn btn-primary overlay" href="/studentsupport/safe-welcoming-campus/hate-crime/">Hate Crime and Discrimination</a>
+<div class="card-body">
+<h2 class="card-title heading">Hate Crime &amp; Discrimination</h2>
+<p>We are proud of our diverse community and will not tolerate hate crime or discrimination. If you’ve been targeted because of your race, religion, sexuality, gender identity, disability or any protected characteristic, this page explains your options and how we’ll support you.
+</p>
+</div>
+</div>
+<div class="card" data-feature="modules10">
+<a class="btn btn-primary overlay" href="/studentsupport/safe-welcoming-campus/feeling-unsafe/">Feeling Unsafe?</a>
+<div class="card-body">
+<h2 class="card-title heading">Feeling Unsafe?</h2>
+<p>If you’ve been targeted because of your race, religion, gender, sexuality, disability or any other protected characteristic, this page explains your options and how we’ll support you.
+</p>
+</div>
+</div>
+</div>
+</div></div>
+</article>
+</div>
+<script>
+    // Hide Header on on scroll down
+var didScroll;
+var lastScrollTop = 0;
+var delta = 5;
+var navbarHeight = $('aside.event-snippet').outerHeight();
+
+$(window).scroll(function(event){
+    didScroll = true;
+});
+
+setInterval(function() {
+    if (didScroll) {
+        hasScrolled();
+        didScroll = false;
+    }
+}, 250);
+
+function hasScrolled() {
+    var st = $(this).scrollTop();
+    
+    // Make sure they scroll more than delta
+    if(Math.abs(lastScrollTop - st) <= delta)
+        return;
+    
+    // If they scrolled down and are past the navbar, add class .nav-up.
+    // This is necessary so you never see what is "behind" the navbar.
+    if (st > lastScrollTop && st > navbarHeight){
+        // Scroll Down
+        $('aside.event-snippet').removeClass('nav-down').addClass('nav-up');
+    } else {
+        // Scroll Up
+        if(st + $(window).height() < $(document).height()) {
+            $('aside.event-snippet').removeClass('nav-up').addClass('nav-down');
+        }
+    }
+    
+    lastScrollTop = st;
+}
+    </script>
+<script>
+jQuery(".grid").each(function (i) {
+  if (jQuery(this).children(".card").length % 3 == 0) {
+    var gridClass = "grid-column-3";
+  } else if (jQuery(this).children(".card").length % 2 == 0) {
+    var gridClass= "grid-column-2";
+  }
+  jQuery(this).addClass(gridClass);
+});
+</script>
+<style>
+    aside.event-snippet{
+    transition: top 0.2s ease-in-out;
+   }
+    aside.event-snippet.nav-up {
+    	bottom: -100px !important;
+	}
+  </style>
+<!-- PROJECT SIGN IN -->
+<!-- MAIN CONTENT CLOSE   -->
+</section>

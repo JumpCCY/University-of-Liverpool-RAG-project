@@ -1,0 +1,198 @@
+<section class="clearfix full" id="main-content" role="main">
+<!-- COMMON BANNER FOR ALL PAGES IN A SECTION -->
+<!-- OLD BANNER SLOT FOR LONDON AND CPD -->
+<div class="category-page" data-content-type="1345">
+<header class="clearfix" id="section-banner-buffer">
+<section class="department-hero-banner"></section>
+<div class="department-full-width-module introductory-message">
+<div class="faculty-level-container">
+<div class="faculty-level-inner">
+<nav class="clearfix" id="breadcrumb"><ul><li><a href="https://www.liverpool.ac.uk">University home</a> &gt; </li><li><a href="/studentsupport/">Student Services</a> &gt; </li><li>Money Advice</li></ul></nav>
+<h1>Money Advice &amp; Guidance</h1>
+<p>Starting University and managing your money can be difficult.  Money Advice and Guidance understand that and we’re here to offer advice and support to help you with any financial difficulties.</p>
+</div>
+</div>
+</div>
+</header>
+<input id="video-type" type="hidden" value="blank"/><div class="department-full-width-module video clearfix"><div class="faculty-level-container"><div class="faculty-level-inner"><div class="video-code clearfix"><iframe allowfullscreen="true" class="video-frame" frameborder="" height="557.227px" id="object" mozallowfullscreen="true" msallowfullscreen="true" oallowfullscreen="true" scrolling="no" src="" style="max-width: 100%;" title="" webkitallowfullscreen="true" width="951px"></iframe></div><div class="video-summary"><h2 data-feature="videobox"></h2><p></p></div></div></div></div><script type="text/javascript">$(document).ready(function() { var video = $("#video-type").val(); var code = ""; var href = ""; if (video == "stream") { href = "https://stream.liv.ac.uk/s/"+code; $(".video-frame").attr("src",href); } if (video == "youtube") { href = "https://www.youtube.com/embed/"+code; $(".video-frame").attr("src",href); } if (video == "panopto") { href = "https://liverpool.cloud.panopto.eu/Panopto/Pages/Embed.aspx?id="+code+"&autoplay=false&offerviewer=true&showtitle=true&showbrand=true&captions=true&interactivity=all"; $(".video-frame").attr("src",href); } if (video == "blank") { $("div.video").hide(); } });</script>
+<script type="text/javascript">// By Chris Coyier & tweaked by Mathias Bynens
+
+$(function() {
+
+	// Find all YouTube videos
+	var $allVideos = $("iframe[src^='//www.youtube.com']"),
+
+	    // The element that is fluid width
+	    $fluidEl = $("body");
+
+	// Figure out and save aspect ratio for each video
+	$allVideos.each(function() {
+
+		$(this)
+			.data('aspectRatio', this.height / this.width)
+
+			// and remove the hard coded width/height
+			.removeAttr('height')
+			.removeAttr('width');
+
+	});
+
+	// When the window is resized
+	// (You'll probably want to debounce this)
+	$(window).resize(function() {
+
+		var newWidth = $fluidEl.width();
+
+		// Resize all videos according to their own aspect ratio
+		$allVideos.each(function() {
+
+			var $el = $(this);
+			$el
+				.width(newWidth)
+				.height(newWidth * $el.data('aspectRatio'));
+
+		});
+
+	// Kick off one resize to fix all videos on page load
+	}).resize();
+
+});</script>
+<article class="content full">
+<div class="faculty-level-container">
+<div class="faculty-level-inner">
+<div class="content full-width grid grid-column-3">
+<div class="card">
+<a class="btn btn-primary overlay" href="/studentsupport/money-advice/contactingmoneyadviceguidance/">Contacting Money Advice &amp; Guidance</a>
+<div class="card-body" data-feature="modules1">
+<h2 class="card-title heading">Contact us</h2>
+<p>Click here to book an appointment with the team, or find a drop in session.</p>
+</div>
+</div>
+<div class="card" data-feature="modules2">
+<a class="btn btn-primary overlay" href="/studentsupport/money-advice/managing-the-cost-of-living/">Managing the cost of living</a>
+<div class="card-body">
+<h2 class="card-title heading">Managing your Money</h2>
+<p>Support to help you budget effectively and make your money go further</p>
+</div>
+</div>
+<div class="card" data-feature="modules4">
+<a class="btn btn-primary overlay" href="/studentsupport/money-advice/university-hardship-fund/">University Hardship Fund</a>
+<div class="card-body">
+<h2 class="card-title heading">Hardship Fund</h2>
+<p>Includes who is eligible for the hardship fund and how to apply</p>
+</div>
+</div>
+<div class="card" data-feature="modules7">
+<a class="btn btn-primary overlay" href="/studentsupport/money-advice/financialsupportifyouhavedependants/">Financial support if you have dependants </a>
+<div class="card-body">
+<h2 class="card-title heading">Financial support for students with dependants, or those expecting children</h2>
+<p>What financial support may be available if you have dependants/are expecting children</p>
+</div>
+</div>
+<div class="card" data-feature="modules8">
+<a class="btn btn-primary overlay" href="/studentsupport/disabled-students/funding/diagnosticassessmentfund/">Diagnostic assessment fund</a>
+<div class="card-body">
+<h2 class="card-title heading">University Diagnostic Assessment Fund</h2>
+<p>Information about the Diagnostic Fund can be found here</p>
+</div>
+</div>
+<div class="card" data-feature="modules9">
+<a class="btn btn-primary overlay" href="/studentsupport/visas-and-immigration/financialsupportforinternationalstudents/">Financial Support for International Students </a>
+<div class="card-body">
+<h2 class="card-title heading">Financial Support for International Students</h2>
+<p>What financial support may be available for international students </p>
+</div>
+</div>
+<div class="card" data-feature="modules10">
+<a class="btn btn-primary overlay" href="/studentsupport/money-advice/financialsupportifyouareestrangedcareexperiencedorcaringforsomeone/">Financial support if you are Estranged, Care experienced, or Caring for Someone</a>
+<div class="card-body">
+<h2 class="card-title heading">Financial support if you are Estranged, Care experienced, or Caring for Someone.</h2>
+<p>Support that may be available for students who identify as any of the above. </p>
+</div>
+</div>
+<div class="card" data-feature="modules11">
+<a class="btn btn-primary overlay" href="/studentsupport/money-advice/taking-time-off-from-your-studies/">Taking time off from your studies</a>
+<div class="card-body">
+<h2 class="card-title heading">Taking time off from your studies</h2>
+<p>Information about the financial impact of taking time off from your studies</p>
+</div>
+</div>
+<div class="card" data-feature="modules12">
+<a class="btn btn-primary overlay" href="/studentsupport/money-advice/financialsafety/">Financial Safety</a>
+<div class="card-body">
+<h2 class="card-title heading">Financial Safety </h2>
+<p>Information and support relating to gambling, loan-sharking and fraud</p>
+</div>
+</div>
+<div class="card" data-feature="modules13">
+<a class="btn btn-primary overlay" href="/studentsupport/money-advice/managing-the-cost-of-living/healthcareanddentistry/">Healthcare and Dentistry </a>
+<div class="card-body">
+<h2 class="card-title heading">Healthcare and Dentistry </h2>
+<p>Information on Healthcare and Dentistry for students </p>
+</div>
+</div>
+</div>
+</div></div>
+</article>
+</div>
+<script>
+    // Hide Header on on scroll down
+var didScroll;
+var lastScrollTop = 0;
+var delta = 5;
+var navbarHeight = $('aside.event-snippet').outerHeight();
+
+$(window).scroll(function(event){
+    didScroll = true;
+});
+
+setInterval(function() {
+    if (didScroll) {
+        hasScrolled();
+        didScroll = false;
+    }
+}, 250);
+
+function hasScrolled() {
+    var st = $(this).scrollTop();
+    
+    // Make sure they scroll more than delta
+    if(Math.abs(lastScrollTop - st) <= delta)
+        return;
+    
+    // If they scrolled down and are past the navbar, add class .nav-up.
+    // This is necessary so you never see what is "behind" the navbar.
+    if (st > lastScrollTop && st > navbarHeight){
+        // Scroll Down
+        $('aside.event-snippet').removeClass('nav-down').addClass('nav-up');
+    } else {
+        // Scroll Up
+        if(st + $(window).height() < $(document).height()) {
+            $('aside.event-snippet').removeClass('nav-up').addClass('nav-down');
+        }
+    }
+    
+    lastScrollTop = st;
+}
+    </script>
+<script>
+jQuery(".grid").each(function (i) {
+  if (jQuery(this).children(".card").length % 3 == 0) {
+    var gridClass = "grid-column-3";
+  } else if (jQuery(this).children(".card").length % 2 == 0) {
+    var gridClass= "grid-column-2";
+  }
+  jQuery(this).addClass(gridClass);
+});
+</script>
+<style>
+    aside.event-snippet{
+    transition: top 0.2s ease-in-out;
+   }
+    aside.event-snippet.nav-up {
+    	bottom: -100px !important;
+	}
+  </style>
+<!-- PROJECT SIGN IN -->
+<!-- MAIN CONTENT CLOSE   -->
+</section>

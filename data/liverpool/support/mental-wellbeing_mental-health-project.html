@@ -1,0 +1,155 @@
+<section class="clearfix full" id="main-content" role="main">
+<!-- COMMON BANNER FOR ALL PAGES IN A SECTION -->
+<!-- OLD BANNER SLOT FOR LONDON AND CPD -->
+<div class="category-page" data-content-type="1345">
+<header class="clearfix" id="section-banner-buffer">
+<section class="department-hero-banner"></section>
+<div class="department-full-width-module introductory-message">
+<div class="faculty-level-container">
+<div class="faculty-level-inner">
+<nav class="clearfix" id="breadcrumb"><ul><li><a href="https://www.liverpool.ac.uk">University home</a> &gt; </li><li><a href="/studentsupport/">Student Services</a> &gt; </li><li><a href="/studentsupport/mental-wellbeing/">Mental Wellbeing</a> &gt; </li><li>Mental Health Project</li></ul></nav>
+<h1>Improving Student Mental Health through Partnerships project</h1>
+<p>A key aim of the project is to explore how to improve students access to appropriate mental health services. Through our partnership with Mersey Care NHS, we are pleased to launch new, on campus services.</p>
+<p>The Improving Student Mental Health project has been developed with you in mind working with the <a data-gc-link="https://www.liverpoolguild.org/" href="https://www.liverpoolguild.org/" rel="noopener noreferrer" target="_blank">Liverpool Guild of Students</a> and <a data-gc-link="https://www.jmsu.co.uk/" href="https://www.jmsu.co.uk/" rel="noopener noreferrer" target="_blank">LJMU Student Union</a>. Your input and feedback is key to the project being successful and so we welcome all thoughts and suggestions. If you would like to share these with us please do not hesitate to contact us.</p>
+<p>We also have a small team of student content creators working on this project. You can find out more about the team and what they do below.</p>
+<p><strong>We have launched two new services:</strong></p>
+<p>U-COPE: Self-Harm Service is a new service designed for those who have recently self-harmed or those who struggle with self-harming currently. The service consists of six one-to-one sessions and the initial appointment will include an assessment of your mental health. Leading up to your final sessions, your practitioner will work with you to develop a Staying well plan to help you manage your self-harm. </p>
+<p>To access either of these services, please contact the Advice and Guidance team or, if you have one, your Mental Health Advisor or Counsellor. They will then refer you to the service where an appointment will be arranged within two weeks.</p>
+<p> </p>
+</div>
+</div>
+</div>
+</header>
+<input id="video-type" type="hidden" value="blank"/><div class="department-full-width-module video clearfix"><div class="faculty-level-container"><div class="faculty-level-inner"><div class="video-code clearfix"><iframe allowfullscreen="true" class="video-frame" frameborder="" height="557.227px" id="object" mozallowfullscreen="true" msallowfullscreen="true" oallowfullscreen="true" scrolling="no" src="" style="max-width: 100%;" title="" webkitallowfullscreen="true" width="951px"></iframe></div><div class="video-summary"><h2 data-feature="videobox"></h2><p></p></div></div></div></div><script type="text/javascript">$(document).ready(function() { var video = $("#video-type").val(); var code = ""; var href = ""; if (video == "stream") { href = "https://stream.liv.ac.uk/s/"+code; $(".video-frame").attr("src",href); } if (video == "youtube") { href = "https://www.youtube.com/embed/"+code; $(".video-frame").attr("src",href); } if (video == "panopto") { href = "https://liverpool.cloud.panopto.eu/Panopto/Pages/Embed.aspx?id="+code+"&autoplay=false&offerviewer=true&showtitle=true&showbrand=true&captions=true&interactivity=all"; $(".video-frame").attr("src",href); } if (video == "blank") { $("div.video").hide(); } });</script>
+<script type="text/javascript">// By Chris Coyier & tweaked by Mathias Bynens
+
+$(function() {
+
+	// Find all YouTube videos
+	var $allVideos = $("iframe[src^='//www.youtube.com']"),
+
+	    // The element that is fluid width
+	    $fluidEl = $("body");
+
+	// Figure out and save aspect ratio for each video
+	$allVideos.each(function() {
+
+		$(this)
+			.data('aspectRatio', this.height / this.width)
+
+			// and remove the hard coded width/height
+			.removeAttr('height')
+			.removeAttr('width');
+
+	});
+
+	// When the window is resized
+	// (You'll probably want to debounce this)
+	$(window).resize(function() {
+
+		var newWidth = $fluidEl.width();
+
+		// Resize all videos according to their own aspect ratio
+		$allVideos.each(function() {
+
+			var $el = $(this);
+			$el
+				.width(newWidth)
+				.height(newWidth * $el.data('aspectRatio'));
+
+		});
+
+	// Kick off one resize to fix all videos on page load
+	}).resize();
+
+});</script>
+<article class="content full">
+<div class="faculty-level-container">
+<div class="faculty-level-inner">
+<div class="content full-width grid grid-column-3">
+<div class="card">
+<a class="btn btn-primary overlay" href="/studentsupport/mental-wellbeing/mental-health-project/zerosuicidealliance/">Zero Suicide Alliance</a>
+<div class="card-body" data-feature="modules1">
+<h2 class="card-title heading">Zero Suicide Alliance</h2>
+<p>Take the suicide prevention training today</p>
+</div>
+</div>
+<div class="card" data-feature="modules2">
+<a class="btn btn-primary overlay" href="/studentsupport/mental-wellbeing/mental-health-project/placestovisit/">Places to Visit</a>
+<div class="card-body">
+<h2 class="card-title heading">Places to Visit</h2>
+<p>A couple places the team like to visit in their free time</p>
+</div>
+</div>
+<div class="card" data-feature="modules3">
+<a class="btn btn-primary overlay" href="/studentsupport/mental-wellbeing/mental-health-project/signposting/">Signposting Organisations </a>
+<div class="card-body">
+<h2 class="card-title heading">Signposting Organisations</h2>
+<p>Local organisations for help and support </p>
+</div>
+</div>
+</div>
+</div></div>
+</article>
+</div>
+<script>
+    // Hide Header on on scroll down
+var didScroll;
+var lastScrollTop = 0;
+var delta = 5;
+var navbarHeight = $('aside.event-snippet').outerHeight();
+
+$(window).scroll(function(event){
+    didScroll = true;
+});
+
+setInterval(function() {
+    if (didScroll) {
+        hasScrolled();
+        didScroll = false;
+    }
+}, 250);
+
+function hasScrolled() {
+    var st = $(this).scrollTop();
+    
+    // Make sure they scroll more than delta
+    if(Math.abs(lastScrollTop - st) <= delta)
+        return;
+    
+    // If they scrolled down and are past the navbar, add class .nav-up.
+    // This is necessary so you never see what is "behind" the navbar.
+    if (st > lastScrollTop && st > navbarHeight){
+        // Scroll Down
+        $('aside.event-snippet').removeClass('nav-down').addClass('nav-up');
+    } else {
+        // Scroll Up
+        if(st + $(window).height() < $(document).height()) {
+            $('aside.event-snippet').removeClass('nav-up').addClass('nav-down');
+        }
+    }
+    
+    lastScrollTop = st;
+}
+    </script>
+<script>
+jQuery(".grid").each(function (i) {
+  if (jQuery(this).children(".card").length % 3 == 0) {
+    var gridClass = "grid-column-3";
+  } else if (jQuery(this).children(".card").length % 2 == 0) {
+    var gridClass= "grid-column-2";
+  }
+  jQuery(this).addClass(gridClass);
+});
+</script>
+<style>
+    aside.event-snippet{
+    transition: top 0.2s ease-in-out;
+   }
+    aside.event-snippet.nav-up {
+    	bottom: -100px !important;
+	}
+  </style>
+<!-- PROJECT SIGN IN -->
+<!-- MAIN CONTENT CLOSE   -->
+</section>
