@@ -430,7 +430,7 @@ def rival_search(university: str, search_query: str, n_results) -> list[dict]:
     return results
 
 
-def search_all_universities(original_query: str, search_query: str = None, source_type: str = None, n_results: int = 20) -> dict[str, list[dict]]:
+def search_all_universities(original_query: str, search_query: str = None, source_type: str = None, n_results: int = 10) -> dict[str, list[dict]]:
     """
     Search every university the query names. Liverpool gets the full pipeline, rivals get a summary.
     If theres not any university name in the query we just search for University of Liverpool.
@@ -441,7 +441,7 @@ def search_all_universities(original_query: str, search_query: str = None, sourc
         search_query = original_query
 
     if len(named_universities(original_query)) == 1 and named_universities(original_query)[0] == "University of Liverpool":
-        n_results = 10
+        n_results = 20
 
     results = {}
     for uni in named_universities(original_query):
