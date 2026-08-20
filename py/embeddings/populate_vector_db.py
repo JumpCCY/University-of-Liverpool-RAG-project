@@ -11,8 +11,9 @@ sys.path.append(str(PROJECT_ROOT))
 sys.path.append(str(PROJECT_ROOT / "py"))  # so the shared model config can be imported
 
 import models
+from json_search import UNIVERSITY_FOLDER
 
-from script import scholar_chunking, general_chunking, course_chunking
+from script import scholar_chunking, general_chunking, course_chunking, support_chunking, rival_chunking
 
 # anchored to the project root so this script reads and writes the same files no
 # matter which directory it is run from. a relative path here built a second, empty
@@ -215,3 +216,50 @@ for i, doc in enumerate(general_chunking.chunking()):
     )
 
 print("General data added to the collection.")
+
+# populating the collection with the student support pages.
+for i, doc in enumerate(support_chunking.chunking()):
+    md = doc.metadata
+    collection.add(
+        ids=[f"support_{md['page']}_{i}"],
+        documents=[doc.page_content],
+        metadatas=[{
+            "source_type": "support",
+            "university": UNIVERSITY,
+            "main_section": md.get("main_section", ""),
+            "section": md.get("Header 2") or md.get("Header 3") or md.get("Header 1") or "general", # if no header, default to "general"
+            "page_title": md.get("page", ""),
+        }],
+    )
+
+print("Support data added to the collection.")
+
+# each rival gets its own collection.
+RIVALS = ["sheffield", "york", "leeds", "nottingham", "manchester", "lancaster", "newcastle"]
+
+DISPLAY_NAME = {}
+for name, folder in UNIVERSITY_FOLDER.items():
+    DISPLAY_NAME[folder] = name
+
+for rival in RIVALS:
+    try:
+        # delete the collection if it exists and rewrite it with the new data
+        chroma_client.delete_collection(rival)
+    except Exception:
+        pass
+
+    rival_collection = chroma_client.create_collection(name=rival, embedding_function=ollama_ef)
+
+    for i, doc in enumerate(rival_chunking.chunking(rival)):
+        md = doc.metadata
+        rival_collection.add(
+            ids=[f"{rival}_{i}"],
+            documents=[doc.page_content],
+            metadatas=[{
+                "source_type": "course_info",
+                "university": DISPLAY_NAME.get(rival, rival),
+                "page_title": md.get("page", ""),
+            }],
+        )
+
+    print(f"{rival} data added to its own collection.")

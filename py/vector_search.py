@@ -412,7 +412,7 @@ def named_universities(query: str) -> list[str]:
     return found
 
 
-def rival_search(university: str, search_query: str, n_results: int = 20) -> list[dict]:
+def rival_search(university: str, search_query: str, n_results) -> list[dict]:
     """Rivals are lazily embedded, so no scope groups or facets here. Just the closest n."""
     name = UNIVERSITY_COLLECTIONS.get(university)
     if not name:
@@ -439,6 +439,9 @@ def search_all_universities(original_query: str, search_query: str = None, sourc
     """
     if search_query is None:
         search_query = original_query
+
+    if len(named_universities(original_query)) == 1 and named_universities(original_query)[0] == "University of Liverpool":
+        n_results = 10
 
     results = {}
     for uni in named_universities(original_query):
