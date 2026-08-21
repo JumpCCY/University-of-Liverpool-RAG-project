@@ -133,7 +133,7 @@ def chunking(university: str):
 
 
 if __name__ == "__main__":
-    docs = chunking("nottingham")
+    docs = chunking("manchester")
     with open("test_rival_chunk.txt", "w", encoding="utf-8") as f:
         for doc in docs:
             f.write(f"Metadata: {doc.metadata}\n")

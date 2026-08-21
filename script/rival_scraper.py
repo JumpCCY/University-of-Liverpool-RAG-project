@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 import requests
 from rich import print
 from pathlib import Path
+from urllib.parse import urljoin
 import re
 import time
 
@@ -68,6 +69,7 @@ RIVALS = {
             "careers",
             "fees-and-funding",
         ],
+        "unit_details": True, # each module sits behind an ajax call, see fetch_unit_details
     },
     "lancaster": {
         "url": "https://www.lancaster.ac.uk/study/undergraduate/courses/computer-science-bsc-hons-g400/2026/",
@@ -113,6 +115,63 @@ def block_for_heading(soup, wanted, max_block=MAX_BLOCK) -> BeautifulSoup | None
     return None
 
 
+UNIT_KEEP = ["Overview", "Aims", "Syllabus"] # the rest is assessment, reading lists and staff
+
+
+def fetch_unit_details(soup, page_url, output_dir, university):
+    """
+    Manchester lists its modules as buttons, not links - clicking one fires an ajax
+    call for that unit. We make the same call. The X-Requested-With header is what
+    makes it work, without it the endpoint answers 404.
+    """
+    endpoint = urljoin(page_url, "../../unit/?unitpath=")
+    units = []
+    ajax = dict(headers)
+    ajax["X-Requested-With"] = "XMLHttpRequest"
+    ajax["Referer"] = page_url
+
+    for button in soup.find_all("button", class_="open-unit-details"):
+        code = button.get("data-contentid")
+        path = button.get("data-unitpath")
+        if not code or not path:
+            continue
+
+        try:
+            response = requests.get(endpoint + path, headers=ajax, timeout=20)
+            response.raise_for_status()
+        except Exception as e:
+            print(f"Error {university} unit {code}: {e}")
+            continue
+
+        unit = BeautifulSoup(response.content, "html.parser")
+        title = unit.find(["h1", "h2"])
+
+        # keep only the sections that say what the module covers. the splitter only
+        # records the nearest heading, so the module code goes into EVERY section
+        # heading - otherwise a chunk comes back as just "Overview" with no module.
+        unit_name = title.get_text(" ", strip=True) if title else code
+        kept = []
+        for heading in unit.find_all("h2"):
+            section = heading.get_text(" ", strip=True)
+            if section not in UNIT_KEEP:
+                continue
+            kept.append(f"<h3>{code} {unit_name} - {section}</h3>")
+            for sibling in heading.find_next_siblings():
+                if sibling.name in ("h1", "h2"):
+                    break
+                kept.append(str(sibling))
+
+        if kept:
+            units.append("".join(kept))
+
+        time.sleep(1)
+
+    # one file, so the folder stays one-file-per-section. the h1 gives every chunk the
+    # same page name and each unit keeps its own h3 in the crumb.
+    if units:
+        save(output_dir, university, "course-units", "<h1>Course units</h1>" + "".join(units))
+
+
 def save(output_dir, university, name, element):
     output_path = output_dir / f"{name}.html"
     with open(output_path, "w", encoding="utf-8") as f:
@@ -151,6 +210,9 @@ for university, config in RIVALS.items(): # keys and value
 
             name = re.sub(r"[^a-z0-9]+", "-", heading.lower()).strip("-")
             save(output_dir, university, name, r)
+
+        if config.get("unit_details"):
+            fetch_unit_details(soup, config["url"], output_dir, university)
 
         time.sleep(1)
 

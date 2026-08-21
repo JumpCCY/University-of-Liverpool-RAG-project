@@ -416,6 +416,7 @@ def rival_search(university: str, search_query: str, n_results) -> list[dict]:
     """Rivals are lazily embedded, so no scope groups or facets here. Just the closest n."""
     name = UNIVERSITY_COLLECTIONS.get(university)
     if not name:
+        print(f"no collection for {university}")
         return []
 
     try:
@@ -424,7 +425,8 @@ def rival_search(university: str, search_query: str, n_results) -> list[dict]:
         return [] 
 
     results = []
-    for doc, meta, dist in query_rows(rival.query(query_texts=[search_query], n_results=n_results)):
+    rival_search_results = rival.query(query_texts=[search_query], n_results=n_results)
+    for doc, meta, dist in query_rows(rival_search_results):
         results.append(to_answer(doc, meta, dist))
 
     return results
@@ -446,7 +448,7 @@ def search_all_universities(original_query: str, search_query: str = None, sourc
     results = {}
     for uni in named_universities(original_query):
         if uni == "University of Liverpool":
-            results[uni] = vector_similarity_search(original_query, search_query, source_type, n_results) # main function 
+            results[uni] = vector_similarity_search(original_query, search_query, source_type, n_results) # main function to search for University of Liverpool DB 
         else:
             results[uni] = rival_search(uni, search_query, n_results)
 
@@ -455,6 +457,8 @@ def search_all_universities(original_query: str, search_query: str = None, sourc
 
 if __name__ == "__main__":
     query = input("Enter your query for vector similarity search: ")
-    k = input("Enter the number of results to return (default 5): ")
-    r = vector_similarity_search(query, n_results=int(k) if k.isdigit() else 5)
+    # s = input("Enter the source type (module, course_info, guild, scholarship, fee, general) or leave blank for all: ")
+    # r = search_all_universities(original_query=query, search_query=query, source_type=s or None)
+
+    r = rival_search("University of Manchester" , query, 20)
     print(r)

@@ -121,8 +121,10 @@ def route_and_build(user_query: str) -> tuple[str | None, str]:
     #route to vector database similarity search
     elif category == "general":
 
-        #user_query = LLM_query(prompts.REWRITER, original_query, model=models.LOW_EFFORT).message.content #rewrite the user query for better retrieval
-        #print(f"Rewritten query: {user_query}")
+        # rewritten for the EMBEDDING only. the original query still drives university
+        # detection, module codes, years and semesters, so nothing else is affected.
+        user_query = LLM_query(prompts.REWRITER, original_query, model=models.LOW_EFFORT).message.content.strip()
+        print(f"Rewritten query: {user_query}")
 
         # do sub routing
         source_type = LLM_query(prompts.SOURCE_TYPE_ROUTER, original_query, model=models.LOW_EFFORT).message.content.strip() # detect what type of source it is (module, course_info, guild, scholarship, fee, general)
