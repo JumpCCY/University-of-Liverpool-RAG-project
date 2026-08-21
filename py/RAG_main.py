@@ -93,9 +93,6 @@ def route_and_build(user_query: str) -> tuple[str | None, str]:
     """
     Routes the query and builds the input for the answering LLM.
 
-    Everything here needs a complete string to work with (the routers classify, the
-    retrieval filters on the text), so this all happens before any answer is written.
-
     Returns:
         (system_prompt, user_content). system_prompt is None when the query is
         unclear - there is nothing to answer from, so user_content is the message

@@ -341,7 +341,6 @@ def vector_similarity_search(original_query: str, search_query: str = None, sour
         facets.append({"semester": {"$in": semesters}})
 
     # general means "search everything", so it has no scope of its own. anything else
-    # widens to its scope group, or to just itself when it is big enough to stand alone.
     if source_type in (None, "general"):
         scope = None
     else:
@@ -355,15 +354,6 @@ def vector_similarity_search(original_query: str, search_query: str = None, sour
             scope_filter = {"source_type": {"$in": scope}}
         clauses.append(scope_filter)
 
-    # when the router already said "module", the facets ARE the question, so apply them
-    # straight. course_info and fee chunks have no year, semester or credits field, so
-    # the $or below lets every one of them through unfiltered - and they match a phrase
-    # like "year 2" BETTER than a module does, because a module only carries the year
-    # inside its bracketed metadata while year_two_course_info says it in a sentence.
-    # they took 12 of the 20 slots on "what modules are in year 2 semester 1" and pushed
-    # COMP219 down to rank 27, so it never reached the answerer.
-    # any other scope still needs the $or: "what is year 2 like" names a year but wants
-    # course_info, which has no year field to match on and would otherwise be filtered out.
     if facets:
         if source_type == "module":
             clauses.extend(facets)
@@ -378,14 +368,6 @@ def vector_similarity_search(original_query: str, search_query: str = None, sour
     else:
         filters = {"$and": clauses}
 
-    # search more then we need then drop low information documents and return only the top n_results
-    # Semantic search + metadata filters
-
-    # a module question WITH facets ("year 3 semester 2") is asking for a complete list,
-    # and the filter already bounds it, so take the lot. we also keep the name-only
-    # modules here - COMP346 has no description but it is still a real module the staff
-    # member asked for, and a list that quietly misses one is worse than a short answer.
-    # without the facets it is just a topic ranking, so it stays capped at n_results.
     if source_type == "module" and facets:
         results = collection.query(query_texts=[search_query], where=filters, n_results=MODULE_POOL)
         rows = query_rows(results)
