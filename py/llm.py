@@ -1,3 +1,4 @@
+import json
 from types import SimpleNamespace
 import ollama
 from dotenv import load_dotenv
@@ -74,6 +75,52 @@ def LLM_query(system_prompt: str, user_query: str, model: str, deterministic: bo
             "num_ctx": 16384,
         }
     )
+
+
+def LLM_tool_call(system_prompt: str, user_query: str, tools: list, model: str):
+    """
+    Asks the model to either call one or more of the given tools, or answer directly.
+
+    This is the agent node: instead of classifying the question into a word we act on,
+    the model picks the tool itself and fills in its arguments. Answering directly -
+    calling nothing - is a real choice, and it is what replaces the old unclear branch.
+
+    OpenAI only. models.PROVIDER == "ollama" keeps the classification routers instead,
+    because a 9b local model picks a category word far more reliably than it fills in
+    structured tool arguments.
+
+    Args:
+        system_prompt (str): the instruction telling the model when to use each tool.
+        user_query (str): the query to send to the LLM.
+        tools (list): tool schemas in Responses API format.
+        model (str): The LLM model to use.
+    Returns:
+        (calls, text). calls is a list of (tool_name, arguments dict) and is empty when
+        the model chose to answer instead; text is that direct answer.
+    """
+    print(f"Call LLM {model} (tools)")
+
+    response = client.responses.create(
+        model=model,
+        instructions=system_prompt,
+        input=user_query,
+        tools=tools,
+        tool_choice="auto",
+        reasoning={"effort": "none"},
+        temperature=0,
+    )
+
+    calls = []
+    for item in response.output:
+        if item.type == "function_call":
+            # arguments is a JSON string, and is absent when the tool takes none
+            if item.arguments:
+                arguments = json.loads(item.arguments)
+            else:
+                arguments = {}
+            calls.append((item.name, arguments))
+
+    return calls, response.output_text
 
 
 def LLM_query_stream(system_prompt: str, user_query: str, model: str):
