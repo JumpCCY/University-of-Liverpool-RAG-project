@@ -137,7 +137,7 @@ def route_and_build(user_query: str) -> tuple[str | None, str]:
         return prompts.GENERAL_ANSWERER, prompting
 
     else:
-        return "You act as a helpful assistant at the University of Liverpool. Ask the user to explain more about their query if it is unclear", user_query
+        return "You are a helpful assistant at the University of Liverpool.", user_query
 
 
 def main(user_query: str) -> str:
