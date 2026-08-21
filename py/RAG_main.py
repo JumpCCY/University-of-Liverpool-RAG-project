@@ -107,7 +107,7 @@ def route_and_build(user_query: str) -> tuple[str | None, str]:
     if not user_query or not user_query.strip():
         return None, "No question was entered."
 
-    category = LLM_query(prompts.ROUTER, original_query, model=models.LOW_EFFORT).message.content.strip() # route the query to either requirement or general
+    category = LLM_query(prompts.ROUTER, original_query, model=models.LOW_EFFORT, deterministic=True).message.content.strip() # route the query to either requirement or general
     if category not in {"requirement", "general", "unclear"}: #if category is not one of the three known categories default to unclear
         category = "unclear"
 
@@ -123,11 +123,11 @@ def route_and_build(user_query: str) -> tuple[str | None, str]:
 
         # rewritten for the EMBEDDING only. the original query still drives university
         # detection, module codes, years and semesters, so nothing else is affected.
-        user_query = LLM_query(prompts.REWRITER, original_query, model=models.LOW_EFFORT).message.content.strip()
+        user_query = LLM_query(prompts.REWRITER, original_query, model=models.LOW_EFFORT, deterministic=True).message.content.strip()
         print(f"Rewritten query: {user_query}")
 
         # do sub routing
-        source_type = LLM_query(prompts.SOURCE_TYPE_ROUTER, original_query, model=models.LOW_EFFORT).message.content.strip() # detect what type of source it is (module, course_info, guild, scholarship, fee, general)
+        source_type = LLM_query(prompts.SOURCE_TYPE_ROUTER, original_query, model=models.LOW_EFFORT, deterministic=True).message.content.strip() # detect what type of source it is (module, course_info, guild, scholarship, fee, general)
         print(source_type)
         if source_type not in {"module", "course_info", "guild", "scholarship", "fee", "general"}:
             source_type = "general" # if source type is not one of the known types, default to general

@@ -14,8 +14,7 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY")) if models.PROVIDER == "open
 
 def _as_ollama_shape(text: str):
     """
-    Wrap an API answer so it has the same .message.content shape as an Ollama
-    response. Keeps the rest of the project working without changes.
+    Wrap an API answer so it has the same .message.content shape as an Ollama response.
     """
     return SimpleNamespace(message=SimpleNamespace(content=text))
 
@@ -34,25 +33,35 @@ def _messages(system_prompt: str, user_query: str) -> list[dict]:
     ]
 
 
-def LLM_query(system_prompt: str, user_query: str, model: str):
+def LLM_query(system_prompt: str, user_query: str, model: str, deterministic: bool = False):
     """
     Queries the LLM model with the given user query and returns the response.
     Args:
         system_prompt (str): The system prompt to set the context for the LLM.
         user_query (str): The query to send to the LLM.
         model (str): The LLM model to use.
+        deterministic (bool): temp 0 
     Returns:
-        a response with .message.content, whichever provider is in use
+        a response with .message.content
     """
     print(f"Call LLM {model}")
 
     if models.PROVIDER == "openai":
-        response = client.responses.create(
-            model=model,
-            instructions=system_prompt,
-            input=user_query,
-            reasoning={"effort": "medium"},
-        )
+        if deterministic:
+            response = client.responses.create(
+                model=model,
+                instructions=system_prompt,
+                input=user_query,
+                reasoning={"effort": "none"},
+                temperature=0,
+            )
+        else:
+            response = client.responses.create(
+                model=model,
+                instructions=system_prompt,
+                input=user_query,
+                reasoning={"effort": "medium"},
+            )
         return _as_ollama_shape(response.output_text)
 
     # ---- ollama for qwen ----
@@ -69,10 +78,7 @@ def LLM_query(system_prompt: str, user_query: str, model: str):
 
 def LLM_query_stream(system_prompt: str, user_query: str, model: str):
     """
-    Same as LLM_query, but yields the answer in pieces as the model writes it.
-
-    Use this ONLY for the final answer. The router, sub-router and extractor all need
-    the complete string before they can decide anything, so they keep using LLM_query.
+    Same as LLM_query, but we make it generate each word like chatgpt.
 
     Yields:
         str: the next piece of the answer (a few characters at a time)
