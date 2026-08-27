@@ -1,4 +1,5 @@
 from pathlib import Path
+import shutil
 import sys
 import chromadb
 import json
@@ -48,14 +49,12 @@ ollama_ef = OllamaEmbeddingFunction(
     model_name=models.EMBEDDING,
 )
     
+# delete and recreate the chroma_db every time. 
+if CHROMA_DB_PATH.exists():
+    shutil.rmtree(CHROMA_DB_PATH)
+
 #create chroma client save on the file
 chroma_client = chromadb.PersistentClient(path=str(CHROMA_DB_PATH))
-
-# delete the collection if it exists and rewrite it with the new data
-try:
-    chroma_client.delete_collection("my_collection")
-except Exception:
-    pass
 
 collection = chroma_client.create_collection(
     name="my_collection",
@@ -242,12 +241,6 @@ for name, folder in UNIVERSITY_FOLDER.items():
     DISPLAY_NAME[folder] = name
 
 for rival in RIVALS:
-    try:
-        # delete the collection if it exists and rewrite it with the new data
-        chroma_client.delete_collection(rival)
-    except Exception:
-        pass
-
     rival_collection = chroma_client.create_collection(name=rival, embedding_function=ollama_ef)
 
     for i, doc in enumerate(rival_chunking.chunking(rival)):
