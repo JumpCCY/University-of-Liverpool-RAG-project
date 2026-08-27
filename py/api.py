@@ -118,9 +118,12 @@ def stream_answer(user_query: str):
     yield "data: [DONE]\n\n"
 
 
+@app.get("/models")
 @app.get("/v1/models")
 def list_models():
-    """Model discovery. Open WebUI calls this to populate its dropdown."""
+    """
+    Model discovery. Open WebUI calls this to populate model name.
+    """
     return {
         "object": "list",
         "data": [
@@ -134,6 +137,7 @@ def list_models():
     }
 
 
+@app.post("/chat/completions")
 @app.post("/v1/chat/completions")
 def chat_completions(request: ChatRequest):
     """
