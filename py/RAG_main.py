@@ -43,6 +43,7 @@ KNOWN_UNIVERSITIES = ["University of Liverpool", "University of York", "Universi
 def answer_qualification_constuct(user_query: str, qualifications_data: dict) -> str:
     """
     Constructs the context for answering qualification-related questions.
+    data + query and then pass to LLM.
     Args:
         user_query (str): The user's query.
         qualifications_data (dict): Qualification records for the relevant universities retrieved from JSON files.
@@ -93,15 +94,12 @@ def route_and_build(user_query: str) -> tuple[str | None, str]:
     """
     Routes the query and builds the input for the answering LLM.
 
-    Everything here needs a complete string to work with (the routers classify, the
-    retrieval filters on the text), so this all happens before any answer is written.
-
     Returns:
         (system_prompt, user_content). system_prompt is None when the query is
         unclear - there is nothing to answer from, so user_content is the message
         to show instead.
     """
-    original_query = user_query
+    original_query = user_query # user_query for rewriter 
 
     # check for empty query and return a message if so
     if not user_query or not user_query.strip():
@@ -126,7 +124,7 @@ def route_and_build(user_query: str) -> tuple[str | None, str]:
         user_query = LLM_query(prompts.REWRITER, original_query, model=models.LOW_EFFORT, deterministic=True).message.content.strip()
         print(f"Rewritten query: {user_query}")
 
-        # do sub routing
+        # do sub routing with original query and avoid rewritten query 
         source_type = LLM_query(prompts.SOURCE_TYPE_ROUTER, original_query, model=models.LOW_EFFORT, deterministic=True).message.content.strip() # detect what type of source it is (module, course_info, guild, scholarship, fee, general)
         print(source_type)
         if source_type not in {"module", "course_info", "guild", "scholarship", "fee", "general"}:
