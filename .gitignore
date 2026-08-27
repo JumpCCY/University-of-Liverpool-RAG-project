@@ -1,2 +1,6 @@
 # Never commit real API keys.
 .env
+model_comparison_report.txt
+openwebui_prompts.txt
+test_answers.txt
+test_chunk.txt
