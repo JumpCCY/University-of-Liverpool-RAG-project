@@ -422,7 +422,9 @@ def rival_search(university: str, search_query: str, n_results) -> list[dict]:
     try:
         rival = client.get_collection(name, embedding_function=ollama_ef)
     except Exception:
-        return [] 
+        # incase the rival collections are empty.
+        print(f"collection '{name}' unavailable for {university}")
+        return []
 
     results = []
     rival_search_results = rival.query(query_texts=[search_query], n_results=n_results)
@@ -457,8 +459,7 @@ def search_all_universities(original_query: str, search_query: str = None, sourc
 
 if __name__ == "__main__":
     query = input("Enter your query for vector similarity search: ")
-    # s = input("Enter the source type (module, course_info, guild, scholarship, fee, general) or leave blank for all: ")
-    # r = search_all_universities(original_query=query, search_query=query, source_type=s or None)
+    s = input("Enter the source type (module, course_info, guild, scholarship, fee, general) or leave blank for all: ")
+    r = search_all_universities(original_query=query, search_query=query, source_type=s or None)
 
-    r = rival_search("University of Manchester" , query, 20)
     print(r)
