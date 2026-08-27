@@ -4,3 +4,5 @@ model_comparison_report.txt
 openwebui_prompts.txt
 test_answers.txt
 test_chunk.txt
+__pycache__/
+*.pyc
