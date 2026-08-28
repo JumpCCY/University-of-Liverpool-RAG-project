@@ -1,5 +1,5 @@
 """
-LLM assited the coding writing for this file.
+LLM assited the coding for writing this file.
 """
 
 import json
