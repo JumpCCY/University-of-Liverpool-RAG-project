@@ -16,17 +16,9 @@ from json_search import UNIVERSITY_FOLDER
 
 from script import scholar_chunking, general_chunking, course_chunking, support_chunking, rival_chunking
 
-# anchored to the project root so this script reads and writes the same files no
-# matter which directory it is run from. a relative path here built a second, empty
-# chroma_db inside py/ whenever the script was run from there, while vector_search.py
-# kept reading the one in the project root.
 CHROMA_DB_PATH = PROJECT_ROOT / "chroma_db"
 
-# every chunk this script writes is University of Liverpool. a rival is populated by the
-# same code pointed at its own folder, and this metadata is what keeps them apart at
-# retrieval time - without it a search would blend a Liverpool module and a Manchester
-# one into one answer, which is exactly what the answerer is told never to do.
-UNIVERSITY = "University of Liverpool"
+MAIN_UNIVERSITY = "University of Liverpool"
 
 LIVERPOOL_JSON = PROJECT_ROOT / "data" / "liverpool" / "json"
 
@@ -49,9 +41,8 @@ ollama_ef = OllamaEmbeddingFunction(
     model_name=models.EMBEDDING,
 )
     
-# delete and recreate the chroma_db every time. 
-if CHROMA_DB_PATH.exists():
-    shutil.rmtree(CHROMA_DB_PATH)
+# this script rebuilds every collection from scratch
+shutil.rmtree(CHROMA_DB_PATH, ignore_errors=True)
 
 #create chroma client save on the file
 chroma_client = chromadb.PersistentClient(path=str(CHROMA_DB_PATH))
@@ -70,7 +61,7 @@ for module in pull_data("cs_modules"):
         metadatas=[
             {
                 "source_type": "module",
-                "university": UNIVERSITY,
+                "university": MAIN_UNIVERSITY,
                 "code": module["code"],
                 "title": module["title"],
                 "year": module["year"],
@@ -91,7 +82,7 @@ for info in pull_data("courses_info"):
         metadatas=[
             {
                 "source_type": "course_info",
-                "university": UNIVERSITY,
+                "university": MAIN_UNIVERSITY,
                 "title" : info["title"],
             }
         ]
@@ -111,7 +102,7 @@ for i, doc in enumerate(course_chunking.chunking()):
         documents=[doc.page_content],
         metadatas=[{
             "source_type": "course_info",
-            "university": UNIVERSITY,
+            "university": MAIN_UNIVERSITY,
             "main_section": md.get("main_section", ""),
             "section": md.get("Header 2") or md.get("Header 3") or md.get("Header 4") or "general", # if no header, default to "general"
             "page_title": md.get("page", ""),
@@ -130,7 +121,7 @@ for guild in pull_data("guilds"):
             metadatas=[
                 {
                     "source_type": "guild",
-                    "university": UNIVERSITY,
+                    "university": MAIN_UNIVERSITY,
                     "guild_name": guild["guild_name"],
                 }
             ]
@@ -145,7 +136,7 @@ for guild in pull_data("guilds"):
                     metadatas=[
                         {
                             "source_type": "guild",
-                            "university": UNIVERSITY,
+                            "university": MAIN_UNIVERSITY,
                             "guild_name": guild["guild_name"],
                         }
                     ]
@@ -157,7 +148,7 @@ for guild in pull_data("guilds"):
             metadatas=[
                 {
                     "source_type": "guild",
-                    "university": UNIVERSITY,
+                    "university": MAIN_UNIVERSITY,
                     "guild_name": guild["guild_name"],
                 }
             ]
@@ -173,7 +164,7 @@ for i, doc in enumerate(scholar_chunking.chunking()):
         documents=[doc.page_content],
         metadatas=[{
             "source_type": "scholarship",
-            "university": UNIVERSITY,
+            "university": MAIN_UNIVERSITY,
             "scholarship_title": md.get("scholarship", ""),
             "section": md.get("Header 2") or md.get("Header 3") or md.get("Header 1") or "general", # if no header, default to "general"
         }],
@@ -192,7 +183,7 @@ for fee in pull_data("fees"):
         metadatas=[
             {
                 "source_type": "fee",
-                "university": UNIVERSITY,
+                "university": MAIN_UNIVERSITY,
             }
         ]
     )
@@ -207,7 +198,7 @@ for i, doc in enumerate(general_chunking.chunking()):
         documents=[doc.page_content],
         metadatas=[{
             "source_type": "general",
-            "university": UNIVERSITY,
+            "university": MAIN_UNIVERSITY,
             "main_section": md.get("main_section", ""),
             "section": md.get("Header 2") or md.get("Header 3") or md.get("Header 1") or "general", # if no header, default to "general"
             "page_title": md.get("page", ""),
@@ -224,7 +215,7 @@ for i, doc in enumerate(support_chunking.chunking()):
         documents=[doc.page_content],
         metadatas=[{
             "source_type": "support",
-            "university": UNIVERSITY,
+            "university": MAIN_UNIVERSITY,
             "main_section": md.get("main_section", ""),
             "section": md.get("Header 2") or md.get("Header 3") or md.get("Header 1") or "general", # if no header, default to "general"
             "page_title": md.get("page", ""),

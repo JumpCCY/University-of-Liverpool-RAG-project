@@ -1,6 +1,5 @@
 from bs4 import BeautifulSoup
 import requests
-from rich import print
 from pathlib import Path
 
 BASE_URL = "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons"

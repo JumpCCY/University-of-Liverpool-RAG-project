@@ -35,11 +35,6 @@ def ensure_ollama_running(timeout: int = 30) -> None:
 
     raise RuntimeError(f"Ollama did not start within {timeout} seconds.")
 
-KNOWN_UNIVERSITIES = ["University of Liverpool", "University of York", "University of Leeds",
-    "University of Manchester", "Newcastle University",
-    "University of Sheffield", "University of Nottingham",
-    "University of Lancaster",]
-
 def answer_qualification_constuct(user_query: str, qualifications_data: dict) -> str:
     """
     Constructs the context for answering qualification-related questions.
@@ -120,17 +115,11 @@ def route_and_build(user_query: str) -> tuple[str | None, str]:
     elif category == "general":
 
         # rewritten for the EMBEDDING only. the original query still drives university
-        # detection, module codes, years and semesters, so nothing else is affected.
         user_query = LLM_query(prompts.REWRITER, original_query, model=models.LOW_EFFORT, deterministic=True).message.content.strip()
         print(f"Rewritten query: {user_query}")
 
-        # do sub routing with original query and avoid rewritten query 
-        source_type = LLM_query(prompts.SOURCE_TYPE_ROUTER, original_query, model=models.LOW_EFFORT, deterministic=True).message.content.strip() # detect what type of source it is (module, course_info, guild, scholarship, fee, general)
-        print(source_type)
-        if source_type not in {"module", "course_info", "guild", "scholarship", "fee", "general"}:
-            source_type = "general" # if source type is not one of the known types, default to general
-
-        vector_search_results = search_all_universities(original_query, user_query, source_type, n_results=20) # university name -> list of results
+        # pass to the vector search with regex for module code, scholarship or society wording, year/semester/credits for more accurate results.
+        vector_search_results = search_all_universities(original_query, user_query, n_results=20) # university name -> list of results
         prompting = answer_vector_search_construct(original_query, vector_search_results) # include search results in the query
         return prompts.GENERAL_ANSWERER, prompting
 

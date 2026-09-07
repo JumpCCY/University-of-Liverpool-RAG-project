@@ -5,7 +5,6 @@ from langchain_text_splitters import (
     RecursiveCharacterTextSplitter,
 )
 import re
-from rich import print
 
 folder = Path(__file__).parent.parent / "data" / "liverpool" / "general"
 

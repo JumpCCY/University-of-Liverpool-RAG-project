@@ -1,8 +1,18 @@
 # Never commit real API keys.
 .env
-model_comparison_report.txt
-openwebui_prompts.txt
-test_answers.txt
-test_chunk.txt
+
+# the vector store is generated - rebuild it with py/embeddings/populate_vector_db.py.
+# it was committed as ~50mb of binary index that changed on every run, which buried
+# the real diffs in git status.
+chroma_db/
+
+# python bytecode
 __pycache__/
 *.pyc
+
+# generated test output and scratch files
+answers.txt
+test_answers.txt
+test_chunk.txt
+model_comparison_report.txt
+openwebui_prompts.txt

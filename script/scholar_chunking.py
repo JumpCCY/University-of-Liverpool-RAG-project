@@ -1,7 +1,6 @@
 import re
 from langchain_text_splitters import HTMLSemanticPreservingSplitter, RecursiveCharacterTextSplitter
 from pathlib import Path
-from rich import print
 from bs4 import BeautifulSoup
 
 folder = Path(__file__).parent.parent / "data" / "liverpool" / "scholarships"
