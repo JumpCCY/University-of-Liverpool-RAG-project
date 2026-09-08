@@ -1,4 +1,5 @@
 import subprocess
+import sys
 import time
 import urllib.request
 import urllib.error
@@ -10,6 +11,14 @@ from vector_search import search_all_universities, named_universities
 import models
 
 OLLAMA_URL = models.OLLAMA_URL
+
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+except (AttributeError, OSError):  
+    pass
+
+# How many earlier turns are shown to the condenser. Only the recent ones
+MAX_HISTORY_TURNS = 6
 
 def ensure_ollama_running(timeout: int = 30) -> None:
     """
@@ -85,20 +94,35 @@ def answer_vector_search_construct(user_query: str, vector_search_results: dict[
     VECTOR SEARCH RESULTS:{str_for_llm}"""
     return user_content
 
-def route_and_build(user_query: str) -> tuple[str | None, str]:
+def route_and_build(user_query: str, history: str = "") -> tuple[str | None, str]:
     """
     Routes the query and builds the input for the answering LLM.
+
+    Args:
+        user_query (str): what the staff member just typed.
+        history (str): the earlier turns, "role: text" one per line. Empty on the
+            first question, which is why most queries never pay for the condenser.
 
     Returns:
         (system_prompt, user_content). system_prompt is None when the query is
         unclear - there is nothing to answer from, so user_content is the message
         to show instead.
     """
-    original_query = user_query # user_query for rewriter 
-
-    # check for empty query and return a message if so
+    # check for empty query
     if not user_query or not user_query.strip():
         return None, "No question was entered."
+
+    # if there is a history, condense it to a single query for the rewriter. the original query is still used for routing and vector search.
+    if history:
+        user_query = LLM_query(
+            prompts.CONDENSER,
+            f"CONVERSATION SO FAR:\n{history}\n\nLATEST MESSAGE: {user_query}",
+            model=models.LOW_EFFORT,
+            deterministic=True,
+        ).message.content.strip()
+        print(f"Condensed query: {user_query}")
+
+    original_query = user_query # user_query for rewriter
 
     category = LLM_query(prompts.ROUTER, original_query, model=models.LOW_EFFORT, deterministic=True).message.content.strip() # route the query to either requirement or general
     if category not in {"requirement", "general", "unclear"}: #if category is not one of the three known categories default to unclear
@@ -127,16 +151,16 @@ def route_and_build(user_query: str) -> tuple[str | None, str]:
         return "You are a helpful assistant at the University of Liverpool.", user_query
 
 
-def main(user_query: str) -> str:
+def main(user_query: str, history: str = "") -> str:
     """Answers the query and returns the whole answer at once."""
     # system_prompt = instruction for LLM, prompting = the user query with context (result from search) for LLM to answer
-    system_prompt, prompting = route_and_build(user_query)
+    system_prompt, prompting = route_and_build(user_query, history)
     if system_prompt is None:
         return prompting
     return LLM_query(system_prompt, prompting, model=models.HIGH_EFFORT).message.content
 
 
-def main_stream(user_query: str):
+def main_stream(user_query: str, history: str = ""):
     """
     Same as main(), but yields the answer in pieces as the model writes it.
 
@@ -146,7 +170,7 @@ def main_stream(user_query: str):
     Yields:
         str: the next piece of the answer
     """
-    system_prompt, prompting = route_and_build(user_query)
+    system_prompt, prompting = route_and_build(user_query, history)
     if system_prompt is None:
         yield prompting
         return
@@ -155,9 +179,17 @@ def main_stream(user_query: str):
 
 if __name__ == "__main__":
     ensure_ollama_running()
-    user_query = input("Enter your query: ").strip()
-    while not user_query:   # a stray newline from pasting submits an empty line
-        user_query = input("Enter your query: ").strip()
-    for piece in main_stream(user_query):   # printed as it arrives instead of all at the end
-        print(piece, end="", flush=True)
-    print()
+    turns = []   # "role: text" lines, the same shape the API builds
+
+    while True:
+        user_query = input("\nEnter your query: ").strip()
+        if not user_query:   # a stray newline from pasting submits an empty line
+            continue
+
+        answer = ""
+        for piece in main_stream(user_query, "\n".join(turns[-MAX_HISTORY_TURNS:])):
+            print(piece, end="", flush=True)   # printed as it arrives instead of all at the end
+            answer += piece
+        print()
+
+        turns += [f"user: {user_query}", f"assistant: {answer}"]
