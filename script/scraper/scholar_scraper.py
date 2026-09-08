@@ -3,7 +3,7 @@ import requests
 from pathlib import Path
 
 BASE_URL = "https://www.liverpool.ac.uk/courses/computer-science-bsc-hons"
-PARENT_DIR = Path(__file__).resolve().parent.parent # to the root of the project (go up two levels)
+PARENT_DIR = Path(__file__).resolve().parents[2] # to the root of the project (go up three levels)
 
 headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
 

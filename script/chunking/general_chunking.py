@@ -5,29 +5,21 @@ from langchain_text_splitters import (
     RecursiveCharacterTextSplitter,
 )
 import re
-from rich import print
 
-folder = Path(__file__).parent.parent / "data" / "liverpool" / "support"
-
-MAIN_SECTION = "student support"
+folder = Path(__file__).parents[2] / "data" / "liverpool" / "general"
 
 # chunks whose body matches any of these are CMS boilerplate, not content
 NOISE_PATTERNS = [
     re.compile(r"lorem ipsum", re.I),
-    re.compile(r"^skip navigation|^university home >", re.I), # breadcrumb and skip link
-    re.compile(r"student services menu", re.I), # the side nav repeated on every page
-    re.compile(r"^(?:read more|find out more|learn more|view all|back to top)\b", re.I),
+    re.compile(
+        r"^(?:\s*[\w-]+\s*/\s*[\w-]+\s*)+$"
+    ),  # for webpage cleaning like horizontal /horizontal or foo/bar
+    re.compile(
+        r"^get a feel for your new home", re.I
+    ),  # virtual-tour blurb repeated on every hall page
+    re.compile(r"search now\s+load virtual tour", re.I), # for some seach box 
+    re.compile(r"^top level page$", re.I),
 ]
-
-# the side nav lists every support page by name, so a chunk that is just those names
-# carries no information. it is short and made only of the known page titles.
-NAV_LINKS = re.compile(
-    r"in a crisis now|mental wellbeing|disabled students|money advice|"
-    r"visas and immigration|safe and welcoming campus|staff hub|gender identity support|"
-    r"support in global crises|book an appointment|renters' rights",
-    re.I,
-)
-MAX_NAV_HITS = 4  # this many page names in one chunk means it is the nav, not content
 
 MIN_CHARS = 120  # anything shorter is merged back or dropped
 
@@ -37,7 +29,7 @@ def preprocess_html(html):
 
     # remove non-content tags ex. JS
     for tag in soup.find_all(
-        ["script", "style", "noscript", "iframe", "svg", "img", "picture", "dialog", "nav"]
+        ["script", "style", "noscript", "iframe", "svg", "img", "picture", "dialog"]
     ):
         tag.decompose()
 
@@ -45,16 +37,16 @@ def preprocess_html(html):
     for c in soup.find_all(string=lambda s: isinstance(s, Comment)):
         c.extract()
 
-    # drop the side menu and the breadcrumb
+    # drop the gallery or videos
     for tag in soup.find_all(
-        class_=re.compile(r"menu|breadcrumb|side-nav|section-nav|skip", re.I)
+        class_=re.compile(r"gallery|video|virtual-tour|accommodation-finder", re.I)
     ):
         tag.decompose()
 
     for a in soup.find_all("a"):
         href = a.get("href", "")
         if href.startswith("mailto:") or "@" in a.get_text():
-            a.replace_with(" " + a.get_text() + " ") # keep advice@liverpool.ac.uk, staff read it out
+            a.replace_with(" ")
         else:
             a.replace_with(" " + a.get_text() + " ")
 
@@ -74,17 +66,7 @@ def clean_text(text):
 
 
 def is_noise(text):
-    if not text:
-        return True
-    for p in NOISE_PATTERNS:
-        if p.search(text):
-            return True
-    return False
-
-
-def is_nav(text):
-    """A chunk listing this many of the support page names is the side nav."""
-    return len(set(m.group().lower() for m in NAV_LINKS.finditer(text))) >= MAX_NAV_HITS
+    return not text or any(p.search(text) for p in NOISE_PATTERNS)
 
 
 def page_title(html, fallback):
@@ -100,8 +82,12 @@ def page_title(html, fallback):
 
 
 def ingest_page(html, name, main_section, max_chars=1000, overlap=100):
-    """Chunk one support page for retrieval, prefixed with the page it came from."""
+    """Chunk one scholarship HTML page for retrieval.
+    - Splits on headings, sub-splits only oversized *text* sections
+    - Prepends the scholarship name so look-alike chunks stay separable
+    """
 
+    # when: You need to split the document into chunks while preserving semantic elements like tables and lists REF. LangChain
     splitter = HTMLSemanticPreservingSplitter(
         headers_to_split_on=[
             ("h1", "Header 1"),
@@ -125,10 +111,10 @@ def ingest_page(html, name, main_section, max_chars=1000, overlap=100):
     for d in docs:
         pieces = recursive.split_documents([d])
         for p in pieces:
-            heading = " > ".join(str(v) for v in p.metadata.values()) # join with >
+            heading = " > ".join(str(v) for v in p.metadata.values()) # join with > 
             body = clean_text(p.page_content)
-            # if the body is noise or just the side nav we skip it
-            if is_noise(body) or is_nav(body):
+            # if the body is noise we skip it
+            if is_noise(body):
                 continue
             # a fragment too small to stand alone belongs on the end of the previous chunk
             if len(body) < MIN_CHARS:
@@ -153,18 +139,19 @@ def chunking():
 
         # html file preprocessing to remove unwanted tags and comments
         html = preprocess_html(raw)
-        # fallback file name in case the page has no <h1> or the <h1> is too short or too long
+        # fellback file name in case the page has no <h1> or the <h1> is too short or too long
         fallback = file.stem.replace("_", " ").replace("-", " ")
 
-        all_chunks.extend(ingest_page(html, f"{page_title(html, fallback)}", MAIN_SECTION))
+        main_section_name = re.match(r"^[a-z-]+", file.name).group().replace("-", " ")
+        all_chunks.extend(
+            ingest_page(html, f"{page_title(html, fallback)}", main_section_name)
+        )
     return all_chunks
 
 
 if __name__ == "__main__":
-    docs = chunking()
-    with open("test_support_chunk.txt", "w", encoding="utf-8") as f:
-        for doc in docs:
+    with open("test_chunk.txt", "w", encoding="utf-8") as f:
+        for doc in chunking():
             f.write(f"Metadata: {doc.metadata}\n")
             f.write(f"Content: {doc.page_content}\n")
             f.write("=" * 80 + "\n")
-    print(f"{len(docs)} support chunks written to test_support_chunk.txt")

@@ -3,7 +3,7 @@ from langchain_text_splitters import HTMLSemanticPreservingSplitter, RecursiveCh
 from pathlib import Path
 from bs4 import BeautifulSoup
 
-folder = Path(__file__).parent.parent / "data" / "liverpool" / "scholarships"
+folder = Path(__file__).parents[2] / "data" / "liverpool" / "scholarships"
 
 def preprocess_html(html):
     """Flatten inline tags into reading-order text BEFORE splitting.

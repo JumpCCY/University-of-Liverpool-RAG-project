@@ -26,7 +26,7 @@ URLS = [
         # workshops-and-events skipped, 334 chars and it is an events listing that goes stale
         ]
 
-PARENT_DIR = Path(__file__).resolve().parent.parent # to the root of the project (go up two levels)
+PARENT_DIR = Path(__file__).resolve().parents[2] # to the root of the project (go up three levels)
 
 headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
 

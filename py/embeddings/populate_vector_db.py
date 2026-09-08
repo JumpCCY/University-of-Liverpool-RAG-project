@@ -14,7 +14,7 @@ sys.path.append(str(PROJECT_ROOT / "py"))  # so the shared model config can be i
 import models
 from json_search import UNIVERSITY_FOLDER
 
-from script import scholar_chunking, general_chunking, course_chunking, support_chunking, rival_chunking
+from script.chunking import scholar_chunking, general_chunking, course_chunking, support_chunking, rival_chunking
 
 CHROMA_DB_PATH = PROJECT_ROOT / "chroma_db"
 
