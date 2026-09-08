@@ -12,7 +12,7 @@ from pydantic import BaseModel
 
 from llm import LLM_query
 import models
-from RAG_main import main_stream
+from RAG_main import MAX_HISTORY_TURNS, main_stream
 
 app = FastAPI(title="University RAG")
 
@@ -35,17 +35,36 @@ class ChatRequest(BaseModel):
         extra = "allow"  # Open WebUI sends temperature, max_tokens etc. - ignore them
 
 
-def last_user_query(messages: list[Message]) -> str:
+def conversation(messages: list[Message]) -> tuple[str, str]:
     """
-    Pulls the question out of the conversation.
+    Splits the request into the earlier turns and the question being asked now.
 
-    The RAG answers one question at a time - route_and_build() classifies a single
-    string - so earlier turns are not part of the query.
+    Open WebUI resends the whole conversation on every call, so the history is
+    already here - it only has to be kept apart from the question itself. Only
+    user and assistant turns count: the system prompt is Open WebUI's own and is
+    not something the staff member said.
+
+    Returns:
+        (history, question). history is "" on the first turn, which is what keeps
+        the condenser off the critical path for most queries. question is "" when
+        there is no user turn at all - route_and_build() reports that.
     """
-    for message in reversed(messages):
-        if message.role == "user" and message.content:
-            return message.content.strip()
-    return ""
+    turns = [m for m in messages if m.role in ("user", "assistant") and m.content]
+
+    # walk back to the question being asked now - the last turn is not always the
+    # user's, because Open WebUI resends the conversation when regenerating an answer
+    latest = -1
+    for i in range(len(turns) - 1, -1, -1):
+        if turns[i].role == "user":
+            latest = i
+            break
+
+    if latest == -1:
+        return "", ""
+
+    prior = turns[:latest][-MAX_HISTORY_TURNS:]
+    history = "\n".join(f"{m.role}: {m.content.strip()}" for m in prior)
+    return history, turns[latest].content.strip()
 
 
 def is_openwebui_task(messages: list[Message]) -> bool:
@@ -94,12 +113,9 @@ def chunk(completion_id: str, created: int, delta: dict, finish_reason: str | No
     return f"data: {json.dumps(payload)}\n\n"
 
 
-def stream_answer(user_query: str):
+def stream_answer(user_query: str, history: str = ""):
     """
     Yields the answer as OpenAI-style SSE.
-
-    Starlette runs this in a worker thread, so the blocking retrieval and the
-    blocking model calls underneath do not stall the server.
     """
     completion_id = f"chatcmpl-{uuid.uuid4().hex}"
     created = int(time.time())
@@ -107,7 +123,7 @@ def stream_answer(user_query: str):
     yield chunk(completion_id, created, {"role": "assistant"}, None)
 
     try:
-        for piece in main_stream(user_query):
+        for piece in main_stream(user_query, history):
             yield chunk(completion_id, created, {"content": piece}, None)
     except Exception as error:
         # the stream has already started, so a 500 is no longer possible - the only
@@ -150,17 +166,17 @@ def chat_completions(request: ChatRequest):
         answer = answer_task(request.messages)
         return completion_response(answer)
 
-    user_query = last_user_query(request.messages)
+    history, user_query = conversation(request.messages)
 
     if request.stream:
         return StreamingResponse(
-            stream_answer(user_query),
+            stream_answer(user_query, history),
             media_type="text/event-stream",
             headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
         )
 
     answer = ""
-    for piece in main_stream(user_query):
+    for piece in main_stream(user_query, history):
         answer += piece
     return completion_response(answer)
 
