@@ -7,6 +7,7 @@ Single place to choose which model does what.
 # Turns text into vectors for retrieval.
 # WARNING: this one is not free to change. The vectors already stored in chroma_db
 EMBEDDING = "qwen3-embedding:8b"
+RERANKER = "mixedbread-ai/mxbai-rerank-large-v2"
 
 
 OLLAMA_URL = "http://localhost:11434"
