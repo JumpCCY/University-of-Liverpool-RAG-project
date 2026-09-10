@@ -10,9 +10,9 @@ chroma_db/
 __pycache__/
 *.pyc
 
-# generated test output and scratch files
-answers.txt
-test_answers.txt
-test_chunk.txt
-model_comparison_report.txt
-openwebui_prompts.txt
+# generated output and scratch reports. every .txt here is produced by a script or
+# a test run - answer dumps, retrieval comparisons, prompt experiments - so they are
+# ignored wholesale rather than listed one by one as they accumulate.
+*.txt
+# except this one, which is a kept copy of a prompt and is meant to be in history
+!py/prompts_previous_general_answerer.txt
