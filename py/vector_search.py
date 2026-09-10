@@ -8,7 +8,9 @@ from rich import print
 import models
 from json_search import UNIVERSITY_FOLDER
 
-CHROMA_DB_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "chroma_db")
+CHROMA_DB_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "chroma_db"
+)
 
 client = chromadb.PersistentClient(path=CHROMA_DB_PATH)
 
@@ -32,20 +34,24 @@ BOILERPLATE_SECTIONS = re.compile(
 )
 BOILERPLATE_PENALTY = 0.15
 
-SCHOLARSHIP_POOL = 100      # every scholarship chunk, so no scholarship is missed
-MODULE_POOL = 100           # every module chunk, so no module is missed from a year/semester list
-FOCUS_MARGIN = 0.12         # one scholarship this much closer than the next = a question about that one
+SCHOLARSHIP_POOL = 100  # every scholarship chunk, so no scholarship is missed
+MODULE_POOL = (
+    100  # every module chunk, so no module is missed from a year/semester list
+)
+FOCUS_MARGIN = (
+    0.12  # one scholarship this much closer than the next = a question about that one
+)
 
 # each university has its own collection, so rebuilding one does not re-embed the others
 UNIVERSITY_COLLECTIONS = {
-    "University of Liverpool":  "my_collection",
+    "University of Liverpool": "my_collection",
     "University of Manchester": "manchester",
-    "University of Sheffield":  "sheffield",
-    "University of Leeds":      "leeds",
-    "Newcastle University":     "newcastle",
+    "University of Sheffield": "sheffield",
+    "University of Leeds": "leeds",
+    "Newcastle University": "newcastle",
     "University of Nottingham": "nottingham",
-    "University of York":       "york",
-    "University of Lancaster":  "lancaster",
+    "University of York": "york",
+    "University of Lancaster": "lancaster",
 }
 
 # these share a city name with a university we hold, so strip them before matching
@@ -59,9 +65,7 @@ OTHER_INSTITUTIONS = re.compile(
 SCHOLARSHIP_WORDS = re.compile(
     r"scholarship|bursar|funding|financial (?:support|help|aid)|hardship", re.I
 )
-GUILD_WORDS = re.compile(
-    r"\b(?:societ(?:y|ies)|clubs?|guild|union|freshers)\b", re.I
-)
+GUILD_WORDS = re.compile(r"\b(?:societ(?:y|ies)|clubs?|guild|union|freshers)\b", re.I)
 # regex on curriculum wording scopes the search to what is taught.
 # a match drives a hard source_type filter, not a re-rank, so it must only fire on
 # wording that names teaching. "anything on/about x" used to be in here and matched
@@ -74,12 +78,10 @@ CURRICULUM_WORDS = re.compile(
     # comparison, filter down to modules and drop the general and support pages.
     r"\b(?:modules?|teach(?:es|ing)?|taught|stud(?:y|ies|ied|ying)|subjects?|"
     r"syllabus|curriculum|cover(?:s|ed)?|content|"
-    r"(?<!machine )(?<!deep )(?<!reinforcement )(?<!statistical )learn(?:s|ing|t)?)\b", re.I
+    r"(?<!machine )(?<!deep )(?<!reinforcement )(?<!statistical )learn(?:s|ing|t)?)\b",
+    re.I,
 )
 CURRICULUM_SCOPE = ["module", "course_info", "fee"]
-# a bare subject question. it decides nothing on its own - see the merge branch in
-# vector_similarity_search - so unlike the words above it never narrows the search.
-TOPIC_QUESTION = re.compile(r"\b(?:anything|something)\s+(?:on|about)\b", re.I)
 
 
 def normalise(text: str) -> str:
@@ -105,15 +107,18 @@ def title_keys(title: str) -> set[str]:
     return long_enough
 
 
-SCHOLARSHIP_TITLES = {} # every scholarship name in the vector database
+SCHOLARSHIP_TITLES = {}  # every scholarship name in the vector database
 
-scholarships = collection.get(where={"source_type": "scholarship"},include=["metadatas"])["metadatas"]
+scholarships = collection.get(
+    where={"source_type": "scholarship"}, include=["metadatas"]
+)["metadatas"]
 
-# get all name of scholarships in the database and then store it in a dict with different variations 
+# get all name of scholarships in the database and then store it in a dict with different variations
 for m in scholarships:
     if m.get("scholarship_title"):
         title = m["scholarship_title"]
-        SCHOLARSHIP_TITLES[title] = title_keys(title) 
+        SCHOLARSHIP_TITLES[title] = title_keys(title)
+
 
 def named_scholarship(query: str) -> str | None:
     """Return the scholarship the query names, if it names one."""
@@ -121,7 +126,7 @@ def named_scholarship(query: str) -> str | None:
 
     matched_titles = []
 
-    # if theres any match title in the query if there's one we exit the loop 
+    # if theres any match title in the query if there's one we exit the loop
     for title, keys in SCHOLARSHIP_TITLES.items():
         for key in keys:
             if key in q:
@@ -131,7 +136,9 @@ def named_scholarship(query: str) -> str | None:
     if not matched_titles:
         return None
 
-    longest_title = max(matched_titles, key=len) # just incase there are the same name but with shorter ones
+    longest_title = max(
+        matched_titles, key=len
+    )  # just incase there are the same name but with shorter ones
 
     return longest_title
 
@@ -141,11 +148,11 @@ def informative_body(document: str) -> str:
     Strip the prefix added at ingest so only the descriptive text is measured.
     Covers the four document shapes built in populate_vector_db.py.
     """
-    if "\n" in document:                      # scholarship / general: "[crumb] heading\nbody"
+    if "\n" in document:  # scholarship / general: "[crumb] heading\nbody"
         return document.split("\n", 1)[1].strip()
-    if "] " in document:                      # module: "CODE: Title [credits, year...] description"
+    if "] " in document:  # module: "CODE: Title [credits, year...] description"
         return document.split("] ", 1)[1].strip()
-    if " : " in document:                     # guild / fee / course_info: "Name : description"
+    if " : " in document:  # guild / fee / course_info: "Name : description"
         return document.split(" : ", 1)[1].strip()
     return document.strip()
 
@@ -161,12 +168,19 @@ def is_low_info(document: str, meta: dict | None = None) -> bool:
 
 def to_answer(doc: str, meta: dict, dist: float) -> dict:
     """Build the result dict used everywhere in this module."""
-    return {"distance": dist, "source_type": meta.get("source_type"), "document": doc, "metadata": meta}
+    return {
+        "distance": dist,
+        "source_type": meta.get("source_type"),
+        "document": doc,
+        "metadata": meta,
+    }
 
 
 def query_rows(results: chromadb.QueryResult) -> list[tuple]:
     """get the query result from chroma and turn it into a lists"""
-    return list(zip(results["documents"][0], results["metadatas"][0], results["distances"][0]))
+    return list(
+        zip(results["documents"][0], results["metadatas"][0], results["distances"][0])
+    )
 
 
 def drop_low_info(rows: list[tuple]) -> list[tuple]:
@@ -184,21 +198,6 @@ def drop_low_info(rows: list[tuple]) -> list[tuple]:
             filtered_rows.append(r)
 
     return filtered_rows
-
-
-def drop_distant(results: list[dict]) -> list[dict]:
-    """
-    Keep only the results closer than the mean distance of the set.
-
-    Only safe on a homogeneous set. Source types sit in different distance bands -
-    bare society names land at 0.27-0.45 while modules start around 0.49 - so on a
-    deliberately mixed set the mean falls between the bands and this drops every
-    module. That is why it is used per collection, not on the merged result.
-    """
-    if not results:
-        return results
-    mean_distance = sum(r["distance"] for r in results) / len(results)
-    return [r for r in results if r["distance"] <= mean_distance]
 
 
 def metadata_search(search_result: chromadb.GetResult, result_list: list):
@@ -231,6 +230,7 @@ def extract_year(q) -> list[int]:
         if re.search(rf"\b{w}\s+year", q):
             years.append(n)
     return sorted(set(years))
+
 
 def extract_semester(q) -> list[str]:
     """
@@ -271,29 +271,39 @@ def scholarship_search(search_query: str, n_results: int) -> list[dict]:
     Retrieve at the SCHOLARSHIP level instead of the chunk level.
     """
 
-    named = named_scholarship(search_query) # detect scholarship name in the query, if theres any match 
+    named = named_scholarship(
+        search_query
+    )  # detect scholarship name in the query, if theres any match
     # work like search in modules. search that scholarship directly by its name and return all chunks of that scholarship if the query is about a specific scholarship
     if named:
-        record = collection.get(where={"scholarship_title": named}, include=["documents", "metadatas"])
+        record = collection.get(
+            where={"scholarship_title": named}, include=["documents", "metadatas"]
+        )
         results = []
         for d, m in zip(record["documents"], record["metadatas"]):
             results.append(to_answer(d, m, 0.0))
         return results
 
-    # search all scholarship rank with them in a list of tuples 
-    rows = query_rows(collection.query(
-        query_texts=[search_query],
-        where={"source_type": "scholarship"},
-        n_results=SCHOLARSHIP_POOL,
-    ))
+    # search all scholarship rank with them in a list of tuples
+    rows = query_rows(
+        collection.query(
+            query_texts=[search_query],
+            where={"source_type": "scholarship"},
+            n_results=SCHOLARSHIP_POOL,
+        )
+    )
 
-    # keep the best chunk per scholarship, preferring sections that actually the closest 
+    # keep the best chunk per scholarship, preferring sections that actually the closest
     best = {}
     for doc, meta, dist in rows:
         title = meta.get("scholarship_title")
         if not title:
             continue
-        score = dist + (BOILERPLATE_PENALTY if BOILERPLATE_SECTIONS.search(meta.get("section", "")) else 0.0) # if there's some noise such as apply step, completing application we add penalty 
+        score = dist + (
+            BOILERPLATE_PENALTY
+            if BOILERPLATE_SECTIONS.search(meta.get("section", ""))
+            else 0.0
+        )  # if there's some noise such as apply step, completing application we add penalty
         # so we test for every title which one is the best match then we keep those in dict, there are multiple best from different titles.
         if title not in best or score < best[title][0]:
             best[title] = (score, dist, doc, meta)
@@ -327,7 +337,9 @@ def scholarship_search(search_query: str, n_results: int) -> list[dict]:
     return results
 
 
-def vector_similarity_search(original_query: str, search_query: str = None, n_results: int = 5) -> list[dict]:
+def vector_similarity_search(
+    original_query: str, search_query: str = None, n_results: int = 5
+) -> list[dict]:
     """
     Performs a vector similarity search on the ChromaDB collection.
 
@@ -338,12 +350,14 @@ def vector_similarity_search(original_query: str, search_query: str = None, n_re
     else is an unfiltered search.
     """
 
-    # this is for rewriting 
+    # this is for rewriting
     if search_query is None:
         search_query = original_query
 
-    #find all things related to module codes, credits, years, and semesters in the original query (this is for modules searching)
-    module_codes = re.findall(r"\b[A-Z]{2,4}\d{3}\b", original_query.upper())  # return list
+    # find all things related to module codes, credits, years, and semesters in the original query (this is for modules searching)
+    module_codes = re.findall(
+        r"\b[A-Z]{2,4}\d{3}\b", original_query.upper()
+    )  # return list
     credits = []  # return list
     for c in re.findall(r"(\d+)[- ]?credits?", original_query.lower()):
         credits.append(int(c))
@@ -354,7 +368,9 @@ def vector_similarity_search(original_query: str, search_query: str = None, n_re
 
     # a module code is an exact identifier, so look it up directly instead of searching
     if module_codes:
-        results = collection.get(where={"code": {"$in": module_codes}}, include=["documents", "metadatas"])
+        results = collection.get(
+            where={"code": {"$in": module_codes}}, include=["documents", "metadatas"]
+        )
         metadata_search(results, result_list)
         return result_list
 
@@ -364,7 +380,11 @@ def vector_similarity_search(original_query: str, search_query: str = None, n_re
 
     # if there are any guild/society wording in the query we search for guilds/societies only.
     if GUILD_WORDS.search(original_query):
-        results = collection.query(query_texts=[search_query], where={"source_type": "guild"}, n_results=n_results * 3)
+        results = collection.query(
+            query_texts=[search_query],
+            where={"source_type": "guild"},
+            n_results=n_results * 3,
+        )
         for doc, meta, dist in drop_low_info(query_rows(results))[:n_results]:
             result_list.append(to_answer(doc, meta, dist))
         return result_list
@@ -378,37 +398,40 @@ def vector_similarity_search(original_query: str, search_query: str = None, n_re
     if semesters:
         facets.append({"semester": {"$in": semesters}})
 
-    curriculum = bool(CURRICULUM_WORDS.search(original_query)) # check if the query contains any curriculum wording, if so we search for modules only. ex. "modules in year 2 semester 1" or "modules with 20 credits"
+    curriculum = bool(
+        CURRICULUM_WORDS.search(original_query)
+    )  # check if the query contains any curriculum wording, if so we search for modules only. ex. "modules in year 2 semester 1" or "modules with 20 credits"
 
+    # if there are any facets and the query is about curriculum we search for modules only, otherwise we search for everything
     if facets and curriculum:
         module_filter = facets[0] if len(facets) == 1 else {"$and": facets}
-        rows = query_rows(collection.query(query_texts=[search_query], where=module_filter, n_results=MODULE_POOL))
-        context = collection.query(query_texts=[search_query], where={"source_type": {"$ne": "module"}}, n_results=n_results * 3) # get more in case some result doesnt match because of low information or distance. 
+        rows = query_rows(
+            collection.query(
+                query_texts=[search_query], where=module_filter, n_results=MODULE_POOL
+            )
+        )
+        context = collection.query(
+            query_texts=[search_query],
+            where={"source_type": {"$ne": "module"}},
+            n_results=n_results * 3,
+        )  # get more in case some result doesnt match because of low information or distance.
         rows += drop_low_info(query_rows(context))[:n_results]
-    elif not curriculum and TOPIC_QUESTION.search(original_query):
-        # "is there anything on biology?" names a subject without saying whether it
-        # means what we teach or something to join, and the honest answer is both.
-        # neither scope alone works: filtered to curriculum it returned twenty modules
-        # that only mention business in passing and no society at all, unfiltered it
-        # returned twenty societies and not ULMS254. so ask both and keep a share of
-        # each. the share has to be a quota rather than a sort, because guild names sit
-        # much closer to a bare subject word (0.27-0.40) than any module does (0.49+),
-        # so merging on distance alone just hands the whole list back to societies.
-        taught = collection.query(query_texts=[search_query], where={"source_type": {"$in": CURRICULUM_SCOPE}}, n_results=n_results * 3)
-        rest = collection.query(query_texts=[search_query], n_results=n_results * 3)
-        # the curriculum side keeps its full share rather than half of it: capped at
-        # ten, "anything on biology" lost COMP305 Biocomputation, which sits outside
-        # the ten nearest module chunks but is the one module the question wants.
-        rows = drop_low_info(query_rows(taught))[:n_results]
-        seen = {r[0] for r in rows}
-        for r in drop_low_info(query_rows(rest))[:n_results]:  # societies the subject
-            if r[0] not in seen:                              # filter cannot return
-                rows.append(r)
+    elif curriculum:
+        # something related to course but didnt specify any year/semester/credits
+        results = collection.query(
+            query_texts=[search_query],
+            where={"source_type": {"$in": CURRICULUM_SCOPE}},
+            n_results=n_results * 3,
+        )
+        rows = drop_low_info(query_rows(results))[
+            :n_results
+        ]  # get only top n_results after dropping low information documents.
     else:
-        # a year on its own is NOT a module question
-        where = {"source_type": {"$in": CURRICULUM_SCOPE}} if curriculum else None
-        results = collection.query(query_texts=[search_query], where=where, n_results=n_results * 3)
-        rows = drop_low_info(query_rows(results))[:n_results] # get only top n_results after dropping low information documents.
+        # search everything. over-fetched then cut to n_results by distance - a
+        # cross encoder was tried here and did not beat the distance cut once the
+        # rewriter was producing well-formed questions.
+        results = collection.query(query_texts=[search_query], n_results=n_results * 3)
+        rows = drop_low_info(query_rows(results))[:n_results]
 
     # normal function for returning the results as a list of dicts with keys "distance", "source_type", and "document"
     for doc, meta, dist in rows:
@@ -419,18 +442,30 @@ def vector_similarity_search(original_query: str, search_query: str = None, n_re
 
 def named_universities(query: str) -> list[str]:
     """Universities the query names. Liverpool is always first, we compare against it."""
-    q = OTHER_INSTITUTIONS.sub(" ", query.lower()) # so "liverpool john moores" is not us
+    q = OTHER_INSTITUTIONS.sub(
+        " ", query.lower()
+    )  # so "liverpool john moores" is not us
 
     found = ["University of Liverpool"]
-    for uni, folder in UNIVERSITY_FOLDER.items(): # the folder name is also the city keyword
+    for (
+        uni,
+        folder,
+    ) in UNIVERSITY_FOLDER.items():  # the folder name is also the city keyword
         if uni not in found and re.search(rf"\b{folder}\b", q):
             found.append(uni)
 
     return found
 
 
-def rival_search(university: str, search_query: str, n_results) -> list[dict]:
-    """Rivals are lazily embedded, so no scope groups or facets here. Just the closest n."""
+def rival_search(
+    university: str, original_query: str, search_query: str, n_results
+) -> list[dict]:
+    """
+    Rivals are lazily embedded, so no scope groups or facets here.
+
+    The pool is over-fetched and then cut to the nearest n_results. The wide fetch
+    costs almost nothing and leaves room to change how the cut is made.
+    """
     name = UNIVERSITY_COLLECTIONS.get(university)
     if not name:
         print(f"no collection for {university}")
@@ -441,43 +476,51 @@ def rival_search(university: str, search_query: str, n_results) -> list[dict]:
     except Exception:
         # incase the rival collections are empty.
         print(f"collection '{name}' unavailable for {university}")
-        return [] 
+        return []
 
     results = []
-    rival_search_results = rival.query(query_texts=[search_query], n_results=n_results)
+    rival_search_results = rival.query(
+        query_texts=[search_query], n_results=n_results * 3
+    )
     for doc, meta, dist in query_rows(rival_search_results):
         results.append(to_answer(doc, meta, dist))
 
-    # one collection, one source mix, so the mean is meaningful here
-    return drop_distant(results)
+    return results[:n_results]
 
 
-def search_all_universities(original_query: str, search_query: str = None, n_results: int = 10) -> dict[str, list[dict]]:
+def search_all_universities(
+    original_query: str, search_query: str = None, n_results: int = 10
+) -> dict[str, list[dict]]:
     """
-    Search every university the query names. Liverpool between liverpool and rivals (detected from regex). 
+    Search every university the query names. Liverpool between liverpool and rivals (detected from regex).
+
+    dict of university name -> list of result dicts with keys "distance", "source_type", and "document".
 
     return: dict of university name -> list of result dicts
     """
     if search_query is None:
         search_query = original_query
 
-    if len(named_universities(original_query)) == 1 and named_universities(original_query)[0] == "University of Liverpool":
+    if (
+        len(named_universities(original_query)) == 1
+        and named_universities(original_query)[0] == "University of Liverpool"
+    ):
         n_results = 20
 
     results = {}
     for uni in named_universities(original_query):
         if uni == "University of Liverpool":
-            results[uni] = vector_similarity_search(original_query, search_query, n_results) # main function to search for University of Liverpool DB 
+            results[uni] = vector_similarity_search(
+                original_query, search_query, n_results
+            )  # main function to search for University of Liverpool DB
         else:
-            results[uni] = rival_search(uni, search_query, n_results)
+            results[uni] = rival_search(uni, original_query, search_query, n_results)
 
     return results
 
 
 if __name__ == "__main__":
     query = input("Enter your query for vector similarity search: ")
-    # s = input("Enter the source type (module, course_info, guild, scholarship, fee, general) or leave blank for all: ")
-    # r = search_all_universities(original_query=query, search_query=query, source_type=s or None)
-
-    r = rival_search("University of Manchester" , query, 20)
+    s = input("Enter the source type (module, course_info, guild, scholarship, fee, general) or leave blank for all: ")
+    r = search_all_universities(original_query=query, search_query=query, source_type=s or None)
     print(r)
