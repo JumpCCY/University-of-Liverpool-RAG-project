@@ -139,7 +139,7 @@ def route_and_build(user_query: str, history: str = "") -> tuple[str | None, str
     elif category == "general":
 
         # rewritten for the EMBEDDING only. the original query still drives university
-        user_query = LLM_query(prompts.REWRITER, original_query, model=models.LOW_EFFORT, deterministic=True).message.content.strip()
+        user_query = LLM_query(prompts.REWRITER_LONG, original_query, model=models.LOW_EFFORT, deterministic=True).message.content.strip()
         print(f"Rewritten query: {user_query}")
 
         # pass to the vector search with regex for module code, scholarship or society wording, year/semester/credits for more accurate results.
@@ -149,7 +149,6 @@ def route_and_build(user_query: str, history: str = "") -> tuple[str | None, str
 
     else:
         return "You are a helpful assistant at the University of Liverpool.", user_query
-
 
 def main(user_query: str, history: str = "") -> str:
     """Answers the query and returns the whole answer at once."""
