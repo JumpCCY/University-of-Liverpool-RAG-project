@@ -25,10 +25,6 @@ collection = client.get_collection(
     UNIVERSITIES[MAIN_UNIVERSITY]["collection"], embedding_function=ollama_ef
 )
 
-# we consider a document to be low information if it has less than 40 characters of informative text.
-MIN_INFO_CHARS = 40
-LOW_INFO_MAX_DISTANCE = 0.30
-
 # these are noises which containes in almost every chunk so we have to match them up and then push them back by penalty
 BOILERPLATE_SECTIONS = re.compile(
     r"completing your application|submitting your application|personal statement|"
@@ -128,29 +124,6 @@ def named_scholarship(query: str) -> str | None:
     return longest_title
 
 
-def informative_body(document: str) -> str:
-    """
-    Strip the prefix added at ingest so only the descriptive text is measured.
-    Covers the four document shapes built in populate_vector_db.py.
-    """
-    if "\n" in document:  # scholarship / general: "[crumb] heading\nbody"
-        return document.split("\n", 1)[1].strip()
-    if "] " in document:  # module: "CODE: Title [credits, year...] description"
-        return document.split("] ", 1)[1].strip()
-    if " : " in document:  # guild / fee / course_info: "Name : description"
-        return document.split(" : ", 1)[1].strip()
-    return document.strip()
-
-
-def is_low_info(document: str, meta: dict | None = None) -> bool:
-    """
-    if the document is module related it is not low info else we check if the document is low info by checking the length of the informative body
-    """
-    if meta and meta.get("source_type") == "module":
-        return False
-    return len(informative_body(document)) < MIN_INFO_CHARS
-
-
 def to_answer(doc: str, meta: dict, dist: float) -> dict:
     """Build the result dict used everywhere in this module."""
     return {
@@ -166,23 +139,6 @@ def query_rows(results: chromadb.QueryResult) -> list[tuple]:
     return list(
         zip(results["documents"][0], results["metadatas"][0], results["distances"][0])
     )
-
-
-def drop_low_info(rows: list[tuple]) -> list[tuple]:
-    """
-    Remove name-only documents unless they are a strong direct match.
-    """
-    filtered_rows = []
-    for r in rows:
-        document = r[0]
-        meta = r[1]
-        distance = r[2]
-
-        # get only rows that is not low information such as empty page or the one that has low distance ex. direct name match
-        if not is_low_info(document, meta) or distance < LOW_INFO_MAX_DISTANCE:
-            filtered_rows.append(r)
-
-    return filtered_rows
 
 
 def extract_year(q) -> list[int]:
@@ -349,9 +305,9 @@ def vector_similarity_search(
         results = collection.query(
             query_texts=[search_query],
             where={"source_type": "guild"},
-            n_results=n_results * 3,
+            n_results=n_results,
         )
-        for doc, meta, dist in drop_low_info(query_rows(results))[:n_results]:
+        for doc, meta, dist in query_rows(results):
             result_list.append(to_answer(doc, meta, dist))
         return result_list
 
@@ -379,22 +335,20 @@ def vector_similarity_search(
         context = collection.query(
             query_texts=[search_query],
             where={"source_type": {"$ne": "module"}},
-            n_results=n_results * 3,
-        )  # get more in case some result doesnt match because of low information or distance.
-        rows += drop_low_info(query_rows(context))[:n_results]
+            n_results=n_results,
+        )
+        rows += query_rows(context)
     elif curriculum:
         # something related to course but didnt specify any year/semester/credits
         results = collection.query(
             query_texts=[search_query],
             where={"source_type": {"$in": CURRICULUM_SCOPE}},
-            n_results=n_results * 3,
+            n_results=n_results,
         )
-        rows = drop_low_info(query_rows(results))[
-            :n_results
-        ]  # get only top n_results after dropping low information documents.
+        rows = query_rows(results)
     else:
-        results = collection.query(query_texts=[search_query], n_results=n_results * 3)
-        rows = drop_low_info(query_rows(results))[:n_results]
+        results = collection.query(query_texts=[search_query], n_results=n_results)
+        rows = query_rows(results)
 
     # normal function for returning the results as a list of dicts with keys "distance", "source_type", and "document"
     for doc, meta, dist in rows:
@@ -421,13 +375,11 @@ def rival_search(university: str, search_query: str, n_results: int) -> list[dic
         return []
 
     results = []
-    rival_search_results = rival.query(
-        query_texts=[search_query], n_results=n_results * 3
-    )
+    rival_search_results = rival.query(query_texts=[search_query], n_results=n_results)
     for doc, meta, dist in query_rows(rival_search_results):
         results.append(to_answer(doc, meta, dist))
 
-    return results[:n_results]
+    return results
 
 
 def search_all_universities(
