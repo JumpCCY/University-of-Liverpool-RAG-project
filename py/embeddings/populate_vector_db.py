@@ -1,24 +1,25 @@
-from pathlib import Path
+import json
 import shutil
 import sys
+from pathlib import Path
+
 import chromadb
-import json
 from chromadb.utils.embedding_functions.ollama_embedding_function import (
     OllamaEmbeddingFunction,
 )
+
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 
+# this script lives in py/embeddings/, so the project root and py/ go on the path
+# first - the project imports below need them, which is why they sit after this.
 sys.path.append(str(PROJECT_ROOT))
-sys.path.append(str(PROJECT_ROOT / "py"))  # so the shared model config can be imported
+sys.path.append(str(PROJECT_ROOT / "py"))
 
 import models
-from json_search import UNIVERSITY_FOLDER
-
 from script.chunking import scholar_chunking, general_chunking, course_chunking, support_chunking, rival_chunking
+from universities import MAIN_UNIVERSITY, UNIVERSITIES
 
 CHROMA_DB_PATH = PROJECT_ROOT / "chroma_db"
-
-MAIN_UNIVERSITY = "University of Liverpool"
 
 LIVERPOOL_JSON = PROJECT_ROOT / "data" / "liverpool" / "json"
 
@@ -48,7 +49,7 @@ shutil.rmtree(CHROMA_DB_PATH, ignore_errors=True)
 chroma_client = chromadb.PersistentClient(path=str(CHROMA_DB_PATH))
 
 collection = chroma_client.create_collection(
-    name="my_collection",
+    name=UNIVERSITIES[MAIN_UNIVERSITY]["collection"],
     embedding_function=ollama_ef #pass ollama embedding function (see models.EMBEDDING)
 )
 
@@ -225,14 +226,11 @@ for i, doc in enumerate(support_chunking.chunking()):
 print("Support data added to the collection.")
 
 # each rival gets its own collection.
-RIVALS = ["sheffield", "york", "leeds", "nottingham", "manchester", "lancaster", "newcastle"]
-
-DISPLAY_NAME = {}
-for name, folder in UNIVERSITY_FOLDER.items():
-    DISPLAY_NAME[folder] = name
-
-for rival in RIVALS:
-    rival_collection = chroma_client.create_collection(name=rival, embedding_function=ollama_ef)
+for university, info in UNIVERSITIES.items():
+    if university == MAIN_UNIVERSITY:
+        continue  # built above from its own sources
+    rival = info["folder"]
+    rival_collection = chroma_client.create_collection(name=info["collection"], embedding_function=ollama_ef)
 
     for i, doc in enumerate(rival_chunking.chunking(rival)):
         md = doc.metadata
@@ -241,7 +239,7 @@ for rival in RIVALS:
             documents=[doc.page_content],
             metadatas=[{
                 "source_type": "course_info",
-                "university": DISPLAY_NAME.get(rival, rival),
+                "university": university,
                 "page_title": md.get("page", ""),
             }],
         )

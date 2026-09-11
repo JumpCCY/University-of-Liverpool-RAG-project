@@ -1,12 +1,14 @@
 import os
+import re
+
 import chromadb
 from chromadb.utils.embedding_functions.ollama_embedding_function import (
     OllamaEmbeddingFunction,
 )
-import re
 from rich import print
+
 import models
-from json_search import UNIVERSITY_FOLDER
+from universities import MAIN_UNIVERSITY, UNIVERSITIES, named_universities
 
 CHROMA_DB_PATH = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "chroma_db"
@@ -19,7 +21,9 @@ ollama_ef = OllamaEmbeddingFunction(
     model_name=models.EMBEDDING,
 )
 
-collection = client.get_collection("my_collection", embedding_function=ollama_ef)
+collection = client.get_collection(
+    UNIVERSITIES[MAIN_UNIVERSITY]["collection"], embedding_function=ollama_ef
+)
 
 # we consider a document to be low information if it has less than 40 characters of informative text.
 MIN_INFO_CHARS = 40
@@ -40,25 +44,6 @@ MODULE_POOL = (
 )
 FOCUS_MARGIN = (
     0.12  # one scholarship this much closer than the next = a question about that one
-)
-
-# each university has its own collection, so rebuilding one does not re-embed the others
-UNIVERSITY_COLLECTIONS = {
-    "University of Liverpool": "my_collection",
-    "University of Manchester": "manchester",
-    "University of Sheffield": "sheffield",
-    "University of Leeds": "leeds",
-    "Newcastle University": "newcastle",
-    "University of Nottingham": "nottingham",
-    "University of York": "york",
-    "University of Lancaster": "lancaster",
-}
-
-# these share a city name with a university we hold, so strip them before matching
-OTHER_INSTITUTIONS = re.compile(
-    r"liverpool john moores|ljmu|manchester metropolitan|mmu|leeds beckett|"
-    r"leeds trinity|york st john|sheffield hallam|nottingham trent|northumbria",
-    re.I,
 )
 
 # regex for scholarship related terms.
@@ -200,22 +185,6 @@ def drop_low_info(rows: list[tuple]) -> list[tuple]:
     return filtered_rows
 
 
-def metadata_search(search_result: chromadb.GetResult, result_list: list):
-    """
-    helper function to process search results from metadata search to list of dicts with keys "distance", "source_type", and "document".
-    """
-    doc = search_result["documents"]
-    meta = search_result["metadatas"]
-
-    for d, m in zip(doc, meta):
-        answer = {}
-        answer["distance"] = 0.0  # exact match, so distance is 0
-        answer["source_type"] = m.get("source_type")
-        answer["document"] = d
-        answer["metadata"] = m  # include the metadata in the answer
-        result_list.append(answer)
-
-
 def extract_year(q) -> list[int]:
     """
     Extracts the year information from the query. if the query asking about year. for searching a module
@@ -338,7 +307,7 @@ def scholarship_search(search_query: str, n_results: int) -> list[dict]:
 
 
 def vector_similarity_search(
-    original_query: str, search_query: str = None, n_results: int = 5
+    original_query: str, search_query: str, n_results: int
 ) -> list[dict]:
     """
     Performs a vector similarity search on the ChromaDB collection.
@@ -349,10 +318,6 @@ def vector_similarity_search(
     scholarship wording, society wording, or a year/semester/credit facet. Anything
     else is an unfiltered search.
     """
-
-    # this is for rewriting
-    if search_query is None:
-        search_query = original_query
 
     # find all things related to module codes, credits, years, and semesters in the original query (this is for modules searching)
     module_codes = re.findall(
@@ -371,7 +336,8 @@ def vector_similarity_search(
         results = collection.get(
             where={"code": {"$in": module_codes}}, include=["documents", "metadatas"]
         )
-        metadata_search(results, result_list)
+        for doc, meta in zip(results["documents"], results["metadatas"]):
+            result_list.append(to_answer(doc, meta, 0.0))  # exact match, so distance is 0
         return result_list
 
     # if the regex detexts any scholarship wording in the query we search for scholarships only.
@@ -427,9 +393,6 @@ def vector_similarity_search(
             :n_results
         ]  # get only top n_results after dropping low information documents.
     else:
-        # search everything. over-fetched then cut to n_results by distance - a
-        # cross encoder was tried here and did not beat the distance cut once the
-        # rewriter was producing well-formed questions.
         results = collection.query(query_texts=[search_query], n_results=n_results * 3)
         rows = drop_low_info(query_rows(results))[:n_results]
 
@@ -440,36 +403,15 @@ def vector_similarity_search(
     return result_list
 
 
-def named_universities(query: str) -> list[str]:
-    """Universities the query names. Liverpool is always first, we compare against it."""
-    q = OTHER_INSTITUTIONS.sub(
-        " ", query.lower()
-    )  # so "liverpool john moores" is not us
-
-    found = ["University of Liverpool"]
-    for (
-        uni,
-        folder,
-    ) in UNIVERSITY_FOLDER.items():  # the folder name is also the city keyword
-        if uni not in found and re.search(rf"\b{folder}\b", q):
-            found.append(uni)
-
-    return found
-
-
-def rival_search(
-    university: str, original_query: str, search_query: str, n_results
-) -> list[dict]:
+def rival_search(university: str, search_query: str, n_results: int) -> list[dict]:
     """
-    Rivals are lazily embedded, so no scope groups or facets here.
-
-    The pool is over-fetched and then cut to the nearest n_results. The wide fetch
-    costs almost nothing and leaves room to change how the cut is made.
+    search for rival universities that are not University of Liverpool. the rival universities are detected from the query by regex. if theres any match we search for that university's collection.
     """
-    name = UNIVERSITY_COLLECTIONS.get(university)
-    if not name:
+    info = UNIVERSITIES.get(university)
+    if not info:
         print(f"no collection for {university}")
         return []
+    name = info["collection"]
 
     try:
         rival = client.get_collection(name, embedding_function=ollama_ef)
@@ -489,38 +431,43 @@ def rival_search(
 
 
 def search_all_universities(
-    original_query: str, search_query: str = None, n_results: int = 10
+    original_query: str, search_query: str, n_results: int
 ) -> dict[str, list[dict]]:
     """
     Search every university the query names. Liverpool between liverpool and rivals (detected from regex).
 
     dict of university name -> list of result dicts with keys "distance", "source_type", and "document".
+    n_results is how many each university gets - set by the caller (RAG_main.N_RESULTS).
 
     return: dict of university name -> list of result dicts
     """
-    if search_query is None:
-        search_query = original_query
-
-    if (
-        len(named_universities(original_query)) == 1
-        and named_universities(original_query)[0] == "University of Liverpool"
-    ):
-        n_results = 20
+    universities = named_universities(original_query)
 
     results = {}
-    for uni in named_universities(original_query):
-        if uni == "University of Liverpool":
+    for uni in universities:
+        if uni == MAIN_UNIVERSITY:
             results[uni] = vector_similarity_search(
                 original_query, search_query, n_results
             )  # main function to search for University of Liverpool DB
         else:
-            results[uni] = rival_search(uni, original_query, search_query, n_results)
+            results[uni] = rival_search(uni, search_query, n_results)
 
     return results
 
 
 if __name__ == "__main__":
-    query = input("Enter your query for vector similarity search: ")
-    s = input("Enter the source type (module, course_info, guild, scholarship, fee, general) or leave blank for all: ")
-    r = search_all_universities(original_query=query, search_query=query, source_type=s or None)
-    print(r)
+    # try the retrieval on its own, no LLM calls: python vector_search.py
+    from rich.markup import escape
+
+    from RAG_main import N_RESULTS  # the same number the pipeline uses
+
+    query = input("\nEnter your query for vector similarity search (blank to quit): ")
+    if not query.strip():
+        exit()
+
+    for uni, rows in search_all_universities(query, query, N_RESULTS).items():
+        print(f"\n[bold]{uni}[/bold] - {len(rows)} results")
+        for r in rows:
+            snippet = " ".join(r["document"].split())
+            print(f"  {r['distance']:.3f}  {str(r['source_type']):<12} {escape(snippet)}")
+            print("-" * 80)

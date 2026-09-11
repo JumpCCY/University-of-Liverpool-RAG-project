@@ -1,9 +1,11 @@
+import os
 from types import SimpleNamespace
+
 import ollama
 from dotenv import load_dotenv
 from openai import OpenAI
+
 import models
-import os
 
 # Open ai functiosn from https://developers.openai.com/api/docs/quickstart?language=python
 # Reads OPENAI_API_KEY from the .env (gitignored)

@@ -7,7 +7,8 @@ import urllib.error
 from llm import LLM_query, LLM_query_stream
 import prompts
 from json_search import load_universities
-from vector_search import search_all_universities, named_universities
+from vector_search import search_all_universities
+from universities import named_universities
 import models
 
 OLLAMA_URL = models.OLLAMA_URL
@@ -20,10 +21,31 @@ except (AttributeError, OSError):
 # How many earlier turns are shown to the condenser. Only the recent ones
 MAX_HISTORY_TURNS = 6
 
+# How many passages are retrieved for each university named in the question
+N_RESULTS = 20
+
+def start_ollama() -> None:
+    """Starts the Ollama server in the background, on macOS, Windows or Linux."""
+    if sys.platform == "darwin":
+        # on macOS the app starts its own background server
+        command, detach = ["open", "-a", "Ollama"], {}
+    elif sys.platform == "win32":
+        # its own process group, so Ctrl+C here does not stop Ollama too, and no console window
+        command = ["ollama", "serve"]
+        detach = {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.CREATE_NO_WINDOW}
+    else:
+        command, detach = ["ollama", "serve"], {"start_new_session": True}
+
+    try:
+        subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, **detach)
+    except FileNotFoundError:
+        raise RuntimeError("Ollama is not installed, or the ollama command is not on PATH.") from None
+
+
 def ensure_ollama_running(timeout: int = 30) -> None:
     """
     Makes sure the Ollama server is up before we start querying it.
-    Opens the Ollama app (which starts its background server) if it isn't already running.
+    Starts it if it isn't already running.
     """
     try:
         urllib.request.urlopen(OLLAMA_URL, timeout=1)
@@ -32,7 +54,7 @@ def ensure_ollama_running(timeout: int = 30) -> None:
         pass
 
     print("Ollama not running, starting it...")
-    subprocess.Popen(["open", "-a", "Ollama"])
+    start_ollama()
 
     for _ in range(timeout):
         try:
@@ -44,7 +66,7 @@ def ensure_ollama_running(timeout: int = 30) -> None:
 
     raise RuntimeError(f"Ollama did not start within {timeout} seconds.")
 
-def answer_qualification_constuct(user_query: str, qualifications_data: dict) -> str:
+def answer_qualification_construct(user_query: str, qualifications_data: dict) -> str:
     """
     Constructs the context for answering qualification-related questions.
     data + query and then pass to LLM.
@@ -132,7 +154,7 @@ def route_and_build(user_query: str, history: str = "") -> tuple[str | None, str
     if category == "requirement":
         universities = named_universities(original_query) # regex to find the universities mentioned in the user query
         qualifications_data = load_universities(universities) # load the qualification records for the universities mentioned in the user query
-        prompting = answer_qualification_constuct(original_query, qualifications_data)
+        prompting = answer_qualification_construct(original_query, qualifications_data)
         return prompts.ANSWERER, prompting
 
     #route to vector database similarity search
@@ -143,7 +165,7 @@ def route_and_build(user_query: str, history: str = "") -> tuple[str | None, str
         print(f"Rewritten query: {user_query}")
 
         # pass to the vector search with regex for module code, scholarship or society wording, year/semester/credits for more accurate results.
-        vector_search_results = search_all_universities(original_query, user_query, n_results=20) # university name -> list of results
+        vector_search_results = search_all_universities(original_query, user_query, n_results=N_RESULTS) # university name -> list of results
         prompting = answer_vector_search_construct(original_query, vector_search_results) # include search results in the query
         return prompts.GENERAL_ANSWERER, prompting
 

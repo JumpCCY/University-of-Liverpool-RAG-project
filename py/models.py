@@ -8,7 +8,9 @@ Single place to choose which model does what.
 # WARNING: this one is not free to change. The vectors already stored in chroma_db
 EMBEDDING = "qwen3-embedding:8b"
 
-OLLAMA_URL = "http://localhost:11434"
+# 127.0.0.1 rather than localhost: on Windows "localhost" tries IPv6 first, which Ollama
+# does not listen on, and every new connection waited ~2s before falling back to IPv4.
+OLLAMA_URL = "http://127.0.0.1:11434"
 
 
 PROVIDER = "openai" # "ollama" or "openai"
