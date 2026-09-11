@@ -114,8 +114,26 @@ print("Course page data added to the collection.")
 
 # populating the collection with guild data
 for guild in pull_data("guilds"):
+    # some societies publish no description on the Guild website. say so in the document
+    if not guild.get("short_description") and not guild.get("long_description"):
+        collection.add(
+            ids=[guild["guild_name"]],
+            documents=[
+                f"{guild['guild_name']} : {guild['guild_name']} is a student society at the "
+                f"Liverpool Guild of Students. The Guild does not publish a description for it. "
+                f"Guild page: {guild['url']}"
+            ],
+            metadatas=[
+                {
+                    "source_type": "guild",
+                    "university": MAIN_UNIVERSITY,
+                    "guild_name": guild["guild_name"],
+                }
+            ]
+        )
+
     # if there is no short description, only add the long description to the collection
-    if guild.get("short_description") is None or guild.get("short_description")  == "":
+    elif guild.get("short_description") is None or guild.get("short_description")  == "":
         collection.add(
             ids=[guild["guild_name"]],
             documents=[f"{guild['guild_name']} : {guild['long_description']}"],
