@@ -126,8 +126,8 @@ def route_and_build(user_query: str, history: str = "") -> tuple[str | None, str
             first question, which is why most queries never pay for the condenser.
 
     Returns:
-        (system_prompt, user_content). system_prompt is None when the query is
-        unclear - there is nothing to answer from, so user_content is the message
+        (system_prompt, query_with_context). system_prompt is None when the query is
+        unclear - there is nothing to answer from, so query_with_context is the message
         to show instead.
     """
     # check for empty query
@@ -154,8 +154,8 @@ def route_and_build(user_query: str, history: str = "") -> tuple[str | None, str
     if category == "requirement":
         universities = named_universities(original_query) # regex to find the universities mentioned in the user query
         qualifications_data = load_universities(universities) # load the qualification records for the universities mentioned in the user query
-        prompting = answer_qualification_construct(original_query, qualifications_data)
-        return prompts.ANSWERER, prompting
+        query_with_context = answer_qualification_construct(original_query, qualifications_data)
+        return prompts.ANSWERER, query_with_context
 
     #route to vector database similarity search
     elif category == "general":
@@ -166,19 +166,19 @@ def route_and_build(user_query: str, history: str = "") -> tuple[str | None, str
 
         # pass to the vector search with regex for module code, scholarship or society wording, year/semester/credits for more accurate results.
         vector_search_results = search_all_universities(original_query, user_query, n_results=N_RESULTS) # university name -> list of results
-        prompting = answer_vector_search_construct(original_query, vector_search_results) # include search results in the query
-        return prompts.GENERAL_ANSWERER, prompting
+        query_with_context = answer_vector_search_construct(original_query, vector_search_results) # include search results in the query
+        return prompts.GENERAL_ANSWERER, query_with_context
 
     else:
         return "You are a helpful assistant at the University of Liverpool.", user_query
 
 def main(user_query: str, history: str = "") -> str:
     """Answers the query and returns the whole answer at once."""
-    # system_prompt = instruction for LLM, prompting = the user query with context (result from search) for LLM to answer
-    system_prompt, prompting = route_and_build(user_query, history)
+    # system_prompt = instruction for LLM, query_with_context = the user query with context (result from search) for LLM to answer
+    system_prompt, query_with_context = route_and_build(user_query, history)
     if system_prompt is None:
-        return prompting
-    return LLM_query(system_prompt, prompting, model=models.HIGH_EFFORT).message.content
+        return query_with_context
+    return LLM_query(system_prompt, query_with_context, model=models.HIGH_EFFORT).message.content
 
 
 def main_stream(user_query: str, history: str = ""):
@@ -191,11 +191,11 @@ def main_stream(user_query: str, history: str = ""):
     Yields:
         str: the next piece of the answer
     """
-    system_prompt, prompting = route_and_build(user_query, history)
+    system_prompt, query_with_context = route_and_build(user_query, history)
     if system_prompt is None:
-        yield prompting
+        yield query_with_context
         return
-    yield from LLM_query_stream(system_prompt, prompting, model=models.HIGH_EFFORT)
+    yield from LLM_query_stream(system_prompt, query_with_context, model=models.HIGH_EFFORT)
 
 
 if __name__ == "__main__":
