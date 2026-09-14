@@ -134,47 +134,46 @@ def route_and_build(user_query: str, history: str = "") -> tuple[str | None, str
     if not user_query or not user_query.strip():
         return None, "No question was entered."
 
-    # if there is a history, condense it to a single query for the rewriter. the original query is still used for routing and vector search.
+    # if there is a history, condense it to a single query. the condensed query is what drives
+    # routing, university detection and vector search from here on; user_query stays as typed.
+    routing_query = user_query
     if history:
-        user_query = LLM_query(
+        routing_query = LLM_query(
             prompts.CONDENSER,
             f"CONVERSATION SO FAR:\n{history}\n\nLATEST MESSAGE: {user_query}",
             model=models.LOW_EFFORT,
             deterministic=True,
         ).message.content.strip()
-        print(f"Condensed query: {user_query}")
+        print(f"Condensed query: {routing_query}")
 
-    original_query = user_query # user_query for rewriter
-
-    category = LLM_query(prompts.ROUTER, original_query, model=models.LOW_EFFORT, deterministic=True).message.content.strip() # route the query to either requirement or general
+    category = LLM_query(prompts.ROUTER, routing_query, model=models.LOW_EFFORT, deterministic=True).message.content.strip() # route the query to either requirement or general
     if category not in {"requirement", "general", "unclear"}: #if category is not one of the three known categories default to unclear
         category = "unclear"
 
     # route to JSON data for accuracy
     if category == "requirement":
-        universities = named_universities(original_query) # regex to find the universities mentioned in the user query
+        universities = named_universities(routing_query) # regex to find the universities mentioned in the user query
         qualifications_data = load_universities(universities) # load the qualification records for the universities mentioned in the user query
-        query_with_context = answer_qualification_construct(original_query, qualifications_data)
-        return prompts.ANSWERER, query_with_context
+        query_with_context = answer_qualification_construct(routing_query, qualifications_data)
+        return prompts.REQUIREMENT_ANSWERER, query_with_context
 
     #route to vector database similarity search
     elif category == "general":
 
-        # rewritten for the EMBEDDING only. the original query still drives university
-        user_query = LLM_query(prompts.REWRITER_LONG, original_query, model=models.LOW_EFFORT, deterministic=True).message.content.strip()
-        print(f"Rewritten query: {user_query}")
+        # rewritten for the EMBEDDING only. the routing query still drives university detection.
+        embedding_query = LLM_query(prompts.REWRITER_LONG, routing_query, model=models.LOW_EFFORT, deterministic=True).message.content.strip()
+        print(f"Rewritten query: {embedding_query}") # for debugging
 
         # pass to the vector search with regex for module code, scholarship or society wording, year/semester/credits for more accurate results.
-        vector_search_results = search_all_universities(original_query, user_query, n_results=N_RESULTS) # university name -> list of results
-        query_with_context = answer_vector_search_construct(original_query, vector_search_results) # include search results in the query
+        vector_search_results = search_all_universities(routing_query, embedding_query, n_results=N_RESULTS) # university name -> list of results
+        query_with_context = answer_vector_search_construct(routing_query, vector_search_results) # include search results in the query
         return prompts.GENERAL_ANSWERER, query_with_context
 
     else:
-        return "You are a helpful assistant at the University of Liverpool.", user_query
+        return "You are a helpful assistant at the University of Liverpool.", routing_query
 
 def main(user_query: str, history: str = "") -> str:
     """Answers the query and returns the whole answer at once."""
-    # system_prompt = instruction for LLM, query_with_context = the user query with context (result from search) for LLM to answer
     system_prompt, query_with_context = route_and_build(user_query, history)
     if system_prompt is None:
         return query_with_context
