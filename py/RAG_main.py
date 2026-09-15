@@ -9,6 +9,7 @@ import prompts
 from json_search import load_universities
 from vector_search import search_all_universities
 from universities import named_universities
+from sources import passage_source, requirements_source, source_number, sources_footer, strip_sources
 import models
 
 OLLAMA_URL = models.OLLAMA_URL
@@ -66,21 +67,28 @@ def ensure_ollama_running(timeout: int = 30) -> None:
 
     raise RuntimeError(f"Ollama did not start within {timeout} seconds.")
 
-def answer_qualification_construct(user_query: str, qualifications_data: dict) -> str:
+def answer_qualification_construct(user_query: str, qualifications_data: dict) -> tuple[str, list]:
     """
     Constructs the context for answering qualification-related questions.
     data + query and then pass to LLM.
     Args:
         user_query (str): The user's query.
         qualifications_data (dict): Qualification records for the relevant universities retrieved from JSON files.
+
+    Returns:
+        (user_content, sources). each record is numbered [n] in user_content so the
+        answerer can cite it - one university's records share a number, as they come
+        from one page - and sources[n - 1] is what [n] refers to.
     """
     SKIP_FIELDS = {"id", "university", "course", "headline_grade", "additional_conditions"}
     
     context = ""
 
+    sources = []
     for uni, rows in qualifications_data.items():
         context += f"\n=== {uni} ===\n"
         for r in rows:
+            context += f"[{source_number(sources, *requirements_source(uni))}]\n"
             for k, v in r.items():
                 if k in SKIP_FIELDS or v is None: # strip nulls — most fields are null most of the time
                     continue
@@ -90,16 +98,22 @@ def answer_qualification_construct(user_query: str, qualifications_data: dict) -
     user_content = f"""STAFF QUESTION: {user_query}
 
     UNIVERSITY RECORDS:{context}"""
-    return user_content
+    return user_content, sources
 
-def answer_vector_search_construct(user_query: str, vector_search_results: dict[str, list[dict]]) -> str:
+def answer_vector_search_construct(user_query: str, vector_search_results: dict[str, list[dict]]) -> tuple[str, list]:
     """
     Constructs the context for answering general questions using vector search results.
     Args:
         user_query (str): The user's query.
-        vector_search_results (dict): university name -> list of results with "distance", "source_type", and "document".
+        vector_search_results (dict): university name -> list of results with "distance", "source_type", "document" and "metadata".
+
+    Returns:
+        (user_content, sources). each passage is numbered [n] in user_content so the
+        answerer can cite it; passages from the same page share a number, and
+        sources[n - 1] is what [n] refers to.
     """
     str_for_llm = ""
+    sources = []
     # header per university so the answerer can tell whose fact is whose and never merge them
     for university, results in vector_search_results.items():
         str_for_llm += f"\n=== {university} ===\n"
@@ -109,14 +123,15 @@ def answer_vector_search_construct(user_query: str, vector_search_results: dict[
             continue
 
         for result in results:
-            str_for_llm += result["document"] + "\n\n"
+            n = source_number(sources, *passage_source(result["metadata"]))
+            str_for_llm += f"[{n}] {result['document']}\n\n"
 
     user_content = f"""STAFF QUESTION: {user_query}
 
     VECTOR SEARCH RESULTS:{str_for_llm}"""
-    return user_content
+    return user_content, sources
 
-def route_and_build(user_query: str, history: str = "") -> tuple[str | None, str]:
+def route_and_build(user_query: str, history: str = "") -> tuple[str | None, str, list]:
     """
     Routes the query and builds the input for the answering LLM.
 
@@ -126,13 +141,14 @@ def route_and_build(user_query: str, history: str = "") -> tuple[str | None, str
             first question, which is why most queries never pay for the condenser.
 
     Returns:
-        (system_prompt, query_with_context). system_prompt is None when the query is
-        unclear - there is nothing to answer from, so query_with_context is the message
-        to show instead.
+        (system_prompt, query_with_context, sources). system_prompt is None when no
+        question was entered - there is nothing to answer, so query_with_context is the
+        message to show instead. sources[n - 1] is what the answer's [n] cites; it is
+        empty when nothing was retrieved.
     """
     # check for empty query
     if not user_query or not user_query.strip():
-        return None, "No question was entered."
+        return None, "No question was entered.", []
 
     # if there is a history, condense it to a single query. the condensed query is what drives
     # routing, university detection and vector search from here on; user_query stays as typed.
@@ -154,8 +170,8 @@ def route_and_build(user_query: str, history: str = "") -> tuple[str | None, str
     if category == "requirement":
         universities = named_universities(routing_query) # regex to find the universities mentioned in the user query
         qualifications_data = load_universities(universities) # load the qualification records for the universities mentioned in the user query
-        query_with_context = answer_qualification_construct(routing_query, qualifications_data)
-        return prompts.REQUIREMENT_ANSWERER, query_with_context
+        query_with_context, sources = answer_qualification_construct(routing_query, qualifications_data)
+        return prompts.REQUIREMENT_ANSWERER, query_with_context, sources
 
     #route to vector database similarity search
     elif category == "general":
@@ -166,18 +182,19 @@ def route_and_build(user_query: str, history: str = "") -> tuple[str | None, str
 
         # pass to the vector search with regex for module code, scholarship or society wording, year/semester/credits for more accurate results.
         vector_search_results = search_all_universities(routing_query, embedding_query, n_results=N_RESULTS) # university name -> list of results
-        query_with_context = answer_vector_search_construct(routing_query, vector_search_results) # include search results in the query
-        return prompts.GENERAL_ANSWERER, query_with_context
+        query_with_context, sources = answer_vector_search_construct(routing_query, vector_search_results) # include search results in the query
+        return prompts.GENERAL_ANSWERER, query_with_context, sources
 
     else:
-        return "You are a helpful assistant at the University of Liverpool.", routing_query
+        return "You are a helpful assistant at the University of Liverpool.", routing_query, []
 
 def main(user_query: str, history: str = "") -> str:
-    """Answers the query and returns the whole answer at once."""
-    system_prompt, query_with_context = route_and_build(user_query, history)
+    """Answers the query and returns the whole answer at once, sources list included."""
+    system_prompt, query_with_context, sources = route_and_build(user_query, history)
     if system_prompt is None:
         return query_with_context
-    return LLM_query(system_prompt, query_with_context, model=models.HIGH_EFFORT).message.content
+    answer = LLM_query(system_prompt, query_with_context, model=models.HIGH_EFFORT).message.content
+    return answer + sources_footer(answer, sources)
 
 
 def main_stream(user_query: str, history: str = ""):
@@ -187,14 +204,25 @@ def main_stream(user_query: str, history: str = ""):
     Routing and retrieval still run first, so nothing is yielded until the answer
     itself starts - that is the short pause before the text begins appearing.
 
+    The sources list comes last, as one final piece: which sources the answer cites
+    is only known once the whole answer has been written.
+
     Yields:
         str: the next piece of the answer
     """
-    system_prompt, query_with_context = route_and_build(user_query, history)
+    system_prompt, query_with_context, sources = route_and_build(user_query, history)
     if system_prompt is None:
         yield query_with_context
         return
-    yield from LLM_query_stream(system_prompt, query_with_context, model=models.HIGH_EFFORT)
+
+    answer = ""
+    for piece in LLM_query_stream(system_prompt, query_with_context, model=models.HIGH_EFFORT):
+        answer += piece
+        yield piece
+
+    footer = sources_footer(answer, sources)
+    if footer:
+        yield footer
 
 
 if __name__ == "__main__":
@@ -212,4 +240,4 @@ if __name__ == "__main__":
             answer += piece
         print()
 
-        turns += [f"user: {user_query}", f"assistant: {answer}"]
+        turns += [f"user: {user_query}", f"assistant: {strip_sources(answer)}"]  # what was said, not the citations

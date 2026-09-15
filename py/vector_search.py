@@ -209,7 +209,7 @@ def scholarship_search(search_query: str, n_results: int) -> list[dict]:
             results.append(to_answer(d, m, 0.0))
         return results
 
-    # search all scholarship rank with them in a list of tuples
+    # search all scholarship rank with them in a list of tuples in caa
     rows = query_rows(
         collection.query(
             query_texts=[search_query],
@@ -276,9 +276,7 @@ def vector_similarity_search(
     """
 
     # find all things related to module codes, credits, years, and semesters in the original query (this is for modules searching)
-    module_codes = re.findall(
-        r"\b[A-Z]{2,4}\d{3}\b", original_query.upper()
-    )  # return list
+    module_codes = re.findall(r"\b[A-Z]{2,4}\d{3}\b", original_query.upper())  # return list
     credits = []  # return list
     for c in re.findall(r"(\d+)[- ]?credits?", original_query.lower()):
         credits.append(int(c))
