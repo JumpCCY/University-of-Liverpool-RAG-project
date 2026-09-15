@@ -13,6 +13,7 @@ from pydantic import BaseModel
 from llm import LLM_query
 import models
 from RAG_main import MAX_HISTORY_TURNS, main_stream
+from sources import strip_sources
 
 app = FastAPI(title="University RAG")
 
@@ -63,7 +64,11 @@ def conversation(messages: list[Message]) -> tuple[str, str]:
         return "", ""
 
     prior = turns[:latest][-MAX_HISTORY_TURNS:]
-    history = "\n".join(f"{m.role}: {m.content.strip()}" for m in prior)
+    # remove source from turns because it doesnt contribute to the information LLM needs
+    history = "\n".join(
+        f"{m.role}: {(strip_sources(m.content) if m.role == 'assistant' else m.content).strip()}"
+        for m in prior
+    )
     return history, turns[latest].content.strip()
 
 
