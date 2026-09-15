@@ -65,22 +65,41 @@ CURRICULUM_WORDS = re.compile(
 CURRICULUM_SCOPE = ["module", "course_info", "fee"]
 
 
+# words people leave out when they say a scholarship's name - "the Cowrie scholarship"
+TITLE_FILLER_WORDS = {"the", "foundation", "opportunity", "fund"}
+
+
 def normalise(text: str) -> str:
-    """cleaning the text make it lower case remove additional space and symbol"""
-    return " ".join(re.sub(r"[^a-z0-9]+", " ", text.lower()).split())
+    """cleaning the text make it lower case remove apostrophes, symbols and additional space, and drop the plural s so "scholarships" = "scholarship" """
+    # apostrophes go without a space so carer's = carers. \ufffd is a broken apostrophe in the scraped titles
+    text = re.sub(r"['\u2019\ufffd]", "", text.lower())
+    words = []
+    for w in re.sub(r"[^a-z0-9]+", " ", text).split():
+        if len(w) > 3 and w.endswith("s") and not w.endswith("ss"):
+            w = w[:-1]
+        words.append(w)
+    return " ".join(words)
 
 
 def title_keys(title: str) -> set[str]:
     """
-    clearn the text and creates different versions that could appear in a question.
+    clean the title and create the different versions of it that could appear in a question.
     """
-    base = normalise(title)
-    keys = {base, re.sub(r"^the ", "", base)}
-    for k in list(keys):
-        words = k.split()
-        if words and words[-1].endswith("s"):
-            keys.add(" ".join(words[:-1] + [words[-1][:-1]]))
-    # return a dict of scholarship variations with char > 8
+    aliases = re.findall(r"\(([^)]*)\)", title)  # "(YAC)" is a short name for the same scholarship
+    words = normalise(re.sub(r"\([^)]*\)", " ", title)).split()
+    short = [w for w in words if w not in TITLE_FILLER_WORDS]
+    kind = short[-1]  # scholarship, bursary, award...
+
+    keys = {
+        " ".join(words),  # the bloomberg scholarship
+        " ".join(words).removeprefix("the "),  # cowrie foundation scholarship
+        " ".join(short),  # cowrie scholarship
+        f"{short[0]} {kind}",  # technetix scholarship
+    }
+    for alias in aliases:
+        keys.add(f"{normalise(alias)} {kind}")  # yac bursary
+
+    # return a set of scholarship variations with char > 8
     long_enough = set()
     for k in keys:
         if len(k) > 8:
@@ -101,27 +120,20 @@ for m in scholarships:
         SCHOLARSHIP_TITLES[title] = title_keys(title)
 
 
-def named_scholarship(query: str) -> str | None:
-    """Return the scholarship the query names, if it names one."""
-    q = normalise(query)
+def named_scholarships(query: str) -> list[str]:
+    """Return every scholarship the query names."""
+    q = f" {normalise(query)} "  # spaces on both ends so a key only matches whole words
 
     matched_titles = []
 
     # if theres any match title in the query if there's one we exit the loop
     for title, keys in SCHOLARSHIP_TITLES.items():
         for key in keys:
-            if key in q:
+            if f" {key} " in q:
                 matched_titles.append(title)
                 break
 
-    if not matched_titles:
-        return None
-
-    longest_title = max(
-        matched_titles, key=len
-    )  # just incase there are the same name but with shorter ones
-
-    return longest_title
+    return matched_titles
 
 
 def to_answer(doc: str, meta: dict, dist: float) -> dict:
@@ -196,19 +208,6 @@ def scholarship_search(search_query: str, n_results: int) -> list[dict]:
     Retrieve at the SCHOLARSHIP level instead of the chunk level.
     """
 
-    named = named_scholarship(
-        search_query
-    )  # detect scholarship name in the query, if theres any match
-    # work like search in modules. search that scholarship directly by its name and return all chunks of that scholarship if the query is about a specific scholarship
-    if named:
-        record = collection.get(
-            where={"scholarship_title": named}, include=["documents", "metadatas"]
-        )
-        results = []
-        for d, m in zip(record["documents"], record["metadatas"]):
-            results.append(to_answer(d, m, 0.0))
-        return results
-
     # search all scholarship rank with them in a list of tuples in caa
     rows = query_rows(
         collection.query(
@@ -271,7 +270,7 @@ def vector_similarity_search(
     return: A list of dictionaries containing the search results, each with keys "distance", "source_type", and "document".
 
     Which retrieval path runs is decided here from the query itself - a module code,
-    scholarship wording, society wording, or a year/semester/credit facet. Anything
+    a scholarship name, scholarship wording, society wording, or a year/semester/credit facet. Anything
     else is an unfiltered search.
     """
 
@@ -289,6 +288,17 @@ def vector_similarity_search(
     if module_codes:
         results = collection.get(
             where={"code": {"$in": module_codes}}, include=["documents", "metadatas"]
+        )
+        for doc, meta in zip(results["documents"], results["metadatas"]):
+            result_list.append(to_answer(doc, meta, 0.0))  # exact match, so distance is 0
+        return result_list
+
+    # a scholarship named in the query is looked up directly, the same as a module code.
+    named = named_scholarships(original_query)
+    if named:
+        results = collection.get(
+            where={"scholarship_title": {"$in": named}},
+            include=["documents", "metadatas"],
         )
         for doc, meta in zip(results["documents"], results["metadatas"]):
             result_list.append(to_answer(doc, meta, 0.0))  # exact match, so distance is 0
