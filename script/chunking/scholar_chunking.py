@@ -41,25 +41,26 @@ def _table_to_md(table):
     return "\n".join(md)
 
 
-def ingest_page(html, scholarship_name, max_chars=2000, overlap=150):
+def ingest_page(html, scholarship_name, max_chars=2000, overlap=200):
     """Chunk one scholarship HTML page for retrieval.
 
     - Preserves tables as Markdown (rows/cols intact)
     - Splits on headings, sub-splits only oversized *text* sections
-    - Prepends the scholarship name so look-alike chunks stay separable
+    - max_chars is 2000 because the eligibility sections run to about 1900 characters.
     """
     splitter = HTMLSemanticPreservingSplitter(
         headers_to_split_on=[("h1", "Header 1"), ("h2", "Header 2"), ("h3", "Header 3")],
         elements_to_preserve=["table"],
         preserve_parent_metadata=True,
         custom_handlers={"table": _table_to_md},
-        max_chunk_size=2000,
+        max_chunk_size=max_chars,
     )
     docs = splitter.split_text(html)
 
 
-    # if html section is too big we do recursive slitting so it is smaller 
-    recursive = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=overlap)
+    # if html section is too big we do recursive slitting so it is smaller.
+    # same size as the splitter above, so a section that fits is never cut in half
+    recursive = RecursiveCharacterTextSplitter(chunk_size=max_chars, chunk_overlap=overlap)
 
     out = []
     for d in docs:
