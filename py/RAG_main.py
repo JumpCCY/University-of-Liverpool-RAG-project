@@ -9,7 +9,15 @@ import prompts
 from json_search import load_universities
 from vector_search import search_all_universities
 from universities import named_universities
-from sources import passage_source, requirements_source, source_number, sources_footer, strip_sources
+from sources import (
+    correct_citations,
+    passage_source,
+    passage_texts,
+    requirements_source,
+    source_number,
+    sources_footer,
+    strip_sources,
+)
 import models
 
 OLLAMA_URL = models.OLLAMA_URL
@@ -194,6 +202,8 @@ def main(user_query: str, history: str = "") -> str:
     if system_prompt is None:
         return query_with_context
     answer = LLM_query(system_prompt, query_with_context, model=models.HIGH_EFFORT).message.content
+    texts = passage_texts(query_with_context)
+    answer = "\n".join(correct_citations(line, texts) for line in answer.split("\n"))
     return answer + sources_footer(answer, sources)
 
 
@@ -207,6 +217,9 @@ def main_stream(user_query: str, history: str = ""):
     The sources list comes last, as one final piece: which sources the answer cites
     is only known once the whole answer has been written.
 
+    Each line's citations are checked (correct_citations) before they are shown, so a
+    line streams up to its first "[" and the rest follows once the line is finished.
+
     Yields:
         str: the next piece of the answer
     """
@@ -215,10 +228,27 @@ def main_stream(user_query: str, history: str = ""):
         yield query_with_context
         return
 
+    texts = passage_texts(query_with_context)
     answer = ""
+    line, shown = "", 0  # the line being written, and how much of it has been yielded
     for piece in LLM_query_stream(system_prompt, query_with_context, model=models.HIGH_EFFORT):
-        answer += piece
-        yield piece
+        line += piece
+        while "\n" in line:
+            finished, line = line.split("\n", 1)
+            finished = correct_citations(finished, texts) + "\n"
+            yield finished[shown:]  # the check only rewrites citations, so what was shown is unchanged
+            answer += finished
+            shown = 0
+        hold = line.find("[", shown)
+        cut = len(line) if hold == -1 else hold
+        if cut > shown:
+            yield line[shown:cut]
+            shown = cut
+
+    if line:
+        line = correct_citations(line, texts)
+        yield line[shown:]
+        answer += line
 
     footer = sources_footer(answer, sources)
     if footer:
