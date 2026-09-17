@@ -16,6 +16,14 @@ from universities import MAIN_UNIVERSITY
 # [3], or [3, 5] if the model groups them. [3][5] is simply two matches.
 CITATION = re.compile(r"\[(\d+(?:\s*,\s*\d+)*)\]")
 
+# a whole run of citations as the model writes it: " [3]", "[3][5]", " [3, 5]"
+CITATION_RUN = re.compile(r"(?:\s?\[\d+(?:\s*,\s*\d+)*\])+")
+
+# what a line names exactly enough to look up in a passage word for word
+MODULE_CODE = re.compile(r"\b[A-Z]{3,4}\d{3,5}\b")
+FIGURE = re.compile(r"£\s?\d[\d,]*(?:\.\d+)?|\d+(?:\.\d+)?\s?%")
+BOLD = re.compile(r"\*\*([^*]+?)\*\*")
+
 # first line of the sources list. strip_sources() splits on it too
 SOURCES_HEADING = "**Sources**"
 
@@ -111,6 +119,81 @@ def requirements_source(university: str) -> tuple[str, str | None]:
     if university != MAIN_UNIVERSITY:
         return f"{university} – {RIVAL_PAGE}", SOURCE_URLS.get("course_pages", {}).get(university)
     return f"{university} – {PAGE_NAMES[REQUIREMENTS_URL]}", REQUIREMENTS_URL
+
+
+def _plain(text: str) -> str:
+    """Lowercase, one kind of apostrophe and dash, no thousands commas - so "£1,955" matches "£1955"."""
+    text = text.replace("’", "'").replace("‘", "'")
+    text = re.sub(r"[‐-―]", "-", text)
+    text = re.sub(r"(?<=\d),(?=\d{3})|(?<=£)\s+|\s+(?=%)", "", text)
+    return re.sub(r"\s+", " ", text).lower()
+
+
+def passage_texts(context: str) -> dict[int, str]:
+    """
+    The numbered text of an answerer's context, read back out of it: n -> everything
+    under [n], put through _plain() for matching. Works for passages ("[n] text") and
+    requirement records ("[n]" on its own line).
+    """
+    texts = {}
+    for m in re.finditer(r"\[(\d+)\][ \n](.*?)(?=\n\n\[\d+\][ \n]|\n=== |\Z)", context, re.S):
+        n = int(m.group(1))
+        texts[n] = texts.get(n, "") + " " + _plain(m.group(2))
+    return texts
+
+
+def _checkable(text: str) -> list[str]:
+    """
+    The module codes, prices, percentages and bold names in some answer text. A bold
+    name must be two words or more: a bullet's label ("**Fees:**") and a one-word bold
+    ("**Yes.**", "**Maths**") say nothing about which page a line came from.
+    """
+    found = [_plain(m.group()) for m in MODULE_CODE.finditer(text)]
+    found += [_plain(m.group()) for m in FIGURE.finditer(text)]
+    for m in BOLD.finditer(text):
+        name = m.group(1).strip()
+        if " " in name and not name.endswith(":") and not text.startswith(":", m.end()):
+            found.append(_plain(name))
+    return found
+
+
+def correct_citations(line: str, texts: dict[int, str]) -> str:
+    """
+    Points one answer line's citations at the passages that actually hold what it names.
+    """
+    if not texts or "[" not in line:
+        return line
+
+    out, last = [], 0
+    for run in CITATION_RUN.finditer(line):
+        cited = {int(n) for n in re.findall(r"\d+", run.group())}
+        holders = []
+        for item in _checkable(line[last:run.start()]):
+            pattern = re.compile(rf"(?<![\w.]){re.escape(item)}(?!\w)")
+            found = {n for n, text in texts.items() if pattern.search(text)}
+            if found:
+                holders.append(found)
+
+        missing = [found for found in holders if not found & cited]
+        numbers = cited
+        if missing:
+            wrong_passage = len(cited) == 1 and not any(found & cited for found in holders)
+            numbers = set() if wrong_passage else set(cited)
+            for found in missing:
+                if not found & numbers:
+                    # the passage that holds the most of what is missing, then the lowest number
+                    numbers.add(min(found, key=lambda n: (-sum(n in f for f in missing), n)))
+
+        out.append(line[last:run.start()])
+        if numbers == cited:
+            out.append(run.group())
+        else:
+            lead = run.group()[: len(run.group()) - len(run.group().lstrip())]  # keep the space before "["
+            out.append(lead + "".join(f"[{n}]" for n in sorted(numbers)))
+        last = run.end()
+
+    out.append(line[last:])
+    return "".join(out)
 
 
 def cited_numbers(answer: str) -> list[int]:
