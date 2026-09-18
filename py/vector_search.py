@@ -48,15 +48,7 @@ SCHOLARSHIP_WORDS = re.compile(
 )
 GUILD_WORDS = re.compile(r"\b(?:societ(?:y|ies)|clubs?|guild|union|freshers)\b", re.I)
 # regex on curriculum wording scopes the search to what is taught.
-# a match drives a hard source_type filter, not a re-rank, so it must only fire on
-# wording that names teaching. "anything on/about x" used to be in here and matched
-# "anything on campus" and "anything about accommodation", which made guild and
-# general documents unreturnable for those questions. a miss only costs an unfiltered
-# search, so the miss is the cheaper failure and the wording here biases that way.
 CURRICULUM_WORDS = re.compile(
-    # "machine learning" is a subject name, not a request to be taught - without
-    # these it made every AI question, including a Liverpool-vs-Sheffield
-    # comparison, filter down to modules and drop the general and support pages.
     r"\b(?:modules?|teach(?:es|ing)?|taught|stud(?:y|ies|ied|ying)|subjects?|"
     r"syllabus|curriculum|cover(?:s|ed)?|content|"
     r"(?<!machine )(?<!deep )(?<!reinforcement )(?<!statistical )learn(?:s|ing|t)?)\b",

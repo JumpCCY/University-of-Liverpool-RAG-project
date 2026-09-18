@@ -219,9 +219,7 @@ def sources_footer(answer: str, sources: list[tuple[str, str | None]]) -> str:
 
 def strip_sources(answer: str) -> str:
     """
-    An earlier answer without its citations and sources list, for the conversation
-    history. The condenser needs what was said, not where it came from - and the
-    numbers only meant something to the context that answer was written from.
+    An earlier answer without its citations and sources list
     """
     answer = answer.split(f"\n\n{SOURCES_HEADING}\n")[0]
     return re.sub(r" ?" + CITATION.pattern, "", answer)

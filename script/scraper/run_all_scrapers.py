@@ -6,8 +6,6 @@ SCRAPER_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = SCRAPER_DIR.parents[1]
 THIS_FILE = Path(__file__).name
 
-# the citation links are worked out from the pages that were saved, so they go stale as soon as a
-# page is added, removed or renamed. rebuilding them here means a re-scrape is never left half done
 SOURCE_URLS = PROJECT_ROOT / "script" / "source_urls.py"
 
 
@@ -34,8 +32,6 @@ for file in sorted(SCRAPER_DIR.glob("*.py")):
 
 print(f"Found {len(scrapers)} scrapers")
 
-# source_urls.py runs even when a scraper failed: the pages that did save still need their links,
-# and it stops with its own error if what is on disk does not match the scrapers' URL lists
 steps = scrapers + [SOURCE_URLS]
 
 failed = []

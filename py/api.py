@@ -40,11 +40,6 @@ def conversation(messages: list[Message]) -> tuple[str, str]:
     """
     Splits the request into the earlier turns and the question being asked now.
 
-    Open WebUI resends the whole conversation on every call, so the history is
-    already here - it only has to be kept apart from the question itself. Only
-    user and assistant turns count: the system prompt is Open WebUI's own and is
-    not something the staff member said.
-
     Returns:
         (history, question). history is "" on the first turn, which is what keeps
         the condenser off the critical path for most queries. question is "" when
@@ -52,8 +47,7 @@ def conversation(messages: list[Message]) -> tuple[str, str]:
     """
     turns = [m for m in messages if m.role in ("user", "assistant") and m.content]
 
-    # walk back to the question being asked now - the last turn is not always the
-    # user's, because Open WebUI resends the conversation when regenerating an answer
+    # walk back to the question being asked now - the last user turn - and everything before it is history. the last user turn
     latest = -1
     for i in range(len(turns) - 1, -1, -1):
         if turns[i].role == "user":
