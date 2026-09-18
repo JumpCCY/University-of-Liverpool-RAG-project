@@ -16,3 +16,5 @@ __pycache__/
 *.txt
 # except this one, which is a kept copy of a prompt and is meant to be in history
 !py/prompts_previous_general_answerer.txt
+# and this one, which tells a new user what to install
+!requirements.txt
